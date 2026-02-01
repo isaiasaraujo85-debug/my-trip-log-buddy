@@ -11,14 +11,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { PedagioRecord } from "@/types";
+import { PedagioRecord, Funcionario, EmpresaConfig } from "@/types";
 import { generatePedagioPdf } from "@/utils/pdfGenerator";
 import { cn } from "@/lib/utils";
+import { FuncionarioSelect } from "./FuncionarioSelect";
+import { EmpresaHeader } from "./EmpresaHeader";
 
 export function PedagioTab() {
   const { toast } = useToast();
   const [records, setRecords] = useLocalStorage<PedagioRecord[]>("pedagio-records", []);
+  const [empresaConfig] = useLocalStorage<EmpresaConfig>("empresa-config", { nome: "" });
   
+  const [funcionarioId, setFuncionarioId] = useState("");
+  const [selectedFuncionario, setSelectedFuncionario] = useState<Funcionario | undefined>();
   const [data, setData] = useState<Date | undefined>(new Date());
   const [valor, setValor] = useState("");
   
@@ -26,8 +31,13 @@ export function PedagioTab() {
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
 
+  const handleFuncionarioSelect = (funcionario: Funcionario | undefined) => {
+    setSelectedFuncionario(funcionario);
+    setFuncionarioId(funcionario?.id || "");
+  };
+
   const handleAdd = () => {
-    if (!data || !valor) {
+    if (!selectedFuncionario || !data || !valor) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos.",
@@ -38,6 +48,11 @@ export function PedagioTab() {
 
     const newRecord: PedagioRecord = {
       id: crypto.randomUUID(),
+      funcionarioId: selectedFuncionario.id,
+      funcionarioNome: selectedFuncionario.nome,
+      funcionarioChapa: selectedFuncionario.chapa,
+      carro: selectedFuncionario.carro,
+      placa: selectedFuncionario.placa,
       data: format(data, "yyyy-MM-dd"),
       valor: parseFloat(valor)
     };
@@ -76,7 +91,7 @@ export function PedagioTab() {
       });
       return;
     }
-    generatePedagioPdf(filteredRecords, dataInicio, dataFim, total);
+    generatePedagioPdf(filteredRecords, dataInicio, dataFim, total, empresaConfig);
     toast({
       title: "PDF Gerado",
       description: "O relatório foi gerado com sucesso!"
@@ -92,6 +107,8 @@ export function PedagioTab() {
 
   return (
     <div className="space-y-6">
+      <EmpresaHeader />
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -100,6 +117,11 @@ export function PedagioTab() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <FuncionarioSelect 
+            value={funcionarioId}
+            onSelect={handleFuncionarioSelect}
+          />
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Data</Label>
@@ -225,11 +247,13 @@ export function PedagioTab() {
               </div>
             </div>
 
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Data</TableHead>
+                    <TableHead>Funcionário</TableHead>
+                    <TableHead>Placa</TableHead>
                     <TableHead>Valor</TableHead>
                     <TableHead className="w-12"></TableHead>
                   </TableRow>
@@ -237,7 +261,7 @@ export function PedagioTab() {
                 <TableBody>
                   {filteredRecords.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      <TableCell colSpan={5} className="text-center text-muted-foreground">
                         Nenhum registro encontrado
                       </TableCell>
                     </TableRow>
@@ -245,6 +269,8 @@ export function PedagioTab() {
                     filteredRecords.map((record) => (
                       <TableRow key={record.id}>
                         <TableCell>{format(new Date(record.data), "dd/MM/yyyy")}</TableCell>
+                        <TableCell>{record.funcionarioNome}</TableCell>
+                        <TableCell>{record.placa}</TableCell>
                         <TableCell className="font-medium">{formatCurrency(record.valor)}</TableCell>
                         <TableCell>
                           <Button

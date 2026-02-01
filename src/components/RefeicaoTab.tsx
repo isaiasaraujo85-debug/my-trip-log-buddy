@@ -11,14 +11,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { RefeicaoRecord } from "@/types";
+import { RefeicaoRecord, Funcionario, EmpresaConfig } from "@/types";
 import { generateRefeicaoPdf } from "@/utils/pdfGenerator";
 import { cn } from "@/lib/utils";
+import { FuncionarioSelect } from "./FuncionarioSelect";
+import { EmpresaHeader } from "./EmpresaHeader";
 
 export function RefeicaoTab() {
   const { toast } = useToast();
   const [records, setRecords] = useLocalStorage<RefeicaoRecord[]>("refeicao-records", []);
+  const [empresaConfig] = useLocalStorage<EmpresaConfig>("empresa-config", { nome: "" });
   
+  const [funcionarioId, setFuncionarioId] = useState("");
+  const [selectedFuncionario, setSelectedFuncionario] = useState<Funcionario | undefined>();
   const [data, setData] = useState<Date | undefined>(new Date());
   const [valor, setValor] = useState("");
   
@@ -26,8 +31,13 @@ export function RefeicaoTab() {
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
 
+  const handleFuncionarioSelect = (funcionario: Funcionario | undefined) => {
+    setSelectedFuncionario(funcionario);
+    setFuncionarioId(funcionario?.id || "");
+  };
+
   const handleAdd = () => {
-    if (!data || !valor) {
+    if (!selectedFuncionario || !data || !valor) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos.",
@@ -38,6 +48,9 @@ export function RefeicaoTab() {
 
     const newRecord: RefeicaoRecord = {
       id: crypto.randomUUID(),
+      funcionarioId: selectedFuncionario.id,
+      funcionarioNome: selectedFuncionario.nome,
+      funcionarioChapa: selectedFuncionario.chapa,
       data: format(data, "yyyy-MM-dd"),
       valor: parseFloat(valor)
     };
@@ -76,7 +89,7 @@ export function RefeicaoTab() {
       });
       return;
     }
-    generateRefeicaoPdf(filteredRecords, dataInicio, dataFim, total);
+    generateRefeicaoPdf(filteredRecords, dataInicio, dataFim, total, empresaConfig);
     toast({
       title: "PDF Gerado",
       description: "O relatório foi gerado com sucesso!"
@@ -92,6 +105,8 @@ export function RefeicaoTab() {
 
   return (
     <div className="space-y-6">
+      <EmpresaHeader />
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -100,6 +115,27 @@ export function RefeicaoTab() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <FuncionarioSelect 
+            value={funcionarioId}
+            onSelect={handleFuncionarioSelect}
+            showDetails={false}
+          />
+
+          {selectedFuncionario && (
+            <div className="p-3 bg-muted rounded-lg text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-muted-foreground">Nome:</span>
+                  <p className="font-medium">{selectedFuncionario.nome}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Chapa:</span>
+                  <p className="font-medium">{selectedFuncionario.chapa}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Data</Label>
@@ -225,11 +261,13 @@ export function RefeicaoTab() {
               </div>
             </div>
 
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Data</TableHead>
+                    <TableHead>Funcionário</TableHead>
+                    <TableHead>Chapa</TableHead>
                     <TableHead>Valor</TableHead>
                     <TableHead className="w-12"></TableHead>
                   </TableRow>
@@ -237,7 +275,7 @@ export function RefeicaoTab() {
                 <TableBody>
                   {filteredRecords.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      <TableCell colSpan={5} className="text-center text-muted-foreground">
                         Nenhum registro encontrado
                       </TableCell>
                     </TableRow>
@@ -245,6 +283,8 @@ export function RefeicaoTab() {
                     filteredRecords.map((record) => (
                       <TableRow key={record.id}>
                         <TableCell>{format(new Date(record.data), "dd/MM/yyyy")}</TableCell>
+                        <TableCell>{record.funcionarioNome}</TableCell>
+                        <TableCell>{record.funcionarioChapa}</TableCell>
                         <TableCell className="font-medium">{formatCurrency(record.valor)}</TableCell>
                         <TableCell>
                           <Button
