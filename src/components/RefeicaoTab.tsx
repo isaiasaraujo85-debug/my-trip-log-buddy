@@ -1,21 +1,28 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, Plus, Trash2, FileText, Utensils } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, FileText, Utensils, Edit2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { RefeicaoRecord, Funcionario, EmpresaConfig } from "@/types";
+import { RefeicaoRecord, Funcionario, EmpresaConfig, TipoRefeicao } from "@/types";
 import { generateRefeicaoPdf } from "@/utils/pdfGenerator";
 import { cn } from "@/lib/utils";
 import { FuncionarioSelect } from "./FuncionarioSelect";
 import { EmpresaHeader } from "./EmpresaHeader";
+
+const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
+  cafe: "Café",
+  almoco: "Almoço",
+  jantar: "Jantar",
+  outros: "Outros"
+};
 
 export function RefeicaoTab() {
   const { toast } = useToast();
@@ -25,11 +32,17 @@ export function RefeicaoTab() {
   const [funcionarioId, setFuncionarioId] = useState("");
   const [selectedFuncionario, setSelectedFuncionario] = useState<Funcionario | undefined>();
   const [data, setData] = useState<Date | undefined>(new Date());
+  const [tipo, setTipo] = useState<TipoRefeicao>("almoco");
   const [valor, setValor] = useState("");
   
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
+
+  // States for inline editing
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editTipo, setEditTipo] = useState<TipoRefeicao>("almoco");
+  const [editValor, setEditValor] = useState("");
 
   const handleFuncionarioSelect = (funcionario: Funcionario | undefined) => {
     setSelectedFuncionario(funcionario);
@@ -37,7 +50,7 @@ export function RefeicaoTab() {
   };
 
   const handleAdd = () => {
-    if (!selectedFuncionario || !data || !valor) {
+    if (!selectedFuncionario || !data || !valor || !tipo) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos.",
@@ -52,6 +65,7 @@ export function RefeicaoTab() {
       funcionarioNome: selectedFuncionario.nome,
       funcionarioChapa: selectedFuncionario.chapa,
       data: format(data, "yyyy-MM-dd"),
+      tipo,
       valor: parseFloat(valor)
     };
 
@@ -69,6 +83,40 @@ export function RefeicaoTab() {
     toast({
       title: "Excluído",
       description: "Registro removido com sucesso."
+    });
+  };
+
+  const startEdit = (record: RefeicaoRecord) => {
+    setEditId(record.id);
+    setEditTipo(record.tipo);
+    setEditValor(record.valor.toString());
+  };
+
+  const cancelEdit = () => {
+    setEditId(null);
+    setEditTipo("almoco");
+    setEditValor("");
+  };
+
+  const saveEdit = (id: string) => {
+    if (!editValor || !editTipo) {
+      toast({
+        title: "Erro",
+        description: "Preencha todos os campos.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setRecords(records.map(r => 
+      r.id === id 
+        ? { ...r, tipo: editTipo, valor: parseFloat(editValor) }
+        : r
+    ));
+    cancelEdit();
+    toast({
+      title: "Sucesso",
+      description: "Registro atualizado com sucesso!"
     });
   };
 
@@ -109,8 +157,8 @@ export function RefeicaoTab() {
       
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Utensils className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 whitespace-nowrap">
+            <Utensils className="h-5 w-5 flex-shrink-0" />
             Lançamento de Refeição
           </CardTitle>
         </CardHeader>
@@ -136,7 +184,7 @@ export function RefeicaoTab() {
             </div>
           )}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <Label>Data</Label>
               <Popover>
@@ -162,6 +210,20 @@ export function RefeicaoTab() {
                   />
                 </PopoverContent>
               </Popover>
+            </div>
+            <div className="space-y-2">
+              <Label>Tipo</Label>
+              <Select value={tipo} onValueChange={(v) => setTipo(v as TipoRefeicao)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cafe">Café</SelectItem>
+                  <SelectItem value="almoco">Almoço</SelectItem>
+                  <SelectItem value="jantar">Jantar</SelectItem>
+                  <SelectItem value="outros">Outros</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="valor">Valor (R$)</Label>
@@ -261,45 +323,103 @@ export function RefeicaoTab() {
               </div>
             </div>
 
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Funcionário</TableHead>
-                    <TableHead>Chapa</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRecords.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground">
-                        Nenhum registro encontrado
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredRecords.map((record) => (
-                      <TableRow key={record.id}>
-                        <TableCell>{format(new Date(record.data), "dd/MM/yyyy")}</TableCell>
-                        <TableCell>{record.funcionarioNome}</TableCell>
-                        <TableCell>{record.funcionarioChapa}</TableCell>
-                        <TableCell className="font-medium">{formatCurrency(record.valor)}</TableCell>
-                        <TableCell>
+            <div className="space-y-3">
+              {filteredRecords.length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">
+                  Nenhum registro encontrado
+                </p>
+              ) : (
+                filteredRecords.map((record) => (
+                  <div key={record.id} className="p-3 border rounded-lg">
+                    {editId === record.id ? (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-xs">Tipo</Label>
+                            <Select value={editTipo} onValueChange={(v) => setEditTipo(v as TipoRefeicao)}>
+                              <SelectTrigger className="h-8">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="cafe">Café</SelectItem>
+                                <SelectItem value="almoco">Almoço</SelectItem>
+                                <SelectItem value="jantar">Jantar</SelectItem>
+                                <SelectItem value="outros">Outros</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs">Valor (R$)</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={editValor}
+                              onChange={(e) => setEditValor(e.target.value)}
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => saveEdit(record.id)}
+                            className="flex-1"
+                          >
+                            <Save className="h-4 w-4 mr-1" />
+                            Salvar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={cancelEdit}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
+                          <div>
+                            <span className="text-muted-foreground text-xs">Data:</span>
+                            <p className="font-medium">{format(new Date(record.data), "dd/MM/yyyy")}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground text-xs">Funcionário:</span>
+                            <p className="font-medium truncate">{record.funcionarioNome}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground text-xs">Tipo:</span>
+                            <p className="font-medium">{tipoRefeicaoLabels[record.tipo] || record.tipo}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground text-xs">Valor:</span>
+                            <p className="font-medium text-primary">{formatCurrency(record.valor)}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-1 flex-shrink-0">
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-8 w-8"
+                            onClick={() => startEdit(record)}
+                          >
+                            <Edit2 className="h-4 w-4 text-blue-600" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
                             onClick={() => handleDelete(record.id)}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         )}

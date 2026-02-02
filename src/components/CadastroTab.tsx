@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Funcionario } from "@/types";
@@ -104,8 +103,8 @@ export function CadastroTab() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserPlus className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 whitespace-nowrap">
+            <UserPlus className="h-5 w-5 flex-shrink-0" />
             Cadastro de Funcionário
           </CardTitle>
         </CardHeader>
@@ -149,8 +148,8 @@ export function CadastroTab() {
             </div>
           </div>
           <Button onClick={handleAdd} className="w-full">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Novo Funcionário
+            <Save className="mr-2 h-4 w-4" />
+            Salvar
           </Button>
         </CardContent>
       </Card>
@@ -160,108 +159,104 @@ export function CadastroTab() {
           <CardTitle>Funcionários Cadastrados</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Chapa</TableHead>
-                  <TableHead>Carro</TableHead>
-                  <TableHead>Placa</TableHead>
-                  <TableHead className="w-24">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {funcionarios.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">
-                      Nenhum funcionário cadastrado
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  funcionarios.map((funcionario) => (
-                    <TableRow key={funcionario.id}>
-                      {editingId === funcionario.id ? (
-                        <>
-                          <TableCell>
-                            <Input
-                              value={editNome}
-                              onChange={(e) => setEditNome(e.target.value)}
-                              className="h-8"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              value={editChapa}
-                              onChange={(e) => setEditChapa(e.target.value)}
-                              className="h-8"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              value={editCarro}
-                              onChange={(e) => setEditCarro(e.target.value)}
-                              className="h-8"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              value={editPlaca}
-                              onChange={(e) => setEditPlaca(e.target.value.toUpperCase())}
-                              className="h-8"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => saveEdit(funcionario.id)}
-                              >
-                                <Save className="h-4 w-4 text-green-600" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={cancelEdit}
-                              >
-                                <X className="h-4 w-4 text-muted-foreground" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </>
-                      ) : (
-                        <>
-                          <TableCell className="font-medium">{funcionario.nome}</TableCell>
-                          <TableCell>{funcionario.chapa}</TableCell>
-                          <TableCell>{funcionario.carro}</TableCell>
-                          <TableCell>{funcionario.placa}</TableCell>
-                          <TableCell>
-                            <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => startEdit(funcionario)}
-                              >
-                                <Edit2 className="h-4 w-4 text-blue-600" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDelete(funcionario.id)}
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </>
-                      )}
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+          {funcionarios.length === 0 ? (
+            <p className="text-center text-muted-foreground py-4">
+              Nenhum funcionário cadastrado
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {funcionarios.map((funcionario) => (
+                <div key={funcionario.id} className="p-3 border rounded-lg">
+                  {editingId === funcionario.id ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          value={editNome}
+                          onChange={(e) => setEditNome(e.target.value)}
+                          placeholder="Nome"
+                          className="h-8 text-sm"
+                        />
+                        <Input
+                          value={editChapa}
+                          onChange={(e) => setEditChapa(e.target.value)}
+                          placeholder="Chapa"
+                          className="h-8 text-sm"
+                        />
+                        <Input
+                          value={editCarro}
+                          onChange={(e) => setEditCarro(e.target.value)}
+                          placeholder="Carro"
+                          className="h-8 text-sm"
+                        />
+                        <Input
+                          value={editPlaca}
+                          onChange={(e) => setEditPlaca(e.target.value.toUpperCase())}
+                          placeholder="Placa"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => saveEdit(funcionario.id)}
+                          className="flex-1"
+                        >
+                          <Save className="h-4 w-4 mr-1" />
+                          Salvar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={cancelEdit}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
+                        <div>
+                          <span className="text-muted-foreground text-xs">Nome:</span>
+                          <p className="font-medium truncate">{funcionario.nome}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground text-xs">Chapa:</span>
+                          <p className="font-medium">{funcionario.chapa}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground text-xs">Carro:</span>
+                          <p className="font-medium truncate">{funcionario.carro}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground text-xs">Placa:</span>
+                          <p className="font-medium">{funcionario.placa}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => startEdit(funcionario)}
+                        >
+                          <Edit2 className="h-4 w-4 text-blue-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleDelete(funcionario.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

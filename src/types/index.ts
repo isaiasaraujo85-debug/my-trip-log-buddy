@@ -22,6 +22,8 @@ export interface KmRecord {
   kmInicial: number | null;
   kmFinal: number | null;
   kmPercorrido: number;
+  valorKm?: number;
+  valorTotal?: number;
   status: 'parcial' | 'completo';
 }
 
@@ -36,11 +38,14 @@ export interface PedagioRecord {
   valor: number;
 }
 
+export type TipoRefeicao = 'cafe' | 'almoco' | 'jantar' | 'outros';
+
 export interface RefeicaoRecord {
   id: string;
   funcionarioId: string;
   funcionarioNome: string;
   funcionarioChapa: string;
   data: string;
+  tipo: TipoRefeicao;
   valor: number;
 }

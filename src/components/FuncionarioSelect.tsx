@@ -35,7 +35,7 @@ export function FuncionarioSelect({ value, onSelect, showDetails = true }: Funci
             ) : (
               funcionarios.map((funcionario) => (
                 <SelectItem key={funcionario.id} value={funcionario.id}>
-                  {funcionario.nome} - {funcionario.chapa}
+                  {funcionario.nome}
                 </SelectItem>
               ))
             )}
@@ -46,10 +46,6 @@ export function FuncionarioSelect({ value, onSelect, showDetails = true }: Funci
       {showDetails && selectedFuncionario && (
         <div className="grid grid-cols-2 gap-2 p-3 bg-muted rounded-lg text-sm">
           <div>
-            <span className="text-muted-foreground">Nome:</span>
-            <p className="font-medium">{selectedFuncionario.nome}</p>
-          </div>
-          <div>
             <span className="text-muted-foreground">Chapa:</span>
             <p className="font-medium">{selectedFuncionario.chapa}</p>
           </div>
@@ -57,7 +53,7 @@ export function FuncionarioSelect({ value, onSelect, showDetails = true }: Funci
             <span className="text-muted-foreground">Carro:</span>
             <p className="font-medium">{selectedFuncionario.carro}</p>
           </div>
-          <div>
+          <div className="col-span-2">
             <span className="text-muted-foreground">Placa:</span>
             <p className="font-medium">{selectedFuncionario.placa}</p>
           </div>
