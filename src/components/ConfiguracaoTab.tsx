@@ -64,7 +64,7 @@ export function ConfiguracaoTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
-            Configurações da Empresa
+            Configurações
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -142,16 +142,16 @@ export function ConfiguracaoTab() {
               <img 
                 src={logoPreview} 
                 alt="Logo" 
-                className="w-16 h-16 object-contain"
+                className="w-20 h-20 object-contain"
               />
             ) : (
-              <div className="w-16 h-16 bg-primary rounded flex items-center justify-center">
+              <div className="w-20 h-20 bg-primary rounded flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-lg">KM</span>
               </div>
             )}
             <div>
               <h2 className="text-xl font-bold">{nome || "Nome da Empresa"}</h2>
-              <p className="text-sm text-muted-foreground">Controle de Despesas</p>
+              <p className="text-base font-bold text-muted-foreground">Controle de Despesas</p>
             </div>
           </div>
         </CardContent>

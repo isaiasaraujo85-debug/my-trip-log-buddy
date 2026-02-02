@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, Plus, Trash2, FileText } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, FileText, Edit2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { PedagioRecord, Funcionario, EmpresaConfig } from "@/types";
@@ -30,6 +29,10 @@ export function PedagioTab() {
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
+
+  // States for inline editing
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editValor, setEditValor] = useState("");
 
   const handleFuncionarioSelect = (funcionario: Funcionario | undefined) => {
     setSelectedFuncionario(funcionario);
@@ -74,6 +77,38 @@ export function PedagioTab() {
     });
   };
 
+  const startEdit = (record: PedagioRecord) => {
+    setEditId(record.id);
+    setEditValor(record.valor.toString());
+  };
+
+  const cancelEdit = () => {
+    setEditId(null);
+    setEditValor("");
+  };
+
+  const saveEdit = (id: string) => {
+    if (!editValor) {
+      toast({
+        title: "Erro",
+        description: "Preencha o valor.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setRecords(records.map(r => 
+      r.id === id 
+        ? { ...r, valor: parseFloat(editValor) }
+        : r
+    ));
+    cancelEdit();
+    toast({
+      title: "Sucesso",
+      description: "Registro atualizado com sucesso!"
+    });
+  };
+
   const filteredRecords = records.filter(r => {
     if (!dataInicio || !dataFim) return true;
     const recordDate = new Date(r.data);
@@ -111,8 +146,8 @@ export function PedagioTab() {
       
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 whitespace-nowrap">
+            <Plus className="h-5 w-5 flex-shrink-0" />
             Lançamento de Pedágio
           </CardTitle>
         </CardHeader>
@@ -247,45 +282,87 @@ export function PedagioTab() {
               </div>
             </div>
 
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Funcionário</TableHead>
-                    <TableHead>Placa</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRecords.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground">
-                        Nenhum registro encontrado
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredRecords.map((record) => (
-                      <TableRow key={record.id}>
-                        <TableCell>{format(new Date(record.data), "dd/MM/yyyy")}</TableCell>
-                        <TableCell>{record.funcionarioNome}</TableCell>
-                        <TableCell>{record.placa}</TableCell>
-                        <TableCell className="font-medium">{formatCurrency(record.valor)}</TableCell>
-                        <TableCell>
+            <div className="space-y-3">
+              {filteredRecords.length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">
+                  Nenhum registro encontrado
+                </p>
+              ) : (
+                filteredRecords.map((record) => (
+                  <div key={record.id} className="p-3 border rounded-lg">
+                    {editId === record.id ? (
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-xs">Valor (R$)</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={editValor}
+                            onChange={(e) => setEditValor(e.target.value)}
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => saveEdit(record.id)}
+                            className="flex-1"
+                          >
+                            <Save className="h-4 w-4 mr-1" />
+                            Salvar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={cancelEdit}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
+                          <div>
+                            <span className="text-muted-foreground text-xs">Data:</span>
+                            <p className="font-medium">{format(new Date(record.data), "dd/MM/yyyy")}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground text-xs">Funcionário:</span>
+                            <p className="font-medium truncate">{record.funcionarioNome}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground text-xs">Placa:</span>
+                            <p className="font-medium">{record.placa}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground text-xs">Valor:</span>
+                            <p className="font-medium text-primary">{formatCurrency(record.valor)}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-1 flex-shrink-0">
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-8 w-8"
+                            onClick={() => startEdit(record)}
+                          >
+                            <Edit2 className="h-4 w-4 text-blue-600" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
                             onClick={() => handleDelete(record.id)}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         )}
