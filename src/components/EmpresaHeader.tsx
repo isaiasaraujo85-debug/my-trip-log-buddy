@@ -10,11 +10,11 @@ export function EmpresaHeader() {
         <img 
           src={empresaConfig.logoBase64} 
           alt="Logo" 
-          className="w-20 h-20 sm:w-24 sm:h-24 object-contain flex-shrink-0"
+          className="w-[200px] h-[200px] object-contain flex-shrink-0"
         />
       ) : (
-        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-primary rounded flex items-center justify-center flex-shrink-0">
-          <span className="text-primary-foreground font-bold text-lg sm:text-xl">KM</span>
+        <div className="w-[200px] h-[200px] bg-primary rounded flex items-center justify-center flex-shrink-0">
+          <span className="text-primary-foreground font-bold text-4xl">KM</span>
         </div>
       )}
       <div>
