@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Funcionario } from "@/types";
 
 export function CadastroTab() {
-  const { toast } = useToast();
   const [funcionarios, setFuncionarios] = useLocalStorage<Funcionario[]>("funcionarios", []);
   
   const [nome, setNome] = useState("");
@@ -25,11 +23,6 @@ export function CadastroTab() {
 
   const handleAdd = () => {
     if (!nome || !chapa || !carro || !placa) {
-      toast({
-        title: "Erro",
-        description: "Preencha todos os campos.",
-        variant: "destructive"
-      });
       return;
     }
 
@@ -46,19 +39,10 @@ export function CadastroTab() {
     setChapa("");
     setCarro("");
     setPlaca("");
-    
-    toast({
-      title: "Sucesso",
-      description: "Funcionário cadastrado com sucesso!"
-    });
   };
 
   const handleDelete = (id: string) => {
     setFuncionarios(funcionarios.filter(f => f.id !== id));
-    toast({
-      title: "Excluído",
-      description: "Funcionário removido com sucesso."
-    });
   };
 
   const startEdit = (funcionario: Funcionario) => {
@@ -79,11 +63,6 @@ export function CadastroTab() {
 
   const saveEdit = (id: string) => {
     if (!editNome || !editChapa || !editCarro || !editPlaca) {
-      toast({
-        title: "Erro",
-        description: "Preencha todos os campos.",
-        variant: "destructive"
-      });
       return;
     }
 
@@ -93,10 +72,6 @@ export function CadastroTab() {
         : f
     ));
     cancelEdit();
-    toast({
-      title: "Sucesso",
-      description: "Funcionário atualizado com sucesso!"
-    });
   };
 
   return (
