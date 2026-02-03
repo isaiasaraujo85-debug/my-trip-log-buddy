@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { KmRecord, Funcionario, EmpresaConfig } from "@/types";
 import { generateKmPdf } from "@/utils/pdfGenerator";
@@ -24,7 +25,6 @@ export function KmTab() {
   const [kmPercorrido, setKmPercorrido] = useState(0);
   const [valorKm, setValorKm] = useState("");
   const [valorTotal, setValorTotal] = useState(0);
-  const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
   
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
   const [dataFim, setDataFim] = useState<Date | undefined>();
@@ -35,6 +35,9 @@ export function KmTab() {
   const [tableEditKmInicial, setTableEditKmInicial] = useState("");
   const [tableEditKmFinal, setTableEditKmFinal] = useState("");
   const [tableEditValorKm, setTableEditValorKm] = useState("");
+  
+  // States for multi-select deletion
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const inicial = parseFloat(kmInicial) || 0;
@@ -46,26 +49,7 @@ export function KmTab() {
     setValorTotal(percorrido * valor);
   }, [kmInicial, kmFinal, valorKm]);
 
-  // Check for pending record (partial) for today
-  useEffect(() => {
-    if (data && funcionarioId) {
-      const dateStr = format(data, "yyyy-MM-dd");
-      const pendingRecord = records.find(
-        r => r.funcionarioId === funcionarioId && r.data === dateStr
-      );
-      if (pendingRecord) {
-        setEditingRecordId(pendingRecord.id);
-        setKmInicial(pendingRecord.kmInicial?.toString() || "");
-        setKmFinal(pendingRecord.kmFinal?.toString() || "");
-        setValorKm(pendingRecord.valorKm?.toString() || "");
-      } else {
-        setEditingRecordId(null);
-        setKmInicial("");
-        setKmFinal("");
-        // Não limpa valorKm ao mudar data/funcionário
-      }
-    }
-  }, [data, funcionarioId, records]);
+  // Removed auto-loading of pending records - user edits via report if needed
 
   const handleFuncionarioSelect = (funcionario: Funcionario | undefined) => {
     setSelectedFuncionario(funcionario);
@@ -99,49 +83,62 @@ export function KmTab() {
       ? 'completo' 
       : 'parcial';
 
-    if (editingRecordId) {
-      // Update existing record
-      setRecords(records.map(r => 
-        r.id === editingRecordId 
-          ? { 
-              ...r, 
-              kmInicial: kmInicialValue,
-              kmFinal: kmFinalValue,
-              kmPercorrido: calculatedKm,
-              valorKm: valorKmValue,
-              valorTotal: calculatedKm * valorKmValue,
-              status
-            }
-          : r
-      ));
-    } else {
-      // Create new record
-      const newRecord: KmRecord = {
-        id: crypto.randomUUID(),
-        funcionarioId: selectedFuncionario.id,
-        funcionarioNome: selectedFuncionario.nome,
-        funcionarioChapa: selectedFuncionario.chapa,
-        carro: selectedFuncionario.carro,
-        placa: selectedFuncionario.placa,
-        data: dateStr,
-        kmInicial: kmInicialValue,
-        kmFinal: kmFinalValue,
-        kmPercorrido: calculatedKm,
-        valorKm: valorKmValue,
-        valorTotal: calculatedKm * valorKmValue,
-        status
-      };
-      setRecords([...records, newRecord]);
-    }
+    // Always create a new record
+    const newRecord: KmRecord = {
+      id: crypto.randomUUID(),
+      funcionarioId: selectedFuncionario.id,
+      funcionarioNome: selectedFuncionario.nome,
+      funcionarioChapa: selectedFuncionario.chapa,
+      carro: selectedFuncionario.carro,
+      placa: selectedFuncionario.placa,
+      data: dateStr,
+      kmInicial: kmInicialValue,
+      kmFinal: kmFinalValue,
+      kmPercorrido: calculatedKm,
+      valorKm: valorKmValue,
+      valorTotal: calculatedKm * valorKmValue,
+      status
+    };
+    setRecords([...records, newRecord]);
 
-    // Limpa campos após salvar (mantém valorKm)
+    // Clear KM fields after saving (keep valorKm)
     setKmInicial("");
     setKmFinal("");
-    setEditingRecordId(null);
   };
 
   const handleDelete = (id: string) => {
     setRecords(records.filter(r => r.id !== id));
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(id);
+      return newSet;
+    });
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.size === 0) return;
+    setRecords(records.filter(r => !selectedIds.has(r.id)));
+    setSelectedIds(new Set());
+  };
+
+  const toggleSelectId = (id: string) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredRecords.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredRecords.map(r => r.id)));
+    }
   };
 
   const startTableEdit = (record: KmRecord) => {
@@ -288,12 +285,6 @@ export function KmTab() {
             Salvar
           </Button>
 
-          {editingRecordId && (
-            <p className="text-sm text-muted-foreground text-center">
-              <Edit2 className="inline h-4 w-4 mr-1" />
-              Editando registro existente para esta data
-            </p>
-          )}
         </CardContent>
       </Card>
 
@@ -339,6 +330,30 @@ export function KmTab() {
                 <span className="text-lg font-bold text-green-600">{formatCurrency(totalValor)}</span>
               </div>
             </div>
+
+            {filteredRecords.length > 0 && (
+              <div className="flex items-center justify-between gap-2 py-2 border-b">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={selectedIds.size === filteredRecords.length && filteredRecords.length > 0}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {selectedIds.size > 0 ? `${selectedIds.size} selecionado(s)` : "Selecionar todos"}
+                  </span>
+                </div>
+                {selectedIds.size > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDeleteSelected}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Excluir ({selectedIds.size})
+                  </Button>
+                )}
+              </div>
+            )}
 
             <div className="space-y-3">
               {filteredRecords.length === 0 ? (
@@ -399,7 +414,12 @@ export function KmTab() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-2">
+                        <Checkbox
+                          checked={selectedIds.has(record.id)}
+                          onCheckedChange={() => toggleSelectId(record.id)}
+                          className="mt-1"
+                        />
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
                           <div>
                             <span className="text-muted-foreground text-xs">Data:</span>

@@ -21,41 +21,41 @@ const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
 const addHeader = (doc: jsPDF, title: string, empresaConfig?: EmpresaConfig, dataInicio?: Date, dataFim?: Date) => {
   let yPos = 15;
   
-  // Logo - increased size (45x45)
+  // Logo - proportional size (30x30)
   if (empresaConfig?.logoBase64) {
     try {
-      doc.addImage(empresaConfig.logoBase64, 'PNG', 20, yPos, 45, 45);
+      doc.addImage(empresaConfig.logoBase64, 'PNG', 20, yPos, 30, 30);
     } catch (e) {
       // Fallback to default logo
       doc.setFillColor(59, 130, 246);
-      doc.rect(20, yPos, 45, 45, "F");
+      doc.rect(20, yPos, 30, 30, "F");
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(24);
-      doc.text("KM", 30, yPos + 28);
+      doc.setFontSize(18);
+      doc.text("KM", 26, yPos + 20);
     }
   } else {
     doc.setFillColor(59, 130, 246);
-    doc.rect(20, yPos, 45, 45, "F");
+    doc.rect(20, yPos, 30, 30, "F");
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.text("KM", 30, yPos + 28);
+    doc.setFontSize(18);
+    doc.text("KM", 26, yPos + 20);
   }
   
-  // Company name - larger text, adjusted position for bigger logo
+  // Company name - adjusted position for smaller logo
   doc.setTextColor(0, 0, 0);
-  doc.setFontSize(24);
+  doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
-  doc.text(empresaConfig?.nome || "Sua Empresa", 70, yPos + 18);
-  doc.setFontSize(14);
+  doc.text(empresaConfig?.nome || "Sua Empresa", 55, yPos + 12);
+  doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(100, 100, 100);
-  doc.text("Controle de Despesas", 70, yPos + 32);
+  doc.text("Controle de Despesas", 55, yPos + 22);
   
   // Report title
   doc.setFontSize(16);
   doc.setTextColor(0, 0, 0);
   doc.setFont("helvetica", "bold");
-  doc.text(title, 20, 75);
+  doc.text(title, 20, 55);
   
   // Period
   if (dataInicio && dataFim) {
@@ -63,11 +63,11 @@ const addHeader = (doc: jsPDF, title: string, empresaConfig?: EmpresaConfig, dat
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
     const periodo = `Período: ${format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a ${format(dataFim, "dd/MM/yyyy", { locale: ptBR })}`;
-    doc.text(periodo, 20, 83);
+    doc.text(periodo, 20, 63);
   }
   
   doc.setFontSize(10);
-  doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 20, 90);
+  doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 20, 70);
 };
 
 export const generateKmPdf = (
@@ -88,10 +88,10 @@ export const generateKmPdf = (
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
-    doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 102);
-    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 108);
-    doc.text(`Veículo: ${firstRecord.carro}`, 120, 102);
-    doc.text(`Placa: ${firstRecord.placa}`, 120, 108);
+    doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 82);
+    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 88);
+    doc.text(`Veículo: ${firstRecord.carro}`, 120, 82);
+    doc.text(`Placa: ${firstRecord.placa}`, 120, 88);
   }
   
   // Table
@@ -106,7 +106,7 @@ export const generateKmPdf = (
   ]);
   
   autoTable(doc, {
-    startY: 115,
+    startY: 95,
     head: [["Data", "Funcionário", "Placa", "KM Inicial", "KM Final", "Percorrido", "Valor"]],
     body: tableData,
     theme: "striped",
@@ -142,10 +142,10 @@ export const generatePedagioPdf = (
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
-    doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 102);
-    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 108);
-    doc.text(`Veículo: ${firstRecord.carro}`, 120, 102);
-    doc.text(`Placa: ${firstRecord.placa}`, 120, 108);
+    doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 82);
+    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 88);
+    doc.text(`Veículo: ${firstRecord.carro}`, 120, 82);
+    doc.text(`Placa: ${firstRecord.placa}`, 120, 88);
   }
   
   // Table
@@ -157,7 +157,7 @@ export const generatePedagioPdf = (
   ]);
   
   autoTable(doc, {
-    startY: 115,
+    startY: 95,
     head: [["Data", "Funcionário", "Placa", "Valor"]],
     body: tableData,
     theme: "striped",
@@ -191,8 +191,8 @@ export const generateRefeicaoPdf = (
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
-    doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 102);
-    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 108);
+    doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 82);
+    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 88);
   }
   
   // Table
@@ -205,7 +205,7 @@ export const generateRefeicaoPdf = (
   ]);
   
   autoTable(doc, {
-    startY: 115,
+    startY: 95,
     head: [["Data", "Funcionário", "Chapa", "Tipo", "Valor"]],
     body: tableData,
     theme: "striped",

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { RefeicaoRecord, Funcionario, EmpresaConfig, TipoRefeicao } from "@/types";
 import { generateRefeicaoPdf } from "@/utils/pdfGenerator";
@@ -38,6 +39,9 @@ export function RefeicaoTab() {
   const [editTipo, setEditTipo] = useState<TipoRefeicao>("almoco");
   const [editValor, setEditValor] = useState("");
 
+  // States for multi-select deletion
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
   const handleFuncionarioSelect = (funcionario: Funcionario | undefined) => {
     setSelectedFuncionario(funcionario);
     setFuncionarioId(funcionario?.id || "");
@@ -64,6 +68,37 @@ export function RefeicaoTab() {
 
   const handleDelete = (id: string) => {
     setRecords(records.filter(r => r.id !== id));
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(id);
+      return newSet;
+    });
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.size === 0) return;
+    setRecords(records.filter(r => !selectedIds.has(r.id)));
+    setSelectedIds(new Set());
+  };
+
+  const toggleSelectId = (id: string) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredRecords.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredRecords.map(r => r.id)));
+    }
   };
 
   const startEdit = (record: RefeicaoRecord) => {
@@ -222,6 +257,30 @@ export function RefeicaoTab() {
               </div>
             </div>
 
+            {filteredRecords.length > 0 && (
+              <div className="flex items-center justify-between gap-2 py-2 border-b">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={selectedIds.size === filteredRecords.length && filteredRecords.length > 0}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {selectedIds.size > 0 ? `${selectedIds.size} selecionado(s)` : "Selecionar todos"}
+                  </span>
+                </div>
+                {selectedIds.size > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDeleteSelected}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Excluir ({selectedIds.size})
+                  </Button>
+                )}
+              </div>
+            )}
+
             <div className="space-y-3">
               {filteredRecords.length === 0 ? (
                 <p className="text-center text-muted-foreground py-4">
@@ -277,7 +336,12 @@ export function RefeicaoTab() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-2">
+                        <Checkbox
+                          checked={selectedIds.has(record.id)}
+                          onCheckedChange={() => toggleSelectId(record.id)}
+                          className="mt-1"
+                        />
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
                           <div>
                             <span className="text-muted-foreground text-xs">Data:</span>
