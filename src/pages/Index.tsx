@@ -5,12 +5,16 @@ import { PedagioTab } from "@/components/PedagioTab";
 import { RefeicaoTab } from "@/components/RefeicaoTab";
 import { CadastroTab } from "@/components/CadastroTab";
 import { ConfiguracaoTab } from "@/components/ConfiguracaoTab";
+import { EmpresaHeader } from "@/components/EmpresaHeader";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Main Content */}
       <main className="container px-4 py-6">
+        {/* Header acima do menu */}
+        <EmpresaHeader />
+        
         <Tabs defaultValue="km" className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="km" className="flex items-center gap-1">

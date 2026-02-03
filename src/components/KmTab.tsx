@@ -1,23 +1,18 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { CalendarIcon, Save, Trash2, FileText, Edit2, X } from "lucide-react";
+import { Save, Trash2, FileText, Edit2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { KmRecord, Funcionario, EmpresaConfig } from "@/types";
 import { generateKmPdf } from "@/utils/pdfGenerator";
 import { cn } from "@/lib/utils";
 import { FuncionarioSelect } from "./FuncionarioSelect";
-import { EmpresaHeader } from "./EmpresaHeader";
+import { DatePickerField } from "./DatePickerField";
 
 export function KmTab() {
-  const { toast } = useToast();
   const [records, setRecords] = useLocalStorage<KmRecord[]>("km-records", []);
   const [empresaConfig] = useLocalStorage<EmpresaConfig>("empresa-config", { nome: "" });
   
@@ -67,7 +62,7 @@ export function KmTab() {
         setEditingRecordId(null);
         setKmInicial("");
         setKmFinal("");
-        setValorKm("");
+        // Não limpa valorKm ao mudar data/funcionário
       }
     }
   }, [data, funcionarioId, records]);
@@ -79,20 +74,10 @@ export function KmTab() {
 
   const handleSave = () => {
     if (!selectedFuncionario || !data) {
-      toast({
-        title: "Erro",
-        description: "Selecione um funcionário e data.",
-        variant: "destructive"
-      });
       return;
     }
 
     if (!kmInicial && !kmFinal) {
-      toast({
-        title: "Erro",
-        description: "Preencha pelo menos o KM inicial ou KM final.",
-        variant: "destructive"
-      });
       return;
     }
 
@@ -103,11 +88,6 @@ export function KmTab() {
     
     // Validate if both are filled
     if (kmInicialValue !== null && kmFinalValue !== null && kmFinalValue < kmInicialValue) {
-      toast({
-        title: "Erro",
-        description: "KM final deve ser maior que KM inicial.",
-        variant: "destructive"
-      });
       return;
     }
 
@@ -154,18 +134,14 @@ export function KmTab() {
       setRecords([...records, newRecord]);
     }
 
-    toast({
-      title: "Sucesso",
-      description: "Registro salvo com sucesso!"
-    });
+    // Limpa campos após salvar (mantém valorKm)
+    setKmInicial("");
+    setKmFinal("");
+    setEditingRecordId(null);
   };
 
   const handleDelete = (id: string) => {
     setRecords(records.filter(r => r.id !== id));
-    toast({
-      title: "Excluído",
-      description: "Registro removido com sucesso."
-    });
   };
 
   const startTableEdit = (record: KmRecord) => {
@@ -188,11 +164,6 @@ export function KmTab() {
     const valorKmValue = parseFloat(tableEditValorKm) || 0;
 
     if (kmInicialValue !== null && kmFinalValue !== null && kmFinalValue < kmInicialValue) {
-      toast({
-        title: "Erro",
-        description: "KM final deve ser maior que KM inicial.",
-        variant: "destructive"
-      });
       return;
     }
 
@@ -218,10 +189,6 @@ export function KmTab() {
         : r
     ));
     cancelTableEdit();
-    toast({
-      title: "Sucesso",
-      description: "Registro atualizado com sucesso!"
-    });
   };
 
   const filteredRecords = records.filter(r => {
@@ -236,18 +203,9 @@ export function KmTab() {
 
   const handleGeneratePdf = () => {
     if (completedRecords.length === 0) {
-      toast({
-        title: "Erro",
-        description: "Nenhum registro completo encontrado para o período.",
-        variant: "destructive"
-      });
       return;
     }
     generateKmPdf(completedRecords, dataInicio, dataFim, totalKm, totalValor, empresaConfig);
-    toast({
-      title: "PDF Gerado",
-      description: "O relatório foi gerado com sucesso!"
-    });
   };
 
   const formatCurrency = (value: number) => {
@@ -259,8 +217,6 @@ export function KmTab() {
 
   return (
     <div className="space-y-6">
-      <EmpresaHeader />
-      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 whitespace-nowrap">
@@ -275,32 +231,11 @@ export function KmTab() {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Data</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !data && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {data ? format(data, "dd/MM/yyyy", { locale: ptBR }) : "Selecione a data"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={data}
-                    onSelect={setData}
-                    locale={ptBR}
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+            <DatePickerField
+              label="Data"
+              value={data}
+              onChange={setData}
+            />
             <div className="space-y-2">
               <Label htmlFor="valorKm">Valor por KM (R$)</Label>
               <Input
@@ -374,58 +309,18 @@ export function KmTab() {
         {showReport && (
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Data Inicial</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !dataInicio && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dataInicio ? format(dataInicio, "dd/MM/yyyy", { locale: ptBR }) : "Início"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dataInicio}
-                      onSelect={setDataInicio}
-                      locale={ptBR}
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-2">
-                <Label>Data Final</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !dataFim && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dataFim ? format(dataFim, "dd/MM/yyyy", { locale: ptBR }) : "Fim"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dataFim}
-                      onSelect={setDataFim}
-                      locale={ptBR}
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <DatePickerField
+                label="Data Inicial"
+                value={dataInicio}
+                onChange={setDataInicio}
+                placeholder="Início"
+              />
+              <DatePickerField
+                label="Data Final"
+                value={dataFim}
+                onChange={setDataFim}
+                placeholder="Fim"
+              />
               <div className="flex items-end">
                 <Button onClick={handleGeneratePdf} className="w-full">
                   <FileText className="mr-2 h-4 w-4" />
