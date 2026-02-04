@@ -16,25 +16,25 @@ const Index = () => {
         <EmpresaHeader />
         
         <Tabs defaultValue="km" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="km" className="flex items-center gap-1">
-              <Car className="h-4 w-4" />
+          <TabsList className="grid w-full grid-cols-5 mb-4 sm:mb-6 h-12 sm:h-10">
+            <TabsTrigger value="km" className="flex items-center gap-1 text-sm sm:text-base">
+              <Car className="h-6 w-6 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">KM</span>
             </TabsTrigger>
-            <TabsTrigger value="pedagio" className="flex items-center gap-1">
-              <Receipt className="h-4 w-4" />
+            <TabsTrigger value="pedagio" className="flex items-center gap-1 text-sm sm:text-base">
+              <Receipt className="h-6 w-6 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Pedágio</span>
             </TabsTrigger>
-            <TabsTrigger value="refeicao" className="flex items-center gap-1">
-              <Utensils className="h-4 w-4" />
+            <TabsTrigger value="refeicao" className="flex items-center gap-1 text-sm sm:text-base">
+              <Utensils className="h-6 w-6 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Refeição</span>
             </TabsTrigger>
-            <TabsTrigger value="cadastro" className="flex items-center gap-1">
-              <UserPlus className="h-4 w-4" />
+            <TabsTrigger value="cadastro" className="flex items-center gap-1 text-sm sm:text-base">
+              <UserPlus className="h-6 w-6 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Cadastro</span>
             </TabsTrigger>
-            <TabsTrigger value="config" className="flex items-center gap-1">
-              <Settings className="h-4 w-4" />
+            <TabsTrigger value="config" className="flex items-center gap-1 text-sm sm:text-base">
+              <Settings className="h-6 w-6 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Config</span>
             </TabsTrigger>
           </TabsList>
