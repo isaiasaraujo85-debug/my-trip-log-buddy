@@ -17,7 +17,7 @@ export function EmpresaHeader() {
           <span className="text-primary-foreground font-bold text-xl sm:text-2xl">KM</span>
         </div>
       )}
-      <div className="text-center flex flex-col justify-center">
+      <div className="text-left flex flex-col justify-center">
         <h2 className="text-base sm:text-xl font-bold whitespace-nowrap">{empresaConfig.nome || "Sua Empresa"}</h2>
         <p className="text-sm sm:text-base font-bold text-muted-foreground whitespace-nowrap">Controle de Despesas</p>
       </div>
