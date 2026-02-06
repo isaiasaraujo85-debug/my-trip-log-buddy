@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { KmRecord, Funcionario, EmpresaConfig } from "@/types";
-import { generateKmPdf } from "@/utils/pdfGenerator";
 import { cn } from "@/lib/utils";
 import { FuncionarioSelect } from "./FuncionarioSelect";
 import { DatePickerField } from "./DatePickerField";
+import { ReportExportButton } from "./reports/ReportExportButton";
+import { KmReportContent } from "./reports/KmReportContent";
 
 export function KmTab() {
   const [records, setRecords] = useLocalStorage<KmRecord[]>("km-records", []);
@@ -198,13 +199,6 @@ export function KmTab() {
   const totalKm = completedRecords.reduce((sum, r) => sum + r.kmPercorrido, 0);
   const totalValor = completedRecords.reduce((sum, r) => sum + (r.valorTotal || 0), 0);
 
-  const handleGeneratePdf = () => {
-    if (completedRecords.length === 0) {
-      return;
-    }
-    generateKmPdf(completedRecords, dataInicio, dataFim, totalKm, totalValor, empresaConfig);
-  };
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -313,10 +307,19 @@ export function KmTab() {
                 placeholder="Fim"
               />
               <div className="flex items-end">
-                <Button onClick={handleGeneratePdf} className="w-full">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Gerar PDF
-                </Button>
+                <ReportExportButton 
+                  filename="relatorio-km"
+                  disabled={completedRecords.length === 0}
+                >
+                  <KmReportContent
+                    records={completedRecords}
+                    dataInicio={dataInicio}
+                    dataFim={dataFim}
+                    totalKm={totalKm}
+                    totalValor={totalValor}
+                    empresaConfig={empresaConfig}
+                  />
+                </ReportExportButton>
               </div>
             </div>
 

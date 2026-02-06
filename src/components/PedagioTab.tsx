@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { PedagioRecord, Funcionario, EmpresaConfig } from "@/types";
-import { generatePedagioPdf } from "@/utils/pdfGenerator";
 import { FuncionarioSelect } from "./FuncionarioSelect";
 import { DatePickerField } from "./DatePickerField";
+import { ReportExportButton } from "./reports/ReportExportButton";
+import { PedagioReportContent } from "./reports/PedagioReportContent";
 
 export function PedagioTab() {
   const [records, setRecords] = useLocalStorage<PedagioRecord[]>("pedagio-records", []);
@@ -123,13 +124,6 @@ export function PedagioTab() {
 
   const total = filteredRecords.reduce((sum, r) => sum + r.valor, 0);
 
-  const handleGeneratePdf = () => {
-    if (filteredRecords.length === 0) {
-      return;
-    }
-    generatePedagioPdf(filteredRecords, dataInicio, dataFim, total, empresaConfig);
-  };
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -202,10 +196,18 @@ export function PedagioTab() {
                 placeholder="Fim"
               />
               <div className="flex items-end">
-                <Button onClick={handleGeneratePdf} className="w-full">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Gerar PDF
-                </Button>
+                <ReportExportButton 
+                  filename="relatorio-pedagio"
+                  disabled={filteredRecords.length === 0}
+                >
+                  <PedagioReportContent
+                    records={filteredRecords}
+                    dataInicio={dataInicio}
+                    dataFim={dataFim}
+                    total={total}
+                    empresaConfig={empresaConfig}
+                  />
+                </ReportExportButton>
               </div>
             </div>
 
