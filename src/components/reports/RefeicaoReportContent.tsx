@@ -41,10 +41,10 @@ export function RefeicaoReportContent({
           <img 
             src={empresaConfig.logoBase64} 
             alt="Logo" 
-            className="w-16 h-16 object-contain"
+            className="w-32 h-16 object-contain"
           />
         ) : (
-          <div className="w-16 h-16 bg-blue-500 rounded flex items-center justify-center">
+          <div className="w-32 h-16 bg-blue-500 rounded flex items-center justify-center">
             <span className="text-white font-bold text-xl">KM</span>
           </div>
         )}
