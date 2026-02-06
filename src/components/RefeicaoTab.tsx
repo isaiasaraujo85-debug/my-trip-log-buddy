@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { RefeicaoRecord, Funcionario, EmpresaConfig, TipoRefeicao } from "@/types";
-import { generateRefeicaoPdf } from "@/utils/pdfGenerator";
 import { FuncionarioSelect } from "./FuncionarioSelect";
 import { DatePickerField } from "./DatePickerField";
+import { ReportExportButton } from "./reports/ReportExportButton";
+import { RefeicaoReportContent } from "./reports/RefeicaoReportContent";
 
 const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
   cafe: "Café",
@@ -134,13 +135,6 @@ export function RefeicaoTab() {
 
   const total = filteredRecords.reduce((sum, r) => sum + r.valor, 0);
 
-  const handleGeneratePdf = () => {
-    if (filteredRecords.length === 0) {
-      return;
-    }
-    generateRefeicaoPdf(filteredRecords, dataInicio, dataFim, total, empresaConfig);
-  };
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -243,10 +237,18 @@ export function RefeicaoTab() {
                 placeholder="Fim"
               />
               <div className="flex items-end">
-                <Button onClick={handleGeneratePdf} className="w-full">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Gerar PDF
-                </Button>
+                <ReportExportButton 
+                  filename="relatorio-refeicao"
+                  disabled={filteredRecords.length === 0}
+                >
+                  <RefeicaoReportContent
+                    records={filteredRecords}
+                    dataInicio={dataInicio}
+                    dataFim={dataFim}
+                    total={total}
+                    empresaConfig={empresaConfig}
+                  />
+                </ReportExportButton>
               </div>
             </div>
 
