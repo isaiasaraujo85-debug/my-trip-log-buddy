@@ -11,6 +11,12 @@ export interface EmpresaConfig {
   logoBase64?: string;
 }
 
+export interface AttachedImage {
+  id: string;
+  base64: string;
+  timestamp: string;
+}
+
 export interface KmRecord {
   id: string;
   funcionarioId: string;
@@ -25,6 +31,8 @@ export interface KmRecord {
   valorKm?: number;
   valorTotal?: number;
   status: 'parcial' | 'completo';
+  imagensKmInicial?: AttachedImage[];
+  imagensKmFinal?: AttachedImage[];
 }
 
 export interface PedagioRecord {
@@ -36,6 +44,7 @@ export interface PedagioRecord {
   placa: string;
   data: string;
   valor: number;
+  imagensComprovante?: AttachedImage[];
 }
 
 export type TipoRefeicao = 'cafe' | 'almoco' | 'jantar' | 'outros';
@@ -48,4 +57,5 @@ export interface RefeicaoRecord {
   data: string;
   tipo: TipoRefeicao;
   valor: number;
+  imagens?: AttachedImage[];
 }

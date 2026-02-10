@@ -28,6 +28,32 @@ export function KmReportContent({
 }: KmReportContentProps) {
   const firstRecord = records[0];
 
+  // Collect all images sorted by date, km inicial first then km final
+  const allImages: { date: string; label: string; base64: string }[] = [];
+  const sortedRecords = [...records].sort((a, b) => a.data.localeCompare(b.data));
+  
+  for (const record of sortedRecords) {
+    const dateLabel = format(new Date(record.data), "dd/MM/yyyy");
+    if (record.imagensKmInicial) {
+      for (const img of record.imagensKmInicial) {
+        allImages.push({
+          date: dateLabel,
+          label: `KM - ${dateLabel} - KM Inicial: ${record.kmInicial ?? "-"}`,
+          base64: img.base64,
+        });
+      }
+    }
+    if (record.imagensKmFinal) {
+      for (const img of record.imagensKmFinal) {
+        allImages.push({
+          date: dateLabel,
+          label: `KM - ${dateLabel} - KM Final: ${record.kmFinal ?? "-"}`,
+          base64: img.base64,
+        });
+      }
+    }
+  }
+
   return (
     <div className="bg-white text-black p-6 min-w-[600px]" style={{ fontFamily: 'Arial, sans-serif' }}>
       {/* Header */}
@@ -49,10 +75,8 @@ export function KmReportContent({
         </div>
       </div>
 
-      {/* Report Title */}
       <h2 className="text-lg font-bold mb-2">Relatório de Quilometragem</h2>
       
-      {/* Period */}
       {dataInicio && dataFim && (
         <p className="text-sm text-gray-600 mb-1">
           Período: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}
@@ -62,7 +86,6 @@ export function KmReportContent({
         Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
       </p>
 
-      {/* Employee Info */}
       {firstRecord && (
         <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-100 rounded text-sm">
           <div><span className="text-gray-600">Funcionário:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
@@ -72,7 +95,6 @@ export function KmReportContent({
         </div>
       )}
 
-      {/* Table */}
       <table className="w-full border-collapse mb-4 text-sm">
         <thead>
           <tr className="bg-blue-500 text-white">
@@ -100,7 +122,6 @@ export function KmReportContent({
         </tbody>
       </table>
 
-      {/* Totals */}
       <div className="p-4 bg-gray-100 rounded">
         <div className="flex justify-between items-center mb-2">
           <span className="font-bold">Total KM Percorrido:</span>
@@ -111,6 +132,21 @@ export function KmReportContent({
           <span className="text-xl font-bold text-green-600">{formatCurrency(totalValor)}</span>
         </div>
       </div>
+
+      {/* Images Section */}
+      {allImages.length > 0 && (
+        <div className="mt-6 pt-4 border-t-2 border-blue-500">
+          <h3 className="text-lg font-bold mb-3">Imagens Anexadas</h3>
+          <div className="space-y-4">
+            {allImages.map((img, index) => (
+              <div key={index} className="border border-gray-300 rounded p-3">
+                <p className="text-sm font-semibold text-gray-700 mb-2">{img.label}</p>
+                <img src={img.base64} alt={img.label} className="max-w-full h-auto rounded" style={{ maxHeight: '300px' }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

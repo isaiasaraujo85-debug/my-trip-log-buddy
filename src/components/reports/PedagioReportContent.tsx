@@ -26,16 +26,27 @@ export function PedagioReportContent({
 }: PedagioReportContentProps) {
   const firstRecord = records[0];
 
+  const allImages: { date: string; label: string; base64: string }[] = [];
+  const sortedRecords = [...records].sort((a, b) => a.data.localeCompare(b.data));
+  
+  for (const record of sortedRecords) {
+    if (record.imagensComprovante) {
+      const dateLabel = format(new Date(record.data), "dd/MM/yyyy");
+      for (const img of record.imagensComprovante) {
+        allImages.push({
+          date: dateLabel,
+          label: `Pedágio - ${dateLabel} - ${formatCurrency(record.valor)}`,
+          base64: img.base64,
+        });
+      }
+    }
+  }
+
   return (
     <div className="bg-white text-black p-6 min-w-[600px]" style={{ fontFamily: 'Arial, sans-serif' }}>
-      {/* Header */}
       <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-blue-500">
         {empresaConfig.logoBase64 ? (
-          <img 
-            src={empresaConfig.logoBase64} 
-            alt="Logo" 
-            className="w-32 h-16 object-contain"
-          />
+          <img src={empresaConfig.logoBase64} alt="Logo" className="w-32 h-16 object-contain" />
         ) : (
           <div className="w-32 h-16 bg-blue-500 rounded flex items-center justify-center">
             <span className="text-white font-bold text-xl">KM</span>
@@ -47,10 +58,8 @@ export function PedagioReportContent({
         </div>
       </div>
 
-      {/* Report Title */}
       <h2 className="text-lg font-bold mb-2">Relatório de Pedágio</h2>
       
-      {/* Period */}
       {dataInicio && dataFim && (
         <p className="text-sm text-gray-600 mb-1">
           Período: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}
@@ -60,7 +69,6 @@ export function PedagioReportContent({
         Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
       </p>
 
-      {/* Employee Info */}
       {firstRecord && (
         <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-100 rounded text-sm">
           <div><span className="text-gray-600">Funcionário:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
@@ -70,7 +78,6 @@ export function PedagioReportContent({
         </div>
       )}
 
-      {/* Table */}
       <table className="w-full border-collapse mb-4 text-sm">
         <thead>
           <tr className="bg-blue-500 text-white">
@@ -92,13 +99,26 @@ export function PedagioReportContent({
         </tbody>
       </table>
 
-      {/* Total */}
       <div className="p-4 bg-gray-100 rounded">
         <div className="flex justify-between items-center">
           <span className="font-bold">Total Gasto:</span>
           <span className="text-xl font-bold text-blue-600">{formatCurrency(total)}</span>
         </div>
       </div>
+
+      {allImages.length > 0 && (
+        <div className="mt-6 pt-4 border-t-2 border-blue-500">
+          <h3 className="text-lg font-bold mb-3">Comprovantes Anexados</h3>
+          <div className="space-y-4">
+            {allImages.map((img, index) => (
+              <div key={index} className="border border-gray-300 rounded p-3">
+                <p className="text-sm font-semibold text-gray-700 mb-2">{img.label}</p>
+                <img src={img.base64} alt={img.label} className="max-w-full h-auto rounded" style={{ maxHeight: '300px' }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
