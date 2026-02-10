@@ -7,11 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { PedagioRecord, Funcionario, EmpresaConfig } from "@/types";
+import { PedagioRecord, Funcionario, EmpresaConfig, AttachedImage } from "@/types";
 import { FuncionarioSelect } from "./FuncionarioSelect";
 import { DatePickerField } from "./DatePickerField";
 import { ReportExportButton } from "./reports/ReportExportButton";
 import { PedagioReportContent } from "./reports/PedagioReportContent";
+import { ImageAttachButton } from "./ImageAttachButton";
 
 export function PedagioTab() {
   const [records, setRecords] = useLocalStorage<PedagioRecord[]>("pedagio-records", []);
@@ -21,16 +22,15 @@ export function PedagioTab() {
   const [selectedFuncionario, setSelectedFuncionario] = useState<Funcionario | undefined>();
   const [data, setData] = useState<Date | undefined>(new Date());
   const [valor, setValor] = useState("");
+  const [imagensComprovante, setImagensComprovante] = useState<AttachedImage[]>([]);
   
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
 
-  // States for inline editing
   const [editId, setEditId] = useState<string | null>(null);
   const [editValor, setEditValor] = useState("");
 
-  // States for multi-select deletion
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const handleFuncionarioSelect = (funcionario: Funcionario | undefined) => {
@@ -39,9 +39,7 @@ export function PedagioTab() {
   };
 
   const handleAdd = () => {
-    if (!selectedFuncionario || !data || !valor) {
-      return;
-    }
+    if (!selectedFuncionario || !data || !valor) return;
 
     const newRecord: PedagioRecord = {
       id: crypto.randomUUID(),
@@ -51,11 +49,13 @@ export function PedagioTab() {
       carro: selectedFuncionario.carro,
       placa: selectedFuncionario.placa,
       data: format(data, "yyyy-MM-dd"),
-      valor: parseFloat(valor)
+      valor: parseFloat(valor),
+      imagensComprovante: imagensComprovante.length > 0 ? imagensComprovante : undefined,
     };
 
     setRecords([...records, newRecord]);
     setValor("");
+    setImagensComprovante([]);
   };
 
   const handleDelete = (id: string) => {
@@ -76,21 +76,15 @@ export function PedagioTab() {
   const toggleSelectId = (id: string) => {
     setSelectedIds(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
       return newSet;
     });
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.size === filteredRecords.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredRecords.map(r => r.id)));
-    }
+    if (selectedIds.size === filteredRecords.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filteredRecords.map(r => r.id)));
   };
 
   const startEdit = (record: PedagioRecord) => {
@@ -104,15 +98,8 @@ export function PedagioTab() {
   };
 
   const saveEdit = (id: string) => {
-    if (!editValor) {
-      return;
-    }
-
-    setRecords(records.map(r => 
-      r.id === id 
-        ? { ...r, valor: parseFloat(editValor) }
-        : r
-    ));
+    if (!editValor) return;
+    setRecords(records.map(r => r.id === id ? { ...r, valor: parseFloat(editValor) } : r));
     cancelEdit();
   };
 
@@ -125,10 +112,7 @@ export function PedagioTab() {
   const total = filteredRecords.reduce((sum, r) => sum + r.valor, 0);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
 
   return (
@@ -154,13 +138,21 @@ export function PedagioTab() {
             />
             <div className="space-y-2">
               <Label htmlFor="valor">Valor (R$)</Label>
-              <Input
-                id="valor"
-                type="number"
-                step="0.01"
-                value={valor}
-                onChange={(e) => setValor(e.target.value)}
-                placeholder="0,00"
+              <div className="flex gap-2">
+                <Input
+                  id="valor"
+                  type="number"
+                  step="0.01"
+                  value={valor}
+                  onChange={(e) => setValor(e.target.value)}
+                  placeholder="0,00"
+                  className="flex-1"
+                />
+              </div>
+              <ImageAttachButton
+                images={imagensComprovante}
+                onImagesChange={setImagensComprovante}
+                label="Comprovante"
               />
             </div>
           </div>
@@ -183,23 +175,10 @@ export function PedagioTab() {
         {showReport && (
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <DatePickerField
-                label="Data Inicial"
-                value={dataInicio}
-                onChange={setDataInicio}
-                placeholder="Início"
-              />
-              <DatePickerField
-                label="Data Final"
-                value={dataFim}
-                onChange={setDataFim}
-                placeholder="Fim"
-              />
+              <DatePickerField label="Data Inicial" value={dataInicio} onChange={setDataInicio} placeholder="Início" />
+              <DatePickerField label="Data Final" value={dataFim} onChange={setDataFim} placeholder="Fim" />
               <div className="flex items-end">
-                <ReportExportButton 
-                  filename="relatorio-pedagio"
-                  disabled={filteredRecords.length === 0}
-                >
+                <ReportExportButton filename="relatorio-pedagio" disabled={filteredRecords.length === 0}>
                   <PedagioReportContent
                     records={filteredRecords}
                     dataInicio={dataInicio}
@@ -230,11 +209,7 @@ export function PedagioTab() {
                   </span>
                 </div>
                 {selectedIds.size > 0 && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleDeleteSelected}
-                  >
+                  <Button variant="destructive" size="sm" onClick={handleDeleteSelected}>
                     <Trash2 className="h-4 w-4 mr-1" />
                     Excluir ({selectedIds.size})
                   </Button>
@@ -244,9 +219,7 @@ export function PedagioTab() {
 
             <div className="space-y-3">
               {filteredRecords.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">
-                  Nenhum registro encontrado
-                </p>
+                <p className="text-center text-muted-foreground py-4">Nenhum registro encontrado</p>
               ) : (
                 filteredRecords.map((record) => (
                   <div key={record.id} className="p-3 border rounded-lg">
@@ -254,39 +227,20 @@ export function PedagioTab() {
                       <div className="space-y-3">
                         <div>
                           <Label className="text-xs">Valor (R$)</Label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={editValor}
-                            onChange={(e) => setEditValor(e.target.value)}
-                            className="h-8 text-sm"
-                          />
+                          <Input type="number" step="0.01" value={editValor} onChange={(e) => setEditValor(e.target.value)} className="h-8 text-sm" />
                         </div>
                         <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => saveEdit(record.id)}
-                            className="flex-1"
-                          >
-                            <Save className="h-4 w-4 mr-1" />
-                            Salvar
+                          <Button size="sm" onClick={() => saveEdit(record.id)} className="flex-1">
+                            <Save className="h-4 w-4 mr-1" /> Salvar
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={cancelEdit}
-                          >
+                          <Button variant="outline" size="sm" onClick={cancelEdit}>
                             <X className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
                     ) : (
                       <div className="flex items-start gap-2">
-                        <Checkbox
-                          checked={selectedIds.has(record.id)}
-                          onCheckedChange={() => toggleSelectId(record.id)}
-                          className="mt-1"
-                        />
+                        <Checkbox checked={selectedIds.has(record.id)} onCheckedChange={() => toggleSelectId(record.id)} className="mt-1" />
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
                           <div>
                             <span className="text-muted-foreground text-xs">Data:</span>
@@ -304,22 +258,17 @@ export function PedagioTab() {
                             <span className="text-muted-foreground text-xs">Valor:</span>
                             <p className="font-medium text-primary">{formatCurrency(record.valor)}</p>
                           </div>
+                          {record.imagensComprovante && record.imagensComprovante.length > 0 && (
+                            <div className="col-span-2">
+                              <span className="text-xs text-muted-foreground">📷 {record.imagensComprovante.length} comprovante(s)</span>
+                            </div>
+                          )}
                         </div>
                         <div className="flex gap-1 flex-shrink-0">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => startEdit(record)}
-                          >
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(record)}>
                             <Edit2 className="h-4 w-4 text-blue-600" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleDelete(record.id)}
-                          >
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(record.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>

@@ -8,11 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { RefeicaoRecord, Funcionario, EmpresaConfig, TipoRefeicao } from "@/types";
+import { RefeicaoRecord, Funcionario, EmpresaConfig, TipoRefeicao, AttachedImage } from "@/types";
 import { FuncionarioSelect } from "./FuncionarioSelect";
 import { DatePickerField } from "./DatePickerField";
 import { ReportExportButton } from "./reports/ReportExportButton";
 import { RefeicaoReportContent } from "./reports/RefeicaoReportContent";
+import { ImageAttachButton } from "./ImageAttachButton";
 
 const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
   cafe: "Café",
@@ -30,17 +31,16 @@ export function RefeicaoTab() {
   const [data, setData] = useState<Date | undefined>(new Date());
   const [tipo, setTipo] = useState<TipoRefeicao>("almoco");
   const [valor, setValor] = useState("");
+  const [imagens, setImagens] = useState<AttachedImage[]>([]);
   
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
 
-  // States for inline editing
   const [editId, setEditId] = useState<string | null>(null);
   const [editTipo, setEditTipo] = useState<TipoRefeicao>("almoco");
   const [editValor, setEditValor] = useState("");
 
-  // States for multi-select deletion
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const handleFuncionarioSelect = (funcionario: Funcionario | undefined) => {
@@ -49,9 +49,7 @@ export function RefeicaoTab() {
   };
 
   const handleAdd = () => {
-    if (!selectedFuncionario || !data || !valor || !tipo) {
-      return;
-    }
+    if (!selectedFuncionario || !data || !valor || !tipo) return;
 
     const newRecord: RefeicaoRecord = {
       id: crypto.randomUUID(),
@@ -60,11 +58,13 @@ export function RefeicaoTab() {
       funcionarioChapa: selectedFuncionario.chapa,
       data: format(data, "yyyy-MM-dd"),
       tipo,
-      valor: parseFloat(valor)
+      valor: parseFloat(valor),
+      imagens: imagens.length > 0 ? imagens : undefined,
     };
 
     setRecords([...records, newRecord]);
     setValor("");
+    setImagens([]);
   };
 
   const handleDelete = (id: string) => {
@@ -85,21 +85,15 @@ export function RefeicaoTab() {
   const toggleSelectId = (id: string) => {
     setSelectedIds(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
       return newSet;
     });
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.size === filteredRecords.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredRecords.map(r => r.id)));
-    }
+    if (selectedIds.size === filteredRecords.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filteredRecords.map(r => r.id)));
   };
 
   const startEdit = (record: RefeicaoRecord) => {
@@ -115,15 +109,8 @@ export function RefeicaoTab() {
   };
 
   const saveEdit = (id: string) => {
-    if (!editValor || !editTipo) {
-      return;
-    }
-
-    setRecords(records.map(r => 
-      r.id === id 
-        ? { ...r, tipo: editTipo, valor: parseFloat(editValor) }
-        : r
-    ));
+    if (!editValor || !editTipo) return;
+    setRecords(records.map(r => r.id === id ? { ...r, tipo: editTipo, valor: parseFloat(editValor) } : r));
     cancelEdit();
   };
 
@@ -136,10 +123,7 @@ export function RefeicaoTab() {
   const total = filteredRecords.reduce((sum, r) => sum + r.valor, 0);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
 
   return (
@@ -174,11 +158,7 @@ export function RefeicaoTab() {
           )}
           
           <div className="grid grid-cols-1 gap-4">
-            <DatePickerField
-              label="Data"
-              value={data}
-              onChange={setData}
-            />
+            <DatePickerField label="Data" value={data} onChange={setData} />
             <div className="space-y-2">
               <Label>Tipo</Label>
               <Select value={tipo} onValueChange={(v) => setTipo(v as TipoRefeicao)}>
@@ -203,6 +183,11 @@ export function RefeicaoTab() {
                 onChange={(e) => setValor(e.target.value)}
                 placeholder="0,00"
               />
+              <ImageAttachButton
+                images={imagens}
+                onImagesChange={setImagens}
+                label="Imagem"
+              />
             </div>
           </div>
           <Button onClick={handleAdd} className="w-full">
@@ -224,23 +209,10 @@ export function RefeicaoTab() {
         {showReport && (
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <DatePickerField
-                label="Data Inicial"
-                value={dataInicio}
-                onChange={setDataInicio}
-                placeholder="Início"
-              />
-              <DatePickerField
-                label="Data Final"
-                value={dataFim}
-                onChange={setDataFim}
-                placeholder="Fim"
-              />
+              <DatePickerField label="Data Inicial" value={dataInicio} onChange={setDataInicio} placeholder="Início" />
+              <DatePickerField label="Data Final" value={dataFim} onChange={setDataFim} placeholder="Fim" />
               <div className="flex items-end">
-                <ReportExportButton 
-                  filename="relatorio-refeicao"
-                  disabled={filteredRecords.length === 0}
-                >
+                <ReportExportButton filename="relatorio-refeicao" disabled={filteredRecords.length === 0}>
                   <RefeicaoReportContent
                     records={filteredRecords}
                     dataInicio={dataInicio}
@@ -271,11 +243,7 @@ export function RefeicaoTab() {
                   </span>
                 </div>
                 {selectedIds.size > 0 && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleDeleteSelected}
-                  >
+                  <Button variant="destructive" size="sm" onClick={handleDeleteSelected}>
                     <Trash2 className="h-4 w-4 mr-1" />
                     Excluir ({selectedIds.size})
                   </Button>
@@ -285,9 +253,7 @@ export function RefeicaoTab() {
 
             <div className="space-y-3">
               {filteredRecords.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">
-                  Nenhum registro encontrado
-                </p>
+                <p className="text-center text-muted-foreground py-4">Nenhum registro encontrado</p>
               ) : (
                 filteredRecords.map((record) => (
                   <div key={record.id} className="p-3 border rounded-lg">
@@ -297,9 +263,7 @@ export function RefeicaoTab() {
                           <div>
                             <Label className="text-xs">Tipo</Label>
                             <Select value={editTipo} onValueChange={(v) => setEditTipo(v as TipoRefeicao)}>
-                              <SelectTrigger className="h-8">
-                                <SelectValue />
-                              </SelectTrigger>
+                              <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="cafe">Café</SelectItem>
                                 <SelectItem value="almoco">Almoço</SelectItem>
@@ -310,40 +274,21 @@ export function RefeicaoTab() {
                           </div>
                           <div>
                             <Label className="text-xs">Valor (R$)</Label>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              value={editValor}
-                              onChange={(e) => setEditValor(e.target.value)}
-                              className="h-8 text-sm"
-                            />
+                            <Input type="number" step="0.01" value={editValor} onChange={(e) => setEditValor(e.target.value)} className="h-8 text-sm" />
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => saveEdit(record.id)}
-                            className="flex-1"
-                          >
-                            <Save className="h-4 w-4 mr-1" />
-                            Salvar
+                          <Button size="sm" onClick={() => saveEdit(record.id)} className="flex-1">
+                            <Save className="h-4 w-4 mr-1" /> Salvar
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={cancelEdit}
-                          >
+                          <Button variant="outline" size="sm" onClick={cancelEdit}>
                             <X className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
                     ) : (
                       <div className="flex items-start gap-2">
-                        <Checkbox
-                          checked={selectedIds.has(record.id)}
-                          onCheckedChange={() => toggleSelectId(record.id)}
-                          className="mt-1"
-                        />
+                        <Checkbox checked={selectedIds.has(record.id)} onCheckedChange={() => toggleSelectId(record.id)} className="mt-1" />
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
                           <div>
                             <span className="text-muted-foreground text-xs">Data:</span>
@@ -361,22 +306,17 @@ export function RefeicaoTab() {
                             <span className="text-muted-foreground text-xs">Valor:</span>
                             <p className="font-medium text-primary">{formatCurrency(record.valor)}</p>
                           </div>
+                          {record.imagens && record.imagens.length > 0 && (
+                            <div className="col-span-2">
+                              <span className="text-xs text-muted-foreground">📷 {record.imagens.length} imagem(ns)</span>
+                            </div>
+                          )}
                         </div>
                         <div className="flex gap-1 flex-shrink-0">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => startEdit(record)}
-                          >
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(record)}>
                             <Edit2 className="h-4 w-4 text-blue-600" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleDelete(record.id)}
-                          >
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(record.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>

@@ -7,16 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { KmRecord, Funcionario, EmpresaConfig } from "@/types";
+import { KmRecord, Funcionario, EmpresaConfig, AttachedImage } from "@/types";
 import { cn } from "@/lib/utils";
 import { FuncionarioSelect } from "./FuncionarioSelect";
 import { DatePickerField } from "./DatePickerField";
 import { ReportExportButton } from "./reports/ReportExportButton";
 import { KmReportContent } from "./reports/KmReportContent";
+import { ImageAttachButton } from "./ImageAttachButton";
 
 export function KmTab() {
   const [records, setRecords] = useLocalStorage<KmRecord[]>("km-records", []);
   const [empresaConfig] = useLocalStorage<EmpresaConfig>("empresa-config", { nome: "" });
+  const [savedValorKm, setSavedValorKm] = useLocalStorage<string>("km-valor-km", "");
   
   const [funcionarioId, setFuncionarioId] = useState("");
   const [selectedFuncionario, setSelectedFuncionario] = useState<Funcionario | undefined>();
@@ -24,8 +26,12 @@ export function KmTab() {
   const [kmInicial, setKmInicial] = useState("");
   const [kmFinal, setKmFinal] = useState("");
   const [kmPercorrido, setKmPercorrido] = useState(0);
-  const [valorKm, setValorKm] = useState("");
+  const [valorKm, setValorKm] = useState(savedValorKm);
   const [valorTotal, setValorTotal] = useState(0);
+  
+  // Image states
+  const [imagensKmInicial, setImagensKmInicial] = useState<AttachedImage[]>([]);
+  const [imagensKmFinal, setImagensKmFinal] = useState<AttachedImage[]>([]);
   
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
   const [dataFim, setDataFim] = useState<Date | undefined>();
@@ -50,7 +56,11 @@ export function KmTab() {
     setValorTotal(percorrido * valor);
   }, [kmInicial, kmFinal, valorKm]);
 
-  // Removed auto-loading of pending records - user edits via report if needed
+  // Persist valorKm to localStorage
+  const handleValorKmChange = (value: string) => {
+    setValorKm(value);
+    setSavedValorKm(value);
+  };
 
   const handleFuncionarioSelect = (funcionario: Funcionario | undefined) => {
     setSelectedFuncionario(funcionario);
@@ -71,7 +81,6 @@ export function KmTab() {
     const kmFinalValue = parseFloat(kmFinal) || null;
     const valorKmValue = parseFloat(valorKm) || 0;
     
-    // Validate if both are filled
     if (kmInicialValue !== null && kmFinalValue !== null && kmFinalValue < kmInicialValue) {
       return;
     }
@@ -84,7 +93,6 @@ export function KmTab() {
       ? 'completo' 
       : 'parcial';
 
-    // Always create a new record
     const newRecord: KmRecord = {
       id: crypto.randomUUID(),
       funcionarioId: selectedFuncionario.id,
@@ -98,13 +106,17 @@ export function KmTab() {
       kmPercorrido: calculatedKm,
       valorKm: valorKmValue,
       valorTotal: calculatedKm * valorKmValue,
-      status
+      status,
+      imagensKmInicial: imagensKmInicial.length > 0 ? imagensKmInicial : undefined,
+      imagensKmFinal: imagensKmFinal.length > 0 ? imagensKmFinal : undefined,
     };
     setRecords([...records, newRecord]);
 
     // Clear KM fields after saving (keep valorKm)
     setKmInicial("");
     setKmFinal("");
+    setImagensKmInicial([]);
+    setImagensKmFinal([]);
   };
 
   const handleDelete = (id: string) => {
@@ -234,7 +246,7 @@ export function KmTab() {
                 type="number"
                 step="0.01"
                 value={valorKm}
-                onChange={(e) => setValorKm(e.target.value)}
+                onChange={(e) => handleValorKmChange(e.target.value)}
                 placeholder="0,00"
               />
             </div>
@@ -250,6 +262,11 @@ export function KmTab() {
                 onChange={(e) => setKmInicial(e.target.value)}
                 placeholder="0"
               />
+              <ImageAttachButton
+                images={imagensKmInicial}
+                onImagesChange={setImagensKmInicial}
+                label="Imagem"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="kmFinal">KM Final</Label>
@@ -259,6 +276,11 @@ export function KmTab() {
                 value={kmFinal}
                 onChange={(e) => setKmFinal(e.target.value)}
                 placeholder="0"
+              />
+              <ImageAttachButton
+                images={imagensKmFinal}
+                onImagesChange={setImagensKmFinal}
+                label="Imagem"
               />
             </div>
           </div>
@@ -455,8 +477,14 @@ export function KmTab() {
                                 ? "bg-green-100 text-green-800" 
                                 : "bg-yellow-100 text-yellow-800"
                             )}>
-                              {record.status === 'completo' ? 'Completo' : 'Parcial'}
+                              {record.status === 'completo' ? "Completo" : "Parcial"}
                             </span>
+                            {((record.imagensKmInicial && record.imagensKmInicial.length > 0) || 
+                              (record.imagensKmFinal && record.imagensKmFinal.length > 0)) && (
+                              <span className="text-xs text-muted-foreground ml-2">
+                                📷 {(record.imagensKmInicial?.length || 0) + (record.imagensKmFinal?.length || 0)} imagem(ns)
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex gap-1 flex-shrink-0">
