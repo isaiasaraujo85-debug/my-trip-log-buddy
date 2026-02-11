@@ -14,6 +14,7 @@ import { DatePickerField } from "./DatePickerField";
 import { ReportExportButton } from "./reports/ReportExportButton";
 import { RefeicaoReportContent } from "./reports/RefeicaoReportContent";
 import { ImageAttachButton } from "./ImageAttachButton";
+import { parseLocalDate } from "@/utils/dateUtils";
 
 const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
   cafe: "Café",
@@ -116,7 +117,7 @@ export function RefeicaoTab() {
 
   const filteredRecords = records.filter(r => {
     if (!dataInicio || !dataFim) return true;
-    const recordDate = new Date(r.data);
+    const recordDate = parseLocalDate(r.data);
     return recordDate >= dataInicio && recordDate <= dataFim;
   });
 
@@ -292,7 +293,7 @@ export function RefeicaoTab() {
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
                           <div>
                             <span className="text-muted-foreground text-xs">Data:</span>
-                            <p className="font-medium">{format(new Date(record.data), "dd/MM/yyyy")}</p>
+                            <p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p>
                           </div>
                           <div>
                             <span className="text-muted-foreground text-xs">Funcionário:</span>
