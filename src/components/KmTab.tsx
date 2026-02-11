@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { KmRecord, Funcionario, EmpresaConfig, AttachedImage } from "@/types";
 import { cn } from "@/lib/utils";
+import { parseLocalDate } from "@/utils/dateUtils";
 import { FuncionarioSelect } from "./FuncionarioSelect";
 import { DatePickerField } from "./DatePickerField";
 import { ReportExportButton } from "./reports/ReportExportButton";
@@ -203,7 +204,7 @@ export function KmTab() {
 
   const filteredRecords = records.filter(r => {
     if (!dataInicio || !dataFim) return true;
-    const recordDate = new Date(r.data);
+    const recordDate = parseLocalDate(r.data);
     return recordDate >= dataInicio && recordDate <= dataFim;
   });
 
@@ -448,7 +449,7 @@ export function KmTab() {
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
                           <div>
                             <span className="text-muted-foreground text-xs">Data:</span>
-                            <p className="font-medium">{format(new Date(record.data), "dd/MM/yyyy")}</p>
+                            <p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p>
                           </div>
                           <div>
                             <span className="text-muted-foreground text-xs">Funcionário:</span>

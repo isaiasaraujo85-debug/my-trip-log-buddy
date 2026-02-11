@@ -13,6 +13,7 @@ import { DatePickerField } from "./DatePickerField";
 import { ReportExportButton } from "./reports/ReportExportButton";
 import { PedagioReportContent } from "./reports/PedagioReportContent";
 import { ImageAttachButton } from "./ImageAttachButton";
+import { parseLocalDate } from "@/utils/dateUtils";
 
 export function PedagioTab() {
   const [records, setRecords] = useLocalStorage<PedagioRecord[]>("pedagio-records", []);
@@ -105,7 +106,7 @@ export function PedagioTab() {
 
   const filteredRecords = records.filter(r => {
     if (!dataInicio || !dataFim) return true;
-    const recordDate = new Date(r.data);
+    const recordDate = parseLocalDate(r.data);
     return recordDate >= dataInicio && recordDate <= dataFim;
   });
 
@@ -244,7 +245,7 @@ export function PedagioTab() {
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
                           <div>
                             <span className="text-muted-foreground text-xs">Data:</span>
-                            <p className="font-medium">{format(new Date(record.data), "dd/MM/yyyy")}</p>
+                            <p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p>
                           </div>
                           <div>
                             <span className="text-muted-foreground text-xs">Funcionário:</span>
