@@ -11,12 +11,7 @@ interface PedagioReportContentProps {
   empresaConfig: EmpresaConfig;
 }
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(value);
-};
+const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
 const A4_STYLE = {
   width: '1123px',
@@ -26,13 +21,7 @@ const A4_STYLE = {
   boxSizing: 'border-box' as const,
 };
 
-export function PedagioReportContent({
-  records,
-  dataInicio,
-  dataFim,
-  total,
-  empresaConfig
-}: PedagioReportContentProps) {
+export function PedagioReportContent({ records, dataInicio, dataFim, total, empresaConfig }: PedagioReportContentProps) {
   const firstRecord = records[0];
 
   const allImages: { label: string; base64: string }[] = [];
@@ -42,10 +31,7 @@ export function PedagioReportContent({
     if (record.imagensComprovante) {
       const dateLabel = format(parseLocalDate(record.data), "dd/MM/yyyy");
       for (const img of record.imagensComprovante) {
-        allImages.push({
-          label: `${dateLabel} - Pedágio: ${formatCurrency(record.valor)}`,
-          base64: img.base64,
-        });
+        allImages.push({ label: `${dateLabel} - Pedágio (${record.direcao === 'ida' ? 'Ida' : 'Volta'}): ${formatCurrency(record.valor)}`, base64: img.base64 });
       }
     }
   }
@@ -75,19 +61,15 @@ export function PedagioReportContent({
         <h2 className="text-lg font-bold mb-2">Relatório de Pedágio</h2>
         
         {dataInicio && dataFim && (
-          <p className="text-sm text-gray-600 mb-1">
-            Período: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}
-          </p>
+          <p className="text-sm text-gray-600 mb-1">Período: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}</p>
         )}
-        <p className="text-sm text-gray-600 mb-4">
-          Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-        </p>
+        <p className="text-sm text-gray-600 mb-4">Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
 
         {firstRecord && (
           <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-100 rounded text-sm">
             <div><span className="text-gray-600">Funcionário:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
-            <div><span className="text-gray-600">Chapa:</span> <strong>{firstRecord.funcionarioChapa}</strong></div>
-            <div><span className="text-gray-600">Veículo:</span> <strong>{firstRecord.carro}</strong></div>
+            <div><span className="text-gray-600">Matrícula:</span> <strong>{firstRecord.funcionarioMatricula}</strong></div>
+            <div><span className="text-gray-600">Veículo:</span> <strong>{firstRecord.veiculo}</strong></div>
             <div><span className="text-gray-600">Placa:</span> <strong>{firstRecord.placa}</strong></div>
           </div>
         )}
@@ -98,6 +80,7 @@ export function PedagioReportContent({
               <th className="p-2 text-left border border-blue-600">Data</th>
               <th className="p-2 text-left border border-blue-600">Funcionário</th>
               <th className="p-2 text-left border border-blue-600">Placa</th>
+              <th className="p-2 text-left border border-blue-600">Direção</th>
               <th className="p-2 text-right border border-blue-600">Valor</th>
             </tr>
           </thead>
@@ -107,6 +90,7 @@ export function PedagioReportContent({
                 <td className="p-2 border border-gray-300">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</td>
                 <td className="p-2 border border-gray-300">{record.funcionarioNome}</td>
                 <td className="p-2 border border-gray-300">{record.placa}</td>
+                <td className="p-2 border border-gray-300">{record.direcao === 'ida' ? 'Ida' : 'Volta'}</td>
                 <td className="p-2 border border-gray-300 text-right">{formatCurrency(record.valor)}</td>
               </tr>
             ))}

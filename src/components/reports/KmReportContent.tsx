@@ -12,14 +12,8 @@ interface KmReportContentProps {
   empresaConfig: EmpresaConfig;
 }
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(value);
-};
+const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-// A4 landscape: 1123px x 794px at 96dpi
 const A4_STYLE = {
   width: '1123px',
   minHeight: '794px',
@@ -28,47 +22,26 @@ const A4_STYLE = {
   boxSizing: 'border-box' as const,
 };
 
-export function KmReportContent({
-  records,
-  dataInicio,
-  dataFim,
-  totalKm,
-  totalValor,
-  empresaConfig
-}: KmReportContentProps) {
+export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalValor, empresaConfig }: KmReportContentProps) {
   const firstRecord = records[0];
 
-  // Collect all images sorted by date, km inicial first then km final
-  const allImages: { date: string; label: string; base64: string; sortKey: string; type: 'inicial' | 'final' }[] = [];
+  const allImages: { date: string; label: string; base64: string; sortKey: string }[] = [];
   const sortedRecords = [...records].sort((a, b) => a.data.localeCompare(b.data));
   
   for (const record of sortedRecords) {
     const dateLabel = format(parseLocalDate(record.data), "dd/MM/yyyy");
     if (record.imagensKmInicial) {
       for (const img of record.imagensKmInicial) {
-        allImages.push({
-          date: dateLabel,
-          label: `${dateLabel} - KM Inicial: ${record.kmInicial ?? "-"}`,
-          base64: img.base64,
-          sortKey: record.data + '_0',
-          type: 'inicial',
-        });
+        allImages.push({ date: dateLabel, label: `${dateLabel} - KM Inicial: ${record.kmInicial ?? "-"}`, base64: img.base64, sortKey: record.data + '_0' });
       }
     }
     if (record.imagensKmFinal) {
       for (const img of record.imagensKmFinal) {
-        allImages.push({
-          date: dateLabel,
-          label: `${dateLabel} - KM Final: ${record.kmFinal ?? "-"}`,
-          base64: img.base64,
-          sortKey: record.data + '_1',
-          type: 'final',
-        });
+        allImages.push({ date: dateLabel, label: `${dateLabel} - KM Final: ${record.kmFinal ?? "-"}`, base64: img.base64, sortKey: record.data + '_1' });
       }
     }
   }
 
-  // Group images in pairs of 2 per page
   const imagePages: typeof allImages[] = [];
   for (let i = 0; i < allImages.length; i += 2) {
     imagePages.push(allImages.slice(i, i + 2));
@@ -76,7 +49,6 @@ export function KmReportContent({
 
   return (
     <div>
-      {/* Page 1: Data table */}
       <div className="bg-white text-black" style={A4_STYLE}>
         <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-blue-500">
           {empresaConfig.logoBase64 ? (
@@ -95,19 +67,15 @@ export function KmReportContent({
         <h2 className="text-lg font-bold mb-2">Relatório de Quilometragem</h2>
         
         {dataInicio && dataFim && (
-          <p className="text-sm text-gray-600 mb-1">
-            Período: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}
-          </p>
+          <p className="text-sm text-gray-600 mb-1">Período: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}</p>
         )}
-        <p className="text-sm text-gray-600 mb-4">
-          Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-        </p>
+        <p className="text-sm text-gray-600 mb-4">Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
 
         {firstRecord && (
           <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-100 rounded text-sm">
             <div><span className="text-gray-600">Funcionário:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
-            <div><span className="text-gray-600">Chapa:</span> <strong>{firstRecord.funcionarioChapa}</strong></div>
-            <div><span className="text-gray-600">Veículo:</span> <strong>{firstRecord.carro}</strong></div>
+            <div><span className="text-gray-600">Matrícula:</span> <strong>{firstRecord.funcionarioMatricula}</strong></div>
+            <div><span className="text-gray-600">Veículo:</span> <strong>{firstRecord.veiculo}</strong></div>
             <div><span className="text-gray-600">Placa:</span> <strong>{firstRecord.placa}</strong></div>
           </div>
         )}
@@ -151,22 +119,16 @@ export function KmReportContent({
         </div>
       </div>
 
-      {/* Photo pages: 2 photos per A4 landscape page */}
       {imagePages.map((page, pageIndex) => (
         <div key={pageIndex} className="bg-white text-black" style={{ ...A4_STYLE, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-300">
-            <span className="text-sm font-bold text-gray-600">Imagens Anexadas - Página {pageIndex + 1}</span>
+            <span className="text-sm font-bold text-gray-600">Comprovantes Anexados - Página {pageIndex + 1}</span>
           </div>
           <div className="flex-1 flex flex-col gap-4 justify-center">
             {page.map((img, imgIndex) => (
               <div key={imgIndex} className="flex-1 flex flex-col items-center justify-center border border-gray-300 rounded p-3">
                 <p className="text-sm font-semibold text-gray-700 mb-2">{img.label}</p>
-                <img 
-                  src={img.base64} 
-                  alt={img.label} 
-                  className="max-w-full h-auto rounded" 
-                  style={{ maxHeight: '300px', objectFit: 'contain' }} 
-                />
+                <img src={img.base64} alt={img.label} className="max-w-full h-auto rounded" style={{ maxHeight: '300px', objectFit: 'contain' }} />
               </div>
             ))}
           </div>

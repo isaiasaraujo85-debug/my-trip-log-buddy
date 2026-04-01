@@ -1,8 +1,13 @@
 export interface Funcionario {
   id: string;
   nome: string;
-  chapa: string;
-  carro: string;
+  matricula: string;
+  funcao: string;
+}
+
+export interface Veiculo {
+  id: string;
+  modelo: string;
   placa: string;
 }
 
@@ -21,8 +26,9 @@ export interface KmRecord {
   id: string;
   funcionarioId: string;
   funcionarioNome: string;
-  funcionarioChapa: string;
-  carro: string;
+  funcionarioMatricula: string;
+  veiculoId: string;
+  veiculo: string;
   placa: string;
   data: string;
   kmInicial: number | null;
@@ -39,11 +45,13 @@ export interface PedagioRecord {
   id: string;
   funcionarioId: string;
   funcionarioNome: string;
-  funcionarioChapa: string;
-  carro: string;
+  funcionarioMatricula: string;
+  veiculoId: string;
+  veiculo: string;
   placa: string;
   data: string;
   valor: number;
+  direcao: 'ida' | 'volta';
   imagensComprovante?: AttachedImage[];
 }
 
@@ -53,7 +61,7 @@ export interface RefeicaoRecord {
   id: string;
   funcionarioId: string;
   funcionarioNome: string;
-  funcionarioChapa: string;
+  funcionarioMatricula: string;
   data: string;
   tipo: TipoRefeicao;
   valor: number;
