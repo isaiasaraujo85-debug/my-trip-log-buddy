@@ -6,10 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface FuncionarioSelectProps {
   value: string;
   onSelect: (funcionario: Funcionario | undefined) => void;
-  showDetails?: boolean;
 }
 
-export function FuncionarioSelect({ value, onSelect, showDetails = true }: FuncionarioSelectProps) {
+export function FuncionarioSelect({ value, onSelect }: FuncionarioSelectProps) {
   const [funcionarios] = useLocalStorage<Funcionario[]>("funcionarios", []);
 
   const handleChange = (id: string) => {
@@ -17,48 +16,27 @@ export function FuncionarioSelect({ value, onSelect, showDetails = true }: Funci
     onSelect(funcionario);
   };
 
-  const selectedFuncionario = funcionarios.find(f => f.id === value);
-
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label>Funcionário</Label>
-        <Select value={value} onValueChange={handleChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione um funcionário" />
-          </SelectTrigger>
-          <SelectContent>
-            {funcionarios.length === 0 ? (
-              <SelectItem value="none" disabled>
-                Nenhum funcionário cadastrado
+    <div className="space-y-2">
+      <Label>Selecione o Funcionário</Label>
+      <Select value={value} onValueChange={handleChange}>
+        <SelectTrigger>
+          <SelectValue placeholder="Selecione o funcionário" />
+        </SelectTrigger>
+        <SelectContent>
+          {funcionarios.length === 0 ? (
+            <SelectItem value="none" disabled>
+              Nenhum funcionário cadastrado
+            </SelectItem>
+          ) : (
+            funcionarios.map((funcionario) => (
+              <SelectItem key={funcionario.id} value={funcionario.id}>
+                {funcionario.nome}
               </SelectItem>
-            ) : (
-              funcionarios.map((funcionario) => (
-                <SelectItem key={funcionario.id} value={funcionario.id}>
-                  {funcionario.nome}
-                </SelectItem>
-              ))
-            )}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {showDetails && selectedFuncionario && (
-        <div className="grid grid-cols-2 gap-2 p-3 bg-muted rounded-lg text-sm">
-          <div>
-            <span className="text-muted-foreground">Chapa:</span>
-            <p className="font-medium">{selectedFuncionario.chapa}</p>
-          </div>
-          <div>
-            <span className="text-muted-foreground">Carro:</span>
-            <p className="font-medium">{selectedFuncionario.carro}</p>
-          </div>
-          <div className="col-span-2">
-            <span className="text-muted-foreground">Placa:</span>
-            <p className="font-medium">{selectedFuncionario.placa}</p>
-          </div>
-        </div>
-      )}
+            ))
+          )}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

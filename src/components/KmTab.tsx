@@ -7,10 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { KmRecord, Funcionario, EmpresaConfig, AttachedImage } from "@/types";
+import { KmRecord, Funcionario, Veiculo, EmpresaConfig, AttachedImage } from "@/types";
 import { cn } from "@/lib/utils";
 import { parseLocalDate } from "@/utils/dateUtils";
 import { FuncionarioSelect } from "./FuncionarioSelect";
+import { VeiculoSelect } from "./VeiculoSelect";
 import { DatePickerField } from "./DatePickerField";
 import { ReportExportButton } from "./reports/ReportExportButton";
 import { KmReportContent } from "./reports/KmReportContent";
@@ -23,6 +24,8 @@ export function KmTab() {
   
   const [funcionarioId, setFuncionarioId] = useState("");
   const [selectedFuncionario, setSelectedFuncionario] = useState<Funcionario | undefined>();
+  const [veiculoId, setVeiculoId] = useState("");
+  const [selectedVeiculo, setSelectedVeiculo] = useState<Veiculo | undefined>();
   const [data, setData] = useState<Date | undefined>(new Date());
   const [kmInicial, setKmInicial] = useState("");
   const [kmFinal, setKmFinal] = useState("");
@@ -30,7 +33,6 @@ export function KmTab() {
   const [valorKm, setValorKm] = useState(savedValorKm);
   const [valorTotal, setValorTotal] = useState(0);
   
-  // Image states
   const [imagensKmInicial, setImagensKmInicial] = useState<AttachedImage[]>([]);
   const [imagensKmFinal, setImagensKmFinal] = useState<AttachedImage[]>([]);
   
@@ -38,26 +40,22 @@ export function KmTab() {
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
   
-  // States for inline editing in table
   const [tableEditId, setTableEditId] = useState<string | null>(null);
   const [tableEditKmInicial, setTableEditKmInicial] = useState("");
   const [tableEditKmFinal, setTableEditKmFinal] = useState("");
   const [tableEditValorKm, setTableEditValorKm] = useState("");
   
-  // States for multi-select deletion
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const inicial = parseFloat(kmInicial) || 0;
-    const final = parseFloat(kmFinal) || 0;
-    const percorrido = Math.max(0, final - inicial);
+    const final2 = parseFloat(kmFinal) || 0;
+    const percorrido = Math.max(0, final2 - inicial);
     setKmPercorrido(percorrido);
-    
     const valor = parseFloat(valorKm) || 0;
     setValorTotal(percorrido * valor);
   }, [kmInicial, kmFinal, valorKm]);
 
-  // Persist valorKm to localStorage
   const handleValorKmChange = (value: string) => {
     setValorKm(value);
     setSavedValorKm(value);
@@ -68,39 +66,33 @@ export function KmTab() {
     setFuncionarioId(funcionario?.id || "");
   };
 
-  const handleSave = () => {
-    if (!selectedFuncionario || !data) {
-      return;
-    }
+  const handleVeiculoSelect = (veiculo: Veiculo | undefined) => {
+    setSelectedVeiculo(veiculo);
+    setVeiculoId(veiculo?.id || "");
+  };
 
-    if (!kmInicial && !kmFinal) {
-      return;
-    }
+  const handleSave = () => {
+    if (!selectedFuncionario || !selectedVeiculo || !data) return;
+    if (!kmInicial && !kmFinal) return;
 
     const dateStr = format(data, "yyyy-MM-dd");
     const kmInicialValue = parseFloat(kmInicial) || null;
     const kmFinalValue = parseFloat(kmFinal) || null;
     const valorKmValue = parseFloat(valorKm) || 0;
     
-    if (kmInicialValue !== null && kmFinalValue !== null && kmFinalValue < kmInicialValue) {
-      return;
-    }
+    if (kmInicialValue !== null && kmFinalValue !== null && kmFinalValue < kmInicialValue) return;
 
-    const calculatedKm = (kmInicialValue !== null && kmFinalValue !== null) 
-      ? kmFinalValue - kmInicialValue 
-      : 0;
-    
-    const status: 'parcial' | 'completo' = (kmInicialValue !== null && kmFinalValue !== null) 
-      ? 'completo' 
-      : 'parcial';
+    const calculatedKm = (kmInicialValue !== null && kmFinalValue !== null) ? kmFinalValue - kmInicialValue : 0;
+    const status: 'parcial' | 'completo' = (kmInicialValue !== null && kmFinalValue !== null) ? 'completo' : 'parcial';
 
     const newRecord: KmRecord = {
       id: crypto.randomUUID(),
       funcionarioId: selectedFuncionario.id,
       funcionarioNome: selectedFuncionario.nome,
-      funcionarioChapa: selectedFuncionario.chapa,
-      carro: selectedFuncionario.carro,
-      placa: selectedFuncionario.placa,
+      funcionarioMatricula: selectedFuncionario.matricula,
+      veiculoId: selectedVeiculo.id,
+      veiculo: selectedVeiculo.modelo,
+      placa: selectedVeiculo.placa,
       data: dateStr,
       kmInicial: kmInicialValue,
       kmFinal: kmFinalValue,
@@ -112,8 +104,6 @@ export function KmTab() {
       imagensKmFinal: imagensKmFinal.length > 0 ? imagensKmFinal : undefined,
     };
     setRecords([...records, newRecord]);
-
-    // Clear KM fields after saving (keep valorKm)
     setKmInicial("");
     setKmFinal("");
     setImagensKmInicial([]);
@@ -122,11 +112,7 @@ export function KmTab() {
 
   const handleDelete = (id: string) => {
     setRecords(records.filter(r => r.id !== id));
-    setSelectedIds(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(id);
-      return newSet;
-    });
+    setSelectedIds(prev => { const s = new Set(prev); s.delete(id); return s; });
   };
 
   const handleDeleteSelected = () => {
@@ -136,23 +122,12 @@ export function KmTab() {
   };
 
   const toggleSelectId = (id: string) => {
-    setSelectedIds(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
+    setSelectedIds(prev => { const s = new Set(prev); if (s.has(id)) s.delete(id); else s.add(id); return s; });
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.size === filteredRecords.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredRecords.map(r => r.id)));
-    }
+    if (selectedIds.size === filteredRecords.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filteredRecords.map(r => r.id)));
   };
 
   const startTableEdit = (record: KmRecord) => {
@@ -162,43 +137,16 @@ export function KmTab() {
     setTableEditValorKm(record.valorKm?.toString() || "");
   };
 
-  const cancelTableEdit = () => {
-    setTableEditId(null);
-    setTableEditKmInicial("");
-    setTableEditKmFinal("");
-    setTableEditValorKm("");
-  };
+  const cancelTableEdit = () => { setTableEditId(null); };
 
   const saveTableEdit = (id: string) => {
     const kmInicialValue = parseFloat(tableEditKmInicial) || null;
     const kmFinalValue = parseFloat(tableEditKmFinal) || null;
     const valorKmValue = parseFloat(tableEditValorKm) || 0;
-
-    if (kmInicialValue !== null && kmFinalValue !== null && kmFinalValue < kmInicialValue) {
-      return;
-    }
-
-    const calculatedKm = (kmInicialValue !== null && kmFinalValue !== null) 
-      ? kmFinalValue - kmInicialValue 
-      : 0;
-    
-    const status: 'parcial' | 'completo' = (kmInicialValue !== null && kmFinalValue !== null) 
-      ? 'completo' 
-      : 'parcial';
-
-    setRecords(records.map(r => 
-      r.id === id 
-        ? { 
-            ...r, 
-            kmInicial: kmInicialValue,
-            kmFinal: kmFinalValue,
-            kmPercorrido: calculatedKm,
-            valorKm: valorKmValue,
-            valorTotal: calculatedKm * valorKmValue,
-            status
-          }
-        : r
-    ));
+    if (kmInicialValue !== null && kmFinalValue !== null && kmFinalValue < kmInicialValue) return;
+    const calculatedKm = (kmInicialValue !== null && kmFinalValue !== null) ? kmFinalValue - kmInicialValue : 0;
+    const status: 'parcial' | 'completo' = (kmInicialValue !== null && kmFinalValue !== null) ? 'completo' : 'parcial';
+    setRecords(records.map(r => r.id === id ? { ...r, kmInicial: kmInicialValue, kmFinal: kmFinalValue, kmPercorrido: calculatedKm, valorKm: valorKmValue, valorTotal: calculatedKm * valorKmValue, status } : r));
     cancelTableEdit();
   };
 
@@ -212,12 +160,7 @@ export function KmTab() {
   const totalKm = completedRecords.reduce((sum, r) => sum + r.kmPercorrido, 0);
   const totalValor = completedRecords.reduce((sum, r) => sum + (r.valorTotal || 0), 0);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
+  const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   return (
     <div className="space-y-6">
@@ -229,60 +172,47 @@ export function KmTab() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <FuncionarioSelect 
-            value={funcionarioId}
-            onSelect={handleFuncionarioSelect}
-          />
+          <FuncionarioSelect value={funcionarioId} onSelect={handleFuncionarioSelect} />
+          <VeiculoSelect value={veiculoId} onSelect={handleVeiculoSelect} />
+
+          {(selectedFuncionario || selectedVeiculo) && (
+            <div className="p-3 bg-muted rounded-lg text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                {selectedFuncionario && (
+                  <>
+                    <div><span className="text-muted-foreground">Nome:</span><p className="font-medium">{selectedFuncionario.nome}</p></div>
+                    <div><span className="text-muted-foreground">Matrícula:</span><p className="font-medium">{selectedFuncionario.matricula}</p></div>
+                    <div><span className="text-muted-foreground">Função:</span><p className="font-medium">{selectedFuncionario.funcao}</p></div>
+                  </>
+                )}
+                {selectedVeiculo && (
+                  <>
+                    <div><span className="text-muted-foreground">Veículo:</span><p className="font-medium">{selectedVeiculo.modelo}</p></div>
+                    <div><span className="text-muted-foreground">Placa:</span><p className="font-medium">{selectedVeiculo.placa}</p></div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <DatePickerField
-              label="Data"
-              value={data}
-              onChange={setData}
-            />
+            <DatePickerField label="Data" value={data} onChange={setData} />
             <div className="space-y-2">
               <Label htmlFor="valorKm">Valor por KM (R$)</Label>
-              <Input
-                id="valorKm"
-                type="number"
-                step="0.01"
-                value={valorKm}
-                onChange={(e) => handleValorKmChange(e.target.value)}
-                placeholder="0,00"
-              />
+              <Input id="valorKm" type="number" step="0.01" value={valorKm} onChange={(e) => handleValorKmChange(e.target.value)} placeholder="0,00" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="kmInicial">KM Inicial</Label>
-              <Input
-                id="kmInicial"
-                type="number"
-                value={kmInicial}
-                onChange={(e) => setKmInicial(e.target.value)}
-                placeholder="0"
-              />
-              <ImageAttachButton
-                images={imagensKmInicial}
-                onImagesChange={setImagensKmInicial}
-                label="Imagem"
-              />
+              <Input id="kmInicial" type="number" value={kmInicial} onChange={(e) => setKmInicial(e.target.value)} placeholder="0" />
+              <ImageAttachButton images={imagensKmInicial} onImagesChange={setImagensKmInicial} label="Comprovante" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="kmFinal">KM Final</Label>
-              <Input
-                id="kmFinal"
-                type="number"
-                value={kmFinal}
-                onChange={(e) => setKmFinal(e.target.value)}
-                placeholder="0"
-              />
-              <ImageAttachButton
-                images={imagensKmFinal}
-                onImagesChange={setImagensKmFinal}
-                label="Imagem"
-              />
+              <Input id="kmFinal" type="number" value={kmFinal} onChange={(e) => setKmFinal(e.target.value)} placeholder="0" />
+              <ImageAttachButton images={imagensKmFinal} onImagesChange={setImagensKmFinal} label="Comprovante" />
             </div>
           </div>
           
@@ -301,7 +231,6 @@ export function KmTab() {
             <Save className="mr-2 h-4 w-4" />
             Salvar
           </Button>
-
         </CardContent>
       </Card>
 
@@ -317,31 +246,11 @@ export function KmTab() {
         {showReport && (
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <DatePickerField
-                label="Data Inicial"
-                value={dataInicio}
-                onChange={setDataInicio}
-                placeholder="Início"
-              />
-              <DatePickerField
-                label="Data Final"
-                value={dataFim}
-                onChange={setDataFim}
-                placeholder="Fim"
-              />
+              <DatePickerField label="Data Inicial" value={dataInicio} onChange={setDataInicio} placeholder="Início" />
+              <DatePickerField label="Data Final" value={dataFim} onChange={setDataFim} placeholder="Fim" />
               <div className="flex items-end">
-                <ReportExportButton 
-                  filename="relatorio-km"
-                  disabled={completedRecords.length === 0}
-                >
-                  <KmReportContent
-                    records={completedRecords}
-                    dataInicio={dataInicio}
-                    dataFim={dataFim}
-                    totalKm={totalKm}
-                    totalValor={totalValor}
-                    empresaConfig={empresaConfig}
-                  />
+                <ReportExportButton filename="relatorio-km" disabled={completedRecords.length === 0}>
+                  <KmReportContent records={completedRecords} dataInicio={dataInicio} dataFim={dataFim} totalKm={totalKm} totalValor={totalValor} empresaConfig={empresaConfig} />
                 </ReportExportButton>
               </div>
             </div>
@@ -360,22 +269,12 @@ export function KmTab() {
             {filteredRecords.length > 0 && (
               <div className="flex items-center justify-between gap-2 py-2 border-b">
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    checked={selectedIds.size === filteredRecords.length && filteredRecords.length > 0}
-                    onCheckedChange={toggleSelectAll}
-                  />
-                  <span className="text-sm text-muted-foreground">
-                    {selectedIds.size > 0 ? `${selectedIds.size} selecionado(s)` : "Selecionar todos"}
-                  </span>
+                  <Checkbox checked={selectedIds.size === filteredRecords.length && filteredRecords.length > 0} onCheckedChange={toggleSelectAll} />
+                  <span className="text-sm text-muted-foreground">{selectedIds.size > 0 ? `${selectedIds.size} selecionado(s)` : "Selecionar todos"}</span>
                 </div>
                 {selectedIds.size > 0 && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleDeleteSelected}
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Excluir ({selectedIds.size})
+                  <Button variant="destructive" size="sm" onClick={handleDeleteSelected}>
+                    <Trash2 className="h-4 w-4 mr-1" /> Excluir ({selectedIds.size})
                   </Button>
                 )}
               </div>
@@ -383,128 +282,44 @@ export function KmTab() {
 
             <div className="space-y-3">
               {filteredRecords.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">
-                  Nenhum registro encontrado
-                </p>
+                <p className="text-center text-muted-foreground py-4">Nenhum registro encontrado</p>
               ) : (
                 filteredRecords.map((record) => (
                   <div key={record.id} className="p-3 border rounded-lg">
                     {tableEditId === record.id ? (
                       <div className="space-y-3">
                         <div className="grid grid-cols-3 gap-2">
-                          <div>
-                            <Label className="text-xs">KM Inicial</Label>
-                            <Input
-                              type="number"
-                              value={tableEditKmInicial}
-                              onChange={(e) => setTableEditKmInicial(e.target.value)}
-                              className="h-8 text-sm"
-                            />
-                          </div>
-                          <div>
-                            <Label className="text-xs">KM Final</Label>
-                            <Input
-                              type="number"
-                              value={tableEditKmFinal}
-                              onChange={(e) => setTableEditKmFinal(e.target.value)}
-                              className="h-8 text-sm"
-                            />
-                          </div>
-                          <div>
-                            <Label className="text-xs">Valor KM</Label>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              value={tableEditValorKm}
-                              onChange={(e) => setTableEditValorKm(e.target.value)}
-                              className="h-8 text-sm"
-                            />
-                          </div>
+                          <div><Label className="text-xs">KM Inicial</Label><Input type="number" value={tableEditKmInicial} onChange={(e) => setTableEditKmInicial(e.target.value)} className="h-8 text-sm" /></div>
+                          <div><Label className="text-xs">KM Final</Label><Input type="number" value={tableEditKmFinal} onChange={(e) => setTableEditKmFinal(e.target.value)} className="h-8 text-sm" /></div>
+                          <div><Label className="text-xs">Valor KM</Label><Input type="number" step="0.01" value={tableEditValorKm} onChange={(e) => setTableEditValorKm(e.target.value)} className="h-8 text-sm" /></div>
                         </div>
                         <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => saveTableEdit(record.id)}
-                            className="flex-1"
-                          >
-                            <Save className="h-4 w-4 mr-1" />
-                            Salvar
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={cancelTableEdit}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
+                          <Button size="sm" onClick={() => saveTableEdit(record.id)} className="flex-1"><Save className="h-4 w-4 mr-1" /> Salvar</Button>
+                          <Button variant="outline" size="sm" onClick={cancelTableEdit}><X className="h-4 w-4" /></Button>
                         </div>
                       </div>
                     ) : (
                       <div className="flex items-start gap-2">
-                        <Checkbox
-                          checked={selectedIds.has(record.id)}
-                          onCheckedChange={() => toggleSelectId(record.id)}
-                          className="mt-1"
-                        />
+                        <Checkbox checked={selectedIds.has(record.id)} onCheckedChange={() => toggleSelectId(record.id)} className="mt-1" />
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
-                          <div>
-                            <span className="text-muted-foreground text-xs">Data:</span>
-                            <p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground text-xs">Funcionário:</span>
-                            <p className="font-medium truncate">{record.funcionarioNome}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground text-xs">KM Inicial:</span>
-                            <p className="font-medium">{record.kmInicial ?? "-"}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground text-xs">KM Final:</span>
-                            <p className="font-medium">{record.kmFinal ?? "-"}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground text-xs">Percorrido:</span>
-                            <p className="font-medium text-primary">{record.kmPercorrido} km</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground text-xs">Valor:</span>
-                            <p className="font-medium text-green-600">{formatCurrency(record.valorTotal || 0)}</p>
-                          </div>
+                          <div><span className="text-muted-foreground text-xs">Data:</span><p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p></div>
+                          <div><span className="text-muted-foreground text-xs">Funcionário:</span><p className="font-medium truncate">{record.funcionarioNome}</p></div>
+                          <div><span className="text-muted-foreground text-xs">KM Inicial:</span><p className="font-medium">{record.kmInicial ?? "-"}</p></div>
+                          <div><span className="text-muted-foreground text-xs">KM Final:</span><p className="font-medium">{record.kmFinal ?? "-"}</p></div>
+                          <div><span className="text-muted-foreground text-xs">Percorrido:</span><p className="font-medium text-primary">{record.kmPercorrido} km</p></div>
+                          <div><span className="text-muted-foreground text-xs">Valor:</span><p className="font-medium text-green-600">{formatCurrency(record.valorTotal || 0)}</p></div>
                           <div className="col-span-2">
-                            <span className={cn(
-                              "text-xs px-2 py-1 rounded-full",
-                              record.status === 'completo' 
-                                ? "bg-green-100 text-green-800" 
-                                : "bg-yellow-100 text-yellow-800"
-                            )}>
+                            <span className={cn("text-xs px-2 py-1 rounded-full", record.status === 'completo' ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800")}>
                               {record.status === 'completo' ? "Completo" : "Parcial"}
                             </span>
-                            {((record.imagensKmInicial && record.imagensKmInicial.length > 0) || 
-                              (record.imagensKmFinal && record.imagensKmFinal.length > 0)) && (
-                              <span className="text-xs text-muted-foreground ml-2">
-                                📷 {(record.imagensKmInicial?.length || 0) + (record.imagensKmFinal?.length || 0)} imagem(ns)
-                              </span>
+                            {((record.imagensKmInicial && record.imagensKmInicial.length > 0) || (record.imagensKmFinal && record.imagensKmFinal.length > 0)) && (
+                              <span className="text-xs text-muted-foreground ml-2">📷 {(record.imagensKmInicial?.length || 0) + (record.imagensKmFinal?.length || 0)} comprovante(s)</span>
                             )}
                           </div>
                         </div>
                         <div className="flex gap-1 flex-shrink-0">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => startTableEdit(record)}
-                          >
-                            <Edit2 className="h-4 w-4 text-blue-600" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleDelete(record.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startTableEdit(record)}><Edit2 className="h-4 w-4 text-blue-600" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(record.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                         </div>
                       </div>
                     )}

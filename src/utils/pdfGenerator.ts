@@ -89,8 +89,8 @@ export const generateKmPdf = (
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
     doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 82);
-    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 88);
-    doc.text(`Veículo: ${firstRecord.carro}`, 120, 82);
+    doc.text(`Matrícula: ${firstRecord.funcionarioMatricula}`, 20, 88);
+    doc.text(`Veículo: ${firstRecord.veiculo}`, 120, 82);
     doc.text(`Placa: ${firstRecord.placa}`, 120, 88);
   }
   
@@ -143,8 +143,8 @@ export const generatePedagioPdf = (
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
     doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 82);
-    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 88);
-    doc.text(`Veículo: ${firstRecord.carro}`, 120, 82);
+    doc.text(`Matrícula: ${firstRecord.funcionarioMatricula}`, 20, 88);
+    doc.text(`Veículo: ${firstRecord.veiculo}`, 120, 82);
     doc.text(`Placa: ${firstRecord.placa}`, 120, 88);
   }
   
@@ -192,14 +192,14 @@ export const generateRefeicaoPdf = (
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
     doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 82);
-    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 88);
+    doc.text(`Matrícula: ${firstRecord.funcionarioMatricula}`, 20, 88);
   }
   
   // Table
   const tableData = records.map(r => [
     format(new Date(r.data), "dd/MM/yyyy"),
     r.funcionarioNome,
-    r.funcionarioChapa,
+    r.funcionarioMatricula,
     tipoRefeicaoLabels[r.tipo] || r.tipo,
     formatCurrency(r.valor)
   ]);

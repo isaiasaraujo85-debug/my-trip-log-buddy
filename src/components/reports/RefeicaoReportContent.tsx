@@ -11,12 +11,7 @@ interface RefeicaoReportContentProps {
   empresaConfig: EmpresaConfig;
 }
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(value);
-};
+const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
 const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
   cafe: "Café",
@@ -33,13 +28,7 @@ const A4_STYLE = {
   boxSizing: 'border-box' as const,
 };
 
-export function RefeicaoReportContent({
-  records,
-  dataInicio,
-  dataFim,
-  total,
-  empresaConfig
-}: RefeicaoReportContentProps) {
+export function RefeicaoReportContent({ records, dataInicio, dataFim, total, empresaConfig }: RefeicaoReportContentProps) {
   const firstRecord = records[0];
 
   const allImages: { label: string; base64: string }[] = [];
@@ -49,10 +38,7 @@ export function RefeicaoReportContent({
     if (record.imagens) {
       const dateLabel = format(parseLocalDate(record.data), "dd/MM/yyyy");
       for (const img of record.imagens) {
-        allImages.push({
-          label: `${dateLabel} - Refeição: ${formatCurrency(record.valor)}`,
-          base64: img.base64,
-        });
+        allImages.push({ label: `${dateLabel} - Refeição: ${formatCurrency(record.valor)}`, base64: img.base64 });
       }
     }
   }
@@ -82,18 +68,14 @@ export function RefeicaoReportContent({
         <h2 className="text-lg font-bold mb-2">Relatório de Refeição</h2>
         
         {dataInicio && dataFim && (
-          <p className="text-sm text-gray-600 mb-1">
-            Período: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}
-          </p>
+          <p className="text-sm text-gray-600 mb-1">Período: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}</p>
         )}
-        <p className="text-sm text-gray-600 mb-4">
-          Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-        </p>
+        <p className="text-sm text-gray-600 mb-4">Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
 
         {firstRecord && (
           <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-100 rounded text-sm">
             <div><span className="text-gray-600">Funcionário:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
-            <div><span className="text-gray-600">Chapa:</span> <strong>{firstRecord.funcionarioChapa}</strong></div>
+            <div><span className="text-gray-600">Matrícula:</span> <strong>{firstRecord.funcionarioMatricula}</strong></div>
           </div>
         )}
 
@@ -102,7 +84,7 @@ export function RefeicaoReportContent({
             <tr className="bg-blue-500 text-white">
               <th className="p-2 text-left border border-blue-600">Data</th>
               <th className="p-2 text-left border border-blue-600">Funcionário</th>
-              <th className="p-2 text-left border border-blue-600">Chapa</th>
+              <th className="p-2 text-left border border-blue-600">Matrícula</th>
               <th className="p-2 text-left border border-blue-600">Tipo</th>
               <th className="p-2 text-right border border-blue-600">Valor</th>
             </tr>
@@ -112,7 +94,7 @@ export function RefeicaoReportContent({
               <tr key={record.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
                 <td className="p-2 border border-gray-300">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</td>
                 <td className="p-2 border border-gray-300">{record.funcionarioNome}</td>
-                <td className="p-2 border border-gray-300">{record.funcionarioChapa}</td>
+                <td className="p-2 border border-gray-300">{record.funcionarioMatricula}</td>
                 <td className="p-2 border border-gray-300">{tipoRefeicaoLabels[record.tipo] || record.tipo}</td>
                 <td className="p-2 border border-gray-300 text-right">{formatCurrency(record.valor)}</td>
               </tr>
@@ -131,7 +113,7 @@ export function RefeicaoReportContent({
       {imagePages.map((page, pageIndex) => (
         <div key={pageIndex} className="bg-white text-black" style={{ ...A4_STYLE, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-300">
-            <span className="text-sm font-bold text-gray-600">Imagens Anexadas - Página {pageIndex + 1}</span>
+            <span className="text-sm font-bold text-gray-600">Comprovantes Anexados - Página {pageIndex + 1}</span>
           </div>
           <div className="flex-1 flex flex-col gap-4 justify-center">
             {page.map((img, imgIndex) => (
