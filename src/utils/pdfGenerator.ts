@@ -199,7 +199,7 @@ export const generateRefeicaoPdf = (
   const tableData = records.map(r => [
     format(new Date(r.data), "dd/MM/yyyy"),
     r.funcionarioNome,
-    r.funcionarioChapa,
+    r.funcionarioMatricula,
     tipoRefeicaoLabels[r.tipo] || r.tipo,
     formatCurrency(r.valor)
   ]);
