@@ -192,7 +192,7 @@ export const generateRefeicaoPdf = (
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
     doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 82);
-    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 88);
+    doc.text(`Matrícula: ${firstRecord.funcionarioMatricula}`, 20, 88);
   }
   
   // Table
