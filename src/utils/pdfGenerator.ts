@@ -143,8 +143,8 @@ export const generatePedagioPdf = (
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
     doc.text(`Funcionário: ${firstRecord.funcionarioNome}`, 20, 82);
-    doc.text(`Chapa: ${firstRecord.funcionarioChapa}`, 20, 88);
-    doc.text(`Veículo: ${firstRecord.carro}`, 120, 82);
+    doc.text(`Matrícula: ${firstRecord.funcionarioMatricula}`, 20, 88);
+    doc.text(`Veículo: ${firstRecord.veiculo}`, 120, 82);
     doc.text(`Placa: ${firstRecord.placa}`, 120, 88);
   }
   
