@@ -44,6 +44,8 @@ export function KmTab() {
   const [tableEditKmInicial, setTableEditKmInicial] = useState("");
   const [tableEditKmFinal, setTableEditKmFinal] = useState("");
   const [tableEditValorKm, setTableEditValorKm] = useState("");
+  const [tableEditImgInicial, setTableEditImgInicial] = useState<AttachedImage[]>([]);
+  const [tableEditImgFinal, setTableEditImgFinal] = useState<AttachedImage[]>([]);
   
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -88,11 +90,11 @@ export function KmTab() {
     const newRecord: KmRecord = {
       id: crypto.randomUUID(),
       funcionarioId: selectedFuncionario.id,
-      funcionarioNome: selectedFuncionario.nome,
-      funcionarioMatricula: selectedFuncionario.matricula,
+      funcionarioNome: selectedFuncionario.nome.toUpperCase(),
+      funcionarioMatricula: selectedFuncionario.matricula.toUpperCase(),
       veiculoId: selectedVeiculo.id,
-      veiculo: selectedVeiculo.modelo,
-      placa: selectedVeiculo.placa,
+      veiculo: selectedVeiculo.modelo.toUpperCase(),
+      placa: selectedVeiculo.placa.toUpperCase(),
       data: dateStr,
       kmInicial: kmInicialValue,
       kmFinal: kmFinalValue,
@@ -135,6 +137,8 @@ export function KmTab() {
     setTableEditKmInicial(record.kmInicial?.toString() || "");
     setTableEditKmFinal(record.kmFinal?.toString() || "");
     setTableEditValorKm(record.valorKm?.toString() || "");
+    setTableEditImgInicial(record.imagensKmInicial || []);
+    setTableEditImgFinal(record.imagensKmFinal || []);
   };
 
   const cancelTableEdit = () => { setTableEditId(null); };
@@ -146,7 +150,17 @@ export function KmTab() {
     if (kmInicialValue !== null && kmFinalValue !== null && kmFinalValue < kmInicialValue) return;
     const calculatedKm = (kmInicialValue !== null && kmFinalValue !== null) ? kmFinalValue - kmInicialValue : 0;
     const status: 'parcial' | 'completo' = (kmInicialValue !== null && kmFinalValue !== null) ? 'completo' : 'parcial';
-    setRecords(records.map(r => r.id === id ? { ...r, kmInicial: kmInicialValue, kmFinal: kmFinalValue, kmPercorrido: calculatedKm, valorKm: valorKmValue, valorTotal: calculatedKm * valorKmValue, status } : r));
+    setRecords(records.map(r => r.id === id ? {
+      ...r,
+      kmInicial: kmInicialValue,
+      kmFinal: kmFinalValue,
+      kmPercorrido: calculatedKm,
+      valorKm: valorKmValue,
+      valorTotal: calculatedKm * valorKmValue,
+      status,
+      imagensKmInicial: tableEditImgInicial.length > 0 ? tableEditImgInicial : undefined,
+      imagensKmFinal: tableEditImgFinal.length > 0 ? tableEditImgFinal : undefined,
+    } : r));
     cancelTableEdit();
   };
 
@@ -292,6 +306,10 @@ export function KmTab() {
                           <div><Label className="text-xs">KM Inicial</Label><Input type="number" value={tableEditKmInicial} onChange={(e) => setTableEditKmInicial(e.target.value)} className="h-8 text-sm" /></div>
                           <div><Label className="text-xs">KM Final</Label><Input type="number" value={tableEditKmFinal} onChange={(e) => setTableEditKmFinal(e.target.value)} className="h-8 text-sm" /></div>
                           <div><Label className="text-xs">Valor KM</Label><Input type="number" step="0.01" value={tableEditValorKm} onChange={(e) => setTableEditValorKm(e.target.value)} className="h-8 text-sm" /></div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <ImageAttachButton images={tableEditImgInicial} onImagesChange={setTableEditImgInicial} label="Comprovante KM Inicial" />
+                          <ImageAttachButton images={tableEditImgFinal} onImagesChange={setTableEditImgFinal} label="Comprovante KM Final" />
                         </div>
                         <div className="flex gap-2">
                           <Button size="sm" onClick={() => saveTableEdit(record.id)} className="flex-1"><Save className="h-4 w-4 mr-1" /> Salvar</Button>

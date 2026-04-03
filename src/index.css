@@ -110,4 +110,9 @@ All colors MUST be HSL.
   input::placeholder, textarea::placeholder {
     text-transform: none;
   }
+
+  p, span, td, th, strong, h1, h2, h3, h4, label, div {
+    text-transform: uppercase;
+  }
+
 }

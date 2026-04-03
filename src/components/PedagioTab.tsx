@@ -37,6 +37,7 @@ export function PedagioTab() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editValor, setEditValor] = useState("");
   const [editDirecao, setEditDirecao] = useState<'ida' | 'volta'>('ida');
+  const [editImagens, setEditImagens] = useState<AttachedImage[]>([]);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -56,11 +57,11 @@ export function PedagioTab() {
     const newRecord: PedagioRecord = {
       id: crypto.randomUUID(),
       funcionarioId: selectedFuncionario.id,
-      funcionarioNome: selectedFuncionario.nome,
-      funcionarioMatricula: selectedFuncionario.matricula,
+      funcionarioNome: selectedFuncionario.nome.toUpperCase(),
+      funcionarioMatricula: selectedFuncionario.matricula.toUpperCase(),
       veiculoId: selectedVeiculo.id,
-      veiculo: selectedVeiculo.modelo,
-      placa: selectedVeiculo.placa,
+      veiculo: selectedVeiculo.modelo.toUpperCase(),
+      placa: selectedVeiculo.placa.toUpperCase(),
       data: format(data, "yyyy-MM-dd"),
       valor: parseFloat(valor),
       direcao,
@@ -96,13 +97,19 @@ export function PedagioTab() {
     setEditId(record.id);
     setEditValor(record.valor.toString());
     setEditDirecao(record.direcao || 'ida');
+    setEditImagens(record.imagensComprovante || []);
   };
 
-  const cancelEdit = () => { setEditId(null); setEditValor(""); };
+  const cancelEdit = () => { setEditId(null); setEditValor(""); setEditImagens([]); };
 
   const saveEdit = (id: string) => {
     if (!editValor) return;
-    setRecords(records.map(r => r.id === id ? { ...r, valor: parseFloat(editValor), direcao: editDirecao } : r));
+    setRecords(records.map(r => r.id === id ? {
+      ...r,
+      valor: parseFloat(editValor),
+      direcao: editDirecao,
+      imagensComprovante: editImagens.length > 0 ? editImagens : undefined,
+    } : r));
     cancelEdit();
   };
 
@@ -152,7 +159,7 @@ export function PedagioTab() {
             <DatePickerField label="Data" value={data} onChange={setData} />
             <div className="space-y-2">
               <Label htmlFor="valor">Valor (R$)</Label>
-              <Input id="valor" type="number" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" className="uppercase" />
+              <Input id="valor" type="number" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" />
             </div>
             <div className="space-y-2">
               <Label>Direção</Label>
@@ -239,6 +246,7 @@ export function PedagioTab() {
                             </RadioGroup>
                           </div>
                         </div>
+                        <ImageAttachButton images={editImagens} onImagesChange={setEditImagens} label="Comprovante" />
                         <div className="flex gap-2">
                           <Button size="sm" onClick={() => saveEdit(record.id)} className="flex-1"><Save className="h-4 w-4 mr-1" /> Salvar</Button>
                           <Button variant="outline" size="sm" onClick={cancelEdit}><X className="h-4 w-4" /></Button>

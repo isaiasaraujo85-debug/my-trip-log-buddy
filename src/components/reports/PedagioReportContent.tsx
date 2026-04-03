@@ -19,6 +19,7 @@ const A4_STYLE = {
   padding: '40px',
   fontFamily: 'Arial, sans-serif',
   boxSizing: 'border-box' as const,
+  textTransform: 'uppercase' as const,
 };
 
 export function PedagioReportContent({ records, dataInicio, dataFim, total, empresaConfig }: PedagioReportContentProps) {
@@ -31,7 +32,7 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
     if (record.imagensComprovante) {
       const dateLabel = format(parseLocalDate(record.data), "dd/MM/yyyy");
       for (const img of record.imagensComprovante) {
-        allImages.push({ label: `${dateLabel} - Pedágio (${record.direcao === 'ida' ? 'Ida' : 'Volta'}): ${formatCurrency(record.valor)}`, base64: img.base64 });
+        allImages.push({ label: `${dateLabel} - PEDÁGIO (${record.direcao === 'ida' ? 'IDA' : 'VOLTA'}): ${formatCurrency(record.valor)}`, base64: img.base64 });
       }
     }
   }
@@ -53,35 +54,35 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
             </div>
           )}
           <div>
-            <h1 className="text-xl font-bold">{empresaConfig.nome || "Sua Empresa"}</h1>
-            <p className="text-gray-600 font-semibold">Controle de Despesas</p>
+            <h1 className="text-xl font-bold">{(empresaConfig.nome || "Sua Empresa").toUpperCase()}</h1>
+            <p className="text-gray-600 font-semibold">CONTROLE DE DESPESAS</p>
           </div>
         </div>
 
-        <h2 className="text-lg font-bold mb-2">Relatório de Pedágio</h2>
+        <h2 className="text-lg font-bold mb-2">RELATÓRIO DE PEDÁGIO</h2>
         
         {dataInicio && dataFim && (
-          <p className="text-sm text-gray-600 mb-1">Período: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}</p>
+          <p className="text-sm text-gray-600 mb-1">PERÍODO: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} A {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}</p>
         )}
-        <p className="text-sm text-gray-600 mb-4">Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+        <p className="text-sm text-gray-600 mb-4">GERADO EM: {format(new Date(), "dd/MM/yyyy 'ÀS' HH:mm", { locale: ptBR })}</p>
 
         {firstRecord && (
           <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-100 rounded text-sm">
-            <div><span className="text-gray-600">Funcionário:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
-            <div><span className="text-gray-600">Matrícula:</span> <strong>{firstRecord.funcionarioMatricula}</strong></div>
-            <div><span className="text-gray-600">Veículo:</span> <strong>{firstRecord.veiculo}</strong></div>
-            <div><span className="text-gray-600">Placa:</span> <strong>{firstRecord.placa}</strong></div>
+            <div><span className="text-gray-600">FUNCIONÁRIO:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
+            <div><span className="text-gray-600">MATRÍCULA:</span> <strong>{firstRecord.funcionarioMatricula}</strong></div>
+            <div><span className="text-gray-600">VEÍCULO:</span> <strong>{firstRecord.veiculo}</strong></div>
+            <div><span className="text-gray-600">PLACA:</span> <strong>{firstRecord.placa}</strong></div>
           </div>
         )}
 
         <table className="w-full border-collapse mb-4 text-sm">
           <thead>
             <tr className="bg-blue-500 text-white">
-              <th className="p-2 text-left border border-blue-600">Data</th>
-              <th className="p-2 text-left border border-blue-600">Funcionário</th>
-              <th className="p-2 text-left border border-blue-600">Placa</th>
-              <th className="p-2 text-left border border-blue-600">Direção</th>
-              <th className="p-2 text-right border border-blue-600">Valor</th>
+              <th className="p-2 text-left border border-blue-600">DATA</th>
+              <th className="p-2 text-left border border-blue-600">FUNCIONÁRIO</th>
+              <th className="p-2 text-left border border-blue-600">PLACA</th>
+              <th className="p-2 text-left border border-blue-600">DIREÇÃO</th>
+              <th className="p-2 text-right border border-blue-600">VALOR</th>
             </tr>
           </thead>
           <tbody>
@@ -90,7 +91,7 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
                 <td className="p-2 border border-gray-300">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</td>
                 <td className="p-2 border border-gray-300">{record.funcionarioNome}</td>
                 <td className="p-2 border border-gray-300">{record.placa}</td>
-                <td className="p-2 border border-gray-300">{record.direcao === 'ida' ? 'Ida' : 'Volta'}</td>
+                <td className="p-2 border border-gray-300">{record.direcao === 'ida' ? 'IDA' : 'VOLTA'}</td>
                 <td className="p-2 border border-gray-300 text-right">{formatCurrency(record.valor)}</td>
               </tr>
             ))}
@@ -99,7 +100,7 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
 
         <div className="p-4 bg-gray-100 rounded">
           <div className="flex justify-between items-center">
-            <span className="font-bold">Total Gasto:</span>
+            <span className="font-bold">TOTAL GASTO:</span>
             <span className="text-xl font-bold text-blue-600">{formatCurrency(total)}</span>
           </div>
         </div>
@@ -108,7 +109,7 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
       {imagePages.map((page, pageIndex) => (
         <div key={pageIndex} className="bg-white text-black" style={{ ...A4_STYLE, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-300">
-            <span className="text-sm font-bold text-gray-600">Comprovantes Anexados - Página {pageIndex + 1}</span>
+            <span className="text-sm font-bold text-gray-600">COMPROVANTES ANEXADOS - PÁGINA {pageIndex + 1}</span>
           </div>
           <div className="flex-1 flex flex-col gap-4 justify-center">
             {page.map((img, imgIndex) => (
