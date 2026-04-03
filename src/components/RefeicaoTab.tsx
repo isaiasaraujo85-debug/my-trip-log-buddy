@@ -8,9 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { RefeicaoRecord, Funcionario, Veiculo, EmpresaConfig, TipoRefeicao, AttachedImage } from "@/types";
+import { RefeicaoRecord, Funcionario, EmpresaConfig, TipoRefeicao, AttachedImage } from "@/types";
 import { FuncionarioSelect } from "./FuncionarioSelect";
-import { VeiculoSelect } from "./VeiculoSelect";
 import { DatePickerField } from "./DatePickerField";
 import { ReportExportButton } from "./reports/ReportExportButton";
 import { RefeicaoReportContent } from "./reports/RefeicaoReportContent";
@@ -30,8 +29,6 @@ export function RefeicaoTab() {
   
   const [funcionarioId, setFuncionarioId] = useState("");
   const [selectedFuncionario, setSelectedFuncionario] = useState<Funcionario | undefined>();
-  const [veiculoId, setVeiculoId] = useState("");
-  const [selectedVeiculo, setSelectedVeiculo] = useState<Veiculo | undefined>();
   const [data, setData] = useState<Date | undefined>(new Date());
   const [tipo, setTipo] = useState<TipoRefeicao>("almoco");
   const [valor, setValor] = useState("");
@@ -44,6 +41,7 @@ export function RefeicaoTab() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editTipo, setEditTipo] = useState<TipoRefeicao>("almoco");
   const [editValor, setEditValor] = useState("");
+  const [editImagens, setEditImagens] = useState<AttachedImage[]>([]);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -52,20 +50,14 @@ export function RefeicaoTab() {
     setFuncionarioId(funcionario?.id || "");
   };
 
-  const handleVeiculoSelect = (veiculo: Veiculo | undefined) => {
-    setSelectedVeiculo(veiculo);
-    setVeiculoId(veiculo?.id || "");
-  };
-
   const handleAdd = () => {
     if (!selectedFuncionario || !data || !valor || !tipo) return;
-
 
     const newRecord: RefeicaoRecord = {
       id: crypto.randomUUID(),
       funcionarioId: selectedFuncionario.id,
-      funcionarioNome: selectedFuncionario.nome,
-      funcionarioMatricula: selectedFuncionario.matricula,
+      funcionarioNome: selectedFuncionario.nome.toUpperCase(),
+      funcionarioMatricula: selectedFuncionario.matricula.toUpperCase(),
       data: format(data, "yyyy-MM-dd"),
       tipo,
       valor: parseFloat(valor),
@@ -101,13 +93,19 @@ export function RefeicaoTab() {
     setEditId(record.id);
     setEditTipo(record.tipo);
     setEditValor(record.valor.toString());
+    setEditImagens(record.imagens || []);
   };
 
-  const cancelEdit = () => { setEditId(null); setEditTipo("almoco"); setEditValor(""); };
+  const cancelEdit = () => { setEditId(null); setEditTipo("almoco"); setEditValor(""); setEditImagens([]); };
 
   const saveEdit = (id: string) => {
     if (!editValor || !editTipo) return;
-    setRecords(records.map(r => r.id === id ? { ...r, tipo: editTipo, valor: parseFloat(editValor) } : r));
+    setRecords(records.map(r => r.id === id ? {
+      ...r,
+      tipo: editTipo,
+      valor: parseFloat(editValor),
+      imagens: editImagens.length > 0 ? editImagens : undefined,
+    } : r));
     cancelEdit();
   };
 
@@ -237,6 +235,7 @@ export function RefeicaoTab() {
                             <Input type="number" step="0.01" value={editValor} onChange={(e) => setEditValor(e.target.value)} className="h-8 text-sm" />
                           </div>
                         </div>
+                        <ImageAttachButton images={editImagens} onImagesChange={setEditImagens} label="Comprovante" />
                         <div className="flex gap-2">
                           <Button size="sm" onClick={() => saveEdit(record.id)} className="flex-1"><Save className="h-4 w-4 mr-1" /> Salvar</Button>
                           <Button variant="outline" size="sm" onClick={cancelEdit}><X className="h-4 w-4" /></Button>

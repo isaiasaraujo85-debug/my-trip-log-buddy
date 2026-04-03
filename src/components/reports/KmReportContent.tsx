@@ -20,6 +20,7 @@ const A4_STYLE = {
   padding: '40px',
   fontFamily: 'Arial, sans-serif',
   boxSizing: 'border-box' as const,
+  textTransform: 'uppercase' as const,
 };
 
 export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalValor, empresaConfig }: KmReportContentProps) {
@@ -32,12 +33,12 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
     const dateLabel = format(parseLocalDate(record.data), "dd/MM/yyyy");
     if (record.imagensKmInicial) {
       for (const img of record.imagensKmInicial) {
-        allImages.push({ date: dateLabel, label: `${dateLabel} - KM Inicial: ${record.kmInicial ?? "-"}`, base64: img.base64, sortKey: record.data + '_0' });
+        allImages.push({ date: dateLabel, label: `${dateLabel} - KM INICIAL: ${record.kmInicial ?? "-"}`, base64: img.base64, sortKey: record.data + '_0' });
       }
     }
     if (record.imagensKmFinal) {
       for (const img of record.imagensKmFinal) {
-        allImages.push({ date: dateLabel, label: `${dateLabel} - KM Final: ${record.kmFinal ?? "-"}`, base64: img.base64, sortKey: record.data + '_1' });
+        allImages.push({ date: dateLabel, label: `${dateLabel} - KM FINAL: ${record.kmFinal ?? "-"}`, base64: img.base64, sortKey: record.data + '_1' });
       }
     }
   }
@@ -59,37 +60,37 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
             </div>
           )}
           <div>
-            <h1 className="text-xl font-bold">{empresaConfig.nome || "Sua Empresa"}</h1>
-            <p className="text-gray-600 font-semibold">Controle de Despesas</p>
+            <h1 className="text-xl font-bold">{(empresaConfig.nome || "Sua Empresa").toUpperCase()}</h1>
+            <p className="text-gray-600 font-semibold">CONTROLE DE DESPESAS</p>
           </div>
         </div>
 
-        <h2 className="text-lg font-bold mb-2">Relatório de Quilometragem</h2>
+        <h2 className="text-lg font-bold mb-2">RELATÓRIO DE QUILOMETRAGEM</h2>
         
         {dataInicio && dataFim && (
-          <p className="text-sm text-gray-600 mb-1">Período: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} a {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}</p>
+          <p className="text-sm text-gray-600 mb-1">PERÍODO: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} A {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}</p>
         )}
-        <p className="text-sm text-gray-600 mb-4">Gerado em: {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+        <p className="text-sm text-gray-600 mb-4">GERADO EM: {format(new Date(), "dd/MM/yyyy 'ÀS' HH:mm", { locale: ptBR })}</p>
 
         {firstRecord && (
           <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-100 rounded text-sm">
-            <div><span className="text-gray-600">Funcionário:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
-            <div><span className="text-gray-600">Matrícula:</span> <strong>{firstRecord.funcionarioMatricula}</strong></div>
-            <div><span className="text-gray-600">Veículo:</span> <strong>{firstRecord.veiculo}</strong></div>
-            <div><span className="text-gray-600">Placa:</span> <strong>{firstRecord.placa}</strong></div>
+            <div><span className="text-gray-600">FUNCIONÁRIO:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
+            <div><span className="text-gray-600">MATRÍCULA:</span> <strong>{firstRecord.funcionarioMatricula}</strong></div>
+            <div><span className="text-gray-600">VEÍCULO:</span> <strong>{firstRecord.veiculo}</strong></div>
+            <div><span className="text-gray-600">PLACA:</span> <strong>{firstRecord.placa}</strong></div>
           </div>
         )}
 
         <table className="w-full border-collapse mb-4 text-sm">
           <thead>
             <tr className="bg-blue-500 text-white">
-              <th className="p-2 text-left border border-blue-600">Data</th>
-              <th className="p-2 text-left border border-blue-600">Funcionário</th>
-              <th className="p-2 text-left border border-blue-600">Placa</th>
-              <th className="p-2 text-right border border-blue-600">KM Inicial</th>
-              <th className="p-2 text-right border border-blue-600">KM Final</th>
-              <th className="p-2 text-right border border-blue-600">Percorrido</th>
-              <th className="p-2 text-right border border-blue-600">Valor</th>
+              <th className="p-2 text-left border border-blue-600">DATA</th>
+              <th className="p-2 text-left border border-blue-600">FUNCIONÁRIO</th>
+              <th className="p-2 text-left border border-blue-600">PLACA</th>
+              <th className="p-2 text-right border border-blue-600">KM INICIAL</th>
+              <th className="p-2 text-right border border-blue-600">KM FINAL</th>
+              <th className="p-2 text-right border border-blue-600">PERCORRIDO</th>
+              <th className="p-2 text-right border border-blue-600">VALOR</th>
             </tr>
           </thead>
           <tbody>
@@ -100,7 +101,7 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
                 <td className="p-2 border border-gray-300">{record.placa}</td>
                 <td className="p-2 border border-gray-300 text-right">{record.kmInicial ?? "-"}</td>
                 <td className="p-2 border border-gray-300 text-right">{record.kmFinal ?? "-"}</td>
-                <td className="p-2 border border-gray-300 text-right">{record.kmPercorrido} km</td>
+                <td className="p-2 border border-gray-300 text-right">{record.kmPercorrido} KM</td>
                 <td className="p-2 border border-gray-300 text-right">{formatCurrency(record.valorTotal || 0)}</td>
               </tr>
             ))}
@@ -109,11 +110,11 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
 
         <div className="p-4 bg-gray-100 rounded">
           <div className="flex justify-between items-center mb-2">
-            <span className="font-bold">Total KM Percorrido:</span>
-            <span className="text-xl font-bold text-blue-600">{totalKm} km</span>
+            <span className="font-bold">TOTAL KM PERCORRIDO:</span>
+            <span className="text-xl font-bold text-blue-600">{totalKm} KM</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="font-bold">Valor Total a Receber:</span>
+            <span className="font-bold">VALOR TOTAL A RECEBER:</span>
             <span className="text-xl font-bold text-green-600">{formatCurrency(totalValor)}</span>
           </div>
         </div>
@@ -122,7 +123,7 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
       {imagePages.map((page, pageIndex) => (
         <div key={pageIndex} className="bg-white text-black" style={{ ...A4_STYLE, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-300">
-            <span className="text-sm font-bold text-gray-600">Comprovantes Anexados - Página {pageIndex + 1}</span>
+            <span className="text-sm font-bold text-gray-600">COMPROVANTES ANEXADOS - PÁGINA {pageIndex + 1}</span>
           </div>
           <div className="flex-1 flex flex-col gap-4 justify-center">
             {page.map((img, imgIndex) => (
