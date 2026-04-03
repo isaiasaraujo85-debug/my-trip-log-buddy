@@ -98,7 +98,80 @@ export function CadastroTab() {
 
   return (
     <div className="space-y-6">
-      {/* Cadastro de Funcionário */}
+      {/* Cadastro de Veículo */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 whitespace-nowrap">
+            <Car className="h-5 w-5 flex-shrink-0" />
+            Cadastro de Veículo
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="modelo">Modelo do Veículo</Label>
+              <Input id="modelo" value={modelo} onChange={(e) => setModelo(e.target.value)} placeholder="Modelo do veículo" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="placa">Placa</Label>
+              <Input id="placa" value={placa} onChange={(e) => setPlaca(e.target.value.toUpperCase())} placeholder="ABC-1234" />
+            </div>
+          </div>
+          <Button onClick={handleAddVeiculo} className="w-full">
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar Veículo
+          </Button>
+
+          {veiculos.length > 0 && (
+            <div className="space-y-3 pt-4 border-t">
+              <h3 className="text-sm font-semibold text-muted-foreground">Veículos Cadastrados</h3>
+              {veiculos.map((v) => (
+                <div key={v.id} className="p-3 border rounded-lg">
+                  {editVeicId === v.id ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input value={editModelo} onChange={(e) => setEditModelo(e.target.value)} placeholder="Modelo" className="h-8 text-sm" />
+                        <Input value={editPlaca} onChange={(e) => setEditPlaca(e.target.value.toUpperCase())} placeholder="Placa" className="h-8 text-sm" />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => saveEditVeic(v.id)} className="flex-1">
+                          <Save className="h-4 w-4 mr-1" /> Salvar
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => setEditVeicId(null)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
+                        <div>
+                          <span className="text-muted-foreground text-xs">Modelo:</span>
+                          <p className="font-medium truncate">{v.modelo}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground text-xs">Placa:</span>
+                          <p className="font-medium">{v.placa}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEditVeic(v)}>
+                          <Edit2 className="h-4 w-4 text-blue-600" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteVeiculo(v.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Cadastro de Funcionário - abaixo do veículo */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 whitespace-nowrap">
@@ -168,79 +241,6 @@ export function CadastroTab() {
                           <Edit2 className="h-4 w-4 text-blue-600" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteFuncionario(f.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Cadastro de Veículo */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 whitespace-nowrap">
-            <Car className="h-5 w-5 flex-shrink-0" />
-            Cadastro de Veículo
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="modelo">Modelo do Veículo</Label>
-              <Input id="modelo" value={modelo} onChange={(e) => setModelo(e.target.value)} placeholder="Modelo do veículo" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="placa">Placa</Label>
-              <Input id="placa" value={placa} onChange={(e) => setPlaca(e.target.value.toUpperCase())} placeholder="ABC-1234" />
-            </div>
-          </div>
-          <Button onClick={handleAddVeiculo} className="w-full">
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Veículo
-          </Button>
-
-          {veiculos.length > 0 && (
-            <div className="space-y-3 pt-4 border-t">
-              <h3 className="text-sm font-semibold text-muted-foreground">Veículos Cadastrados</h3>
-              {veiculos.map((v) => (
-                <div key={v.id} className="p-3 border rounded-lg">
-                  {editVeicId === v.id ? (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        <Input value={editModelo} onChange={(e) => setEditModelo(e.target.value)} placeholder="Modelo" className="h-8 text-sm" />
-                        <Input value={editPlaca} onChange={(e) => setEditPlaca(e.target.value.toUpperCase())} placeholder="Placa" className="h-8 text-sm" />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={() => saveEditVeic(v.id)} className="flex-1">
-                          <Save className="h-4 w-4 mr-1" /> Salvar
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => setEditVeicId(null)}>
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
-                        <div>
-                          <span className="text-muted-foreground text-xs">Modelo:</span>
-                          <p className="font-medium truncate">{v.modelo}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground text-xs">Placa:</span>
-                          <p className="font-medium">{v.placa}</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-1 flex-shrink-0">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEditVeic(v)}>
-                          <Edit2 className="h-4 w-4 text-blue-600" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteVeiculo(v.id)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>

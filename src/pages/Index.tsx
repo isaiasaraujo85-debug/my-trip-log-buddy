@@ -64,7 +64,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t py-4">
         <div className="container px-4 text-center text-sm text-muted-foreground">
-          Controle de Despesas © {new Date().getFullYear()} - Todos os dados salvos localmente
+          Aplicativo desenvolvido por Isaias Araujo
         </div>
       </footer>
     </div>
