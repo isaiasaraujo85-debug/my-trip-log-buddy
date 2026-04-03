@@ -130,24 +130,13 @@ export function RefeicaoTab() {
         </CardHeader>
         <CardContent className="space-y-4">
           <FuncionarioSelect value={funcionarioId} onSelect={handleFuncionarioSelect} />
-          <VeiculoSelect value={veiculoId} onSelect={handleVeiculoSelect} />
 
-          {(selectedFuncionario || selectedVeiculo) && (
+          {selectedFuncionario && (
             <div className="p-3 bg-muted rounded-lg text-sm">
               <div className="grid grid-cols-2 gap-2">
-                {selectedFuncionario && (
-                  <>
-                    <div><span className="text-muted-foreground">Nome:</span><p className="font-medium">{selectedFuncionario.nome}</p></div>
-                    <div><span className="text-muted-foreground">Matrícula:</span><p className="font-medium">{selectedFuncionario.matricula}</p></div>
-                    <div><span className="text-muted-foreground">Função:</span><p className="font-medium">{selectedFuncionario.funcao}</p></div>
-                  </>
-                )}
-                {selectedVeiculo && (
-                  <>
-                    <div><span className="text-muted-foreground">Veículo:</span><p className="font-medium">{selectedVeiculo.modelo}</p></div>
-                    <div><span className="text-muted-foreground">Placa:</span><p className="font-medium">{selectedVeiculo.placa}</p></div>
-                  </>
-                )}
+                <div><span className="text-muted-foreground">Nome:</span><p className="font-medium">{selectedFuncionario.nome}</p></div>
+                <div><span className="text-muted-foreground">Matrícula:</span><p className="font-medium">{selectedFuncionario.matricula}</p></div>
+                <div><span className="text-muted-foreground">Função:</span><p className="font-medium">{selectedFuncionario.funcao}</p></div>
               </div>
             </div>
           )}
