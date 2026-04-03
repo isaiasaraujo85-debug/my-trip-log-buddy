@@ -148,27 +148,27 @@ export function PedagioTab() {
             </div>
           )}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <DatePickerField label="Data" value={data} onChange={setData} />
             <div className="space-y-2">
               <Label htmlFor="valor">Valor (R$)</Label>
-              <Input id="valor" type="number" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" />
-              <div className="space-y-2">
-                <Label>Direção</Label>
-                <RadioGroup value={direcao} onValueChange={(v) => setDirecao(v as 'ida' | 'volta')} className="flex gap-4">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ida" id="ida" />
-                    <Label htmlFor="ida" className="cursor-pointer">Ida</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="volta" id="volta" />
-                    <Label htmlFor="volta" className="cursor-pointer">Volta</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              <ImageAttachButton images={imagensComprovante} onImagesChange={setImagensComprovante} label="Comprovante" />
+              <Input id="valor" type="number" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" className="uppercase" />
+            </div>
+            <div className="space-y-2">
+              <Label>Direção</Label>
+              <RadioGroup value={direcao} onValueChange={(v) => setDirecao(v as 'ida' | 'volta')} className="flex gap-4 mt-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="ida" id="ida" />
+                  <Label htmlFor="ida" className="cursor-pointer">Ida</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="volta" id="volta" />
+                  <Label htmlFor="volta" className="cursor-pointer">Volta</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
+          <ImageAttachButton images={imagensComprovante} onImagesChange={setImagensComprovante} label="Comprovante" />
           <Button onClick={handleAdd} className="w-full">
             <Plus className="mr-2 h-4 w-4" />
             Adicionar Pedágio

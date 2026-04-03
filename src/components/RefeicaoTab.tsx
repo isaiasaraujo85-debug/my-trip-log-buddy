@@ -60,6 +60,7 @@ export function RefeicaoTab() {
   const handleAdd = () => {
     if (!selectedFuncionario || !data || !valor || !tipo) return;
 
+
     const newRecord: RefeicaoRecord = {
       id: crypto.randomUUID(),
       funcionarioId: selectedFuncionario.id,
