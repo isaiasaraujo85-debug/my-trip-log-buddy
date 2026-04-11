@@ -2,7 +2,6 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { Plus, Trash2, Utensils, Edit2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,7 +13,9 @@ import { DatePickerField } from "./DatePickerField";
 import { ReportExportButton } from "./reports/ReportExportButton";
 import { RefeicaoReportContent } from "./reports/RefeicaoReportContent";
 import { ImageAttachButton } from "./ImageAttachButton";
+import { CurrencyInput } from "./CurrencyInput";
 import { parseLocalDate } from "@/utils/dateUtils";
+import { generateRefeicaoPdf } from "@/utils/pdfGenerator";
 
 const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
   cafe: "Café",
@@ -51,13 +52,13 @@ export function RefeicaoTab() {
   };
 
   const handleAdd = () => {
-    if (!selectedFuncionario || !data || !valor || !tipo) return;
+    if (!data || !valor || !tipo) return;
 
     const newRecord: RefeicaoRecord = {
       id: crypto.randomUUID(),
-      funcionarioId: selectedFuncionario.id,
-      funcionarioNome: selectedFuncionario.nome.toUpperCase(),
-      funcionarioMatricula: selectedFuncionario.matricula.toUpperCase(),
+      funcionarioId: selectedFuncionario?.id || "",
+      funcionarioNome: selectedFuncionario?.nome?.toUpperCase() || "",
+      funcionarioMatricula: selectedFuncionario?.matricula?.toUpperCase() || "",
       data: format(data, "yyyy-MM-dd"),
       tipo,
       valor: parseFloat(valor),
@@ -116,34 +117,38 @@ export function RefeicaoTab() {
   });
 
   const total = filteredRecords.reduce((sum, r) => sum + r.valor, 0);
-  const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  const formatCurrencyDisplay = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+  const handleGeneratePdf = () => {
+    generateRefeicaoPdf(filteredRecords, dataInicio, dataFim, total, empresaConfig);
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 whitespace-nowrap">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
             <Utensils className="h-5 w-5 flex-shrink-0" />
             Lançamento de Refeição
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <FuncionarioSelect value={funcionarioId} onSelect={handleFuncionarioSelect} />
 
           {selectedFuncionario && (
-            <div className="p-3 bg-muted rounded-lg text-sm">
-              <div className="grid grid-cols-2 gap-2">
-                <div><span className="text-muted-foreground">Nome:</span><p className="font-medium">{selectedFuncionario.nome}</p></div>
+            <div className="p-2 bg-muted rounded-lg text-xs">
+              <div className="grid grid-cols-2 gap-1">
+                <div><span className="text-muted-foreground">Nome:</span><p className="font-medium truncate">{selectedFuncionario.nome}</p></div>
                 <div><span className="text-muted-foreground">Matrícula:</span><p className="font-medium">{selectedFuncionario.matricula}</p></div>
-                <div><span className="text-muted-foreground">Função:</span><p className="font-medium">{selectedFuncionario.funcao}</p></div>
+                <div><span className="text-muted-foreground">Função:</span><p className="font-medium truncate">{selectedFuncionario.funcao}</p></div>
               </div>
             </div>
           )}
           
-          <div className="grid grid-cols-1 gap-4">
-            <DatePickerField label="Data" value={data} onChange={setData} />
-            <div className="space-y-2">
-              <Label>Tipo</Label>
+          <DatePickerField label="Data" value={data} onChange={setData} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Tipo</Label>
               <Select value={tipo} onValueChange={(v) => setTipo(v as TipoRefeicao)}>
                 <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
                 <SelectContent>
@@ -154,12 +159,12 @@ export function RefeicaoTab() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="valor">Valor (R$)</Label>
-              <Input id="valor" type="number" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" />
-              <ImageAttachButton images={imagens} onImagesChange={setImagens} label="Comprovante" />
+            <div className="space-y-1">
+              <Label htmlFor="valor" className="text-xs">Valor (R$)</Label>
+              <CurrencyInput id="valor" value={valor} onChange={setValor} />
             </div>
           </div>
+          <ImageAttachButton images={imagens} onImagesChange={setImagens} label="Comprovante" />
           <Button onClick={handleAdd} className="w-full">
             <Plus className="mr-2 h-4 w-4" />
             Adicionar Refeição
@@ -168,30 +173,28 @@ export function RefeicaoTab() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center justify-between text-base">
             <span>Relatório de Refeição</span>
             <Button variant="outline" size="sm" onClick={() => setShowReport(!showReport)}>
-              {showReport ? "Ocultar" : "Mostrar"} Relatório
+              {showReport ? "Ocultar" : "Mostrar"}
             </Button>
           </CardTitle>
         </CardHeader>
         {showReport && (
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               <DatePickerField label="Data Inicial" value={dataInicio} onChange={setDataInicio} placeholder="Início" />
               <DatePickerField label="Data Final" value={dataFim} onChange={setDataFim} placeholder="Fim" />
-              <div className="flex items-end">
-                <ReportExportButton filename="relatorio-refeicao" disabled={filteredRecords.length === 0}>
-                  <RefeicaoReportContent records={filteredRecords} dataInicio={dataInicio} dataFim={dataFim} total={total} empresaConfig={empresaConfig} />
-                </ReportExportButton>
-              </div>
             </div>
+            <ReportExportButton filename="relatorio-refeicao" disabled={filteredRecords.length === 0} onGeneratePdf={handleGeneratePdf}>
+              <RefeicaoReportContent records={filteredRecords} dataInicio={dataInicio} dataFim={dataFim} total={total} empresaConfig={empresaConfig} />
+            </ReportExportButton>
 
-            <div className="bg-muted p-4 rounded-lg">
+            <div className="bg-muted p-3 rounded-lg">
               <div className="flex justify-between items-center">
-                <span className="font-medium">Total Gasto:</span>
-                <span className="text-xl font-bold text-primary">{formatCurrency(total)}</span>
+                <span className="font-medium text-sm">Total Gasto:</span>
+                <span className="text-base font-bold text-primary">{formatCurrencyDisplay(total)}</span>
               </div>
             </div>
 
@@ -199,24 +202,24 @@ export function RefeicaoTab() {
               <div className="flex items-center justify-between gap-2 py-2 border-b">
                 <div className="flex items-center gap-2">
                   <Checkbox checked={selectedIds.size === filteredRecords.length && filteredRecords.length > 0} onCheckedChange={toggleSelectAll} />
-                  <span className="text-sm text-muted-foreground">{selectedIds.size > 0 ? `${selectedIds.size} selecionado(s)` : "Selecionar todos"}</span>
+                  <span className="text-xs text-muted-foreground">{selectedIds.size > 0 ? `${selectedIds.size} selecionado(s)` : "Selecionar todos"}</span>
                 </div>
                 {selectedIds.size > 0 && (
                   <Button variant="destructive" size="sm" onClick={handleDeleteSelected}>
-                    <Trash2 className="h-4 w-4 mr-1" /> Excluir ({selectedIds.size})
+                    <Trash2 className="h-3 w-3 mr-1" /> Excluir ({selectedIds.size})
                   </Button>
                 )}
               </div>
             )}
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               {filteredRecords.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">Nenhum registro encontrado</p>
+                <p className="text-center text-muted-foreground py-4 text-sm">Nenhum registro encontrado</p>
               ) : (
                 filteredRecords.map((record) => (
-                  <div key={record.id} className="p-3 border rounded-lg">
+                  <div key={record.id} className="p-2 border rounded-lg">
                     {editId === record.id ? (
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <Label className="text-xs">Tipo</Label>
@@ -232,30 +235,30 @@ export function RefeicaoTab() {
                           </div>
                           <div>
                             <Label className="text-xs">Valor (R$)</Label>
-                            <Input type="number" step="0.01" value={editValor} onChange={(e) => setEditValor(e.target.value)} className="h-8 text-sm" />
+                            <CurrencyInput value={editValor} onChange={setEditValor} className="h-8 text-xs" />
                           </div>
                         </div>
                         <ImageAttachButton images={editImagens} onImagesChange={setEditImagens} label="Comprovante" />
                         <div className="flex gap-2">
-                          <Button size="sm" onClick={() => saveEdit(record.id)} className="flex-1"><Save className="h-4 w-4 mr-1" /> Salvar</Button>
-                          <Button variant="outline" size="sm" onClick={cancelEdit}><X className="h-4 w-4" /></Button>
+                          <Button size="sm" onClick={() => saveEdit(record.id)} className="flex-1"><Save className="h-3 w-3 mr-1" /> Salvar</Button>
+                          <Button variant="outline" size="sm" onClick={cancelEdit}><X className="h-3 w-3" /></Button>
                         </div>
                       </div>
                     ) : (
                       <div className="flex items-start gap-2">
                         <Checkbox checked={selectedIds.has(record.id)} onCheckedChange={() => toggleSelectId(record.id)} className="mt-1" />
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
-                          <div><span className="text-muted-foreground text-xs">Data:</span><p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p></div>
-                          <div><span className="text-muted-foreground text-xs">Funcionário:</span><p className="font-medium truncate">{record.funcionarioNome}</p></div>
-                          <div><span className="text-muted-foreground text-xs">Tipo:</span><p className="font-medium">{tipoRefeicaoLabels[record.tipo] || record.tipo}</p></div>
-                          <div><span className="text-muted-foreground text-xs">Valor:</span><p className="font-medium text-primary">{formatCurrency(record.valor)}</p></div>
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs flex-1 min-w-0">
+                          <div><span className="text-muted-foreground">Data:</span><p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p></div>
+                          <div><span className="text-muted-foreground">Funcionário:</span><p className="font-medium truncate">{record.funcionarioNome || "-"}</p></div>
+                          <div><span className="text-muted-foreground">Tipo:</span><p className="font-medium">{tipoRefeicaoLabels[record.tipo] || record.tipo}</p></div>
+                          <div><span className="text-muted-foreground">Valor:</span><p className="font-medium text-primary">{formatCurrencyDisplay(record.valor)}</p></div>
                           {record.imagens && record.imagens.length > 0 && (
-                            <div className="col-span-2"><span className="text-xs text-muted-foreground">📷 {record.imagens.length} comprovante(s)</span></div>
+                            <div className="col-span-2"><span className="text-xs text-muted-foreground">📷 {record.imagens.length}</span></div>
                           )}
                         </div>
                         <div className="flex gap-1 flex-shrink-0">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(record)}><Edit2 className="h-4 w-4 text-blue-600" /></Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(record.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startEdit(record)}><Edit2 className="h-3 w-3 text-blue-600" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(record.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                         </div>
                       </div>
                     )}
