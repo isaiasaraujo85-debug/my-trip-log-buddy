@@ -12,6 +12,10 @@ export function VeiculoSelect({ value, onSelect }: VeiculoSelectProps) {
   const [veiculos] = useLocalStorage<Veiculo[]>("veiculos", []);
 
   const handleChange = (id: string) => {
+    if (id === "__blank__") {
+      onSelect(undefined);
+      return;
+    }
     const veiculo = veiculos.find(v => v.id === id);
     onSelect(veiculo);
   };
@@ -19,22 +23,17 @@ export function VeiculoSelect({ value, onSelect }: VeiculoSelectProps) {
   return (
     <div className="space-y-2">
       <Label>Selecione o Veículo</Label>
-      <Select value={value} onValueChange={handleChange}>
+      <Select value={value || "__blank__"} onValueChange={handleChange}>
         <SelectTrigger>
           <SelectValue placeholder="Selecione o veículo" />
         </SelectTrigger>
         <SelectContent>
-          {veiculos.length === 0 ? (
-            <SelectItem value="none" disabled>
-              Nenhum veículo cadastrado
+          <SelectItem value="__blank__">— Nenhum —</SelectItem>
+          {veiculos.map((veiculo) => (
+            <SelectItem key={veiculo.id} value={veiculo.id}>
+              {veiculo.modelo} - {veiculo.placa}
             </SelectItem>
-          ) : (
-            veiculos.map((veiculo) => (
-              <SelectItem key={veiculo.id} value={veiculo.id}>
-                {veiculo.modelo} - {veiculo.placa}
-              </SelectItem>
-            ))
-          )}
+          ))}
         </SelectContent>
       </Select>
     </div>
