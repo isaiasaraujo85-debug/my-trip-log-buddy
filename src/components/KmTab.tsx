@@ -16,6 +16,8 @@ import { DatePickerField } from "./DatePickerField";
 import { ReportExportButton } from "./reports/ReportExportButton";
 import { KmReportContent } from "./reports/KmReportContent";
 import { ImageAttachButton } from "./ImageAttachButton";
+import { CurrencyInput } from "./CurrencyInput";
+import { generateKmPdf } from "@/utils/pdfGenerator";
 
 export function KmTab() {
   const [records, setRecords] = useLocalStorage<KmRecord[]>("km-records", []);
@@ -74,7 +76,7 @@ export function KmTab() {
   };
 
   const handleSave = () => {
-    if (!selectedFuncionario || !selectedVeiculo || !data) return;
+    if (!data) return;
     if (!kmInicial && !kmFinal) return;
 
     const dateStr = format(data, "yyyy-MM-dd");
@@ -89,12 +91,12 @@ export function KmTab() {
 
     const newRecord: KmRecord = {
       id: crypto.randomUUID(),
-      funcionarioId: selectedFuncionario.id,
-      funcionarioNome: selectedFuncionario.nome.toUpperCase(),
-      funcionarioMatricula: selectedFuncionario.matricula.toUpperCase(),
-      veiculoId: selectedVeiculo.id,
-      veiculo: selectedVeiculo.modelo.toUpperCase(),
-      placa: selectedVeiculo.placa.toUpperCase(),
+      funcionarioId: selectedFuncionario?.id || "",
+      funcionarioNome: selectedFuncionario?.nome?.toUpperCase() || "",
+      funcionarioMatricula: selectedFuncionario?.matricula?.toUpperCase() || "",
+      veiculoId: selectedVeiculo?.id || "",
+      veiculo: selectedVeiculo?.modelo?.toUpperCase() || "",
+      placa: selectedVeiculo?.placa?.toUpperCase() || "",
       data: dateStr,
       kmInicial: kmInicialValue,
       kmFinal: kmFinalValue,
@@ -176,32 +178,36 @@ export function KmTab() {
 
   const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
+  const handleGeneratePdf = () => {
+    generateKmPdf(completedRecords, dataInicio, dataFim, totalKm, totalValor, empresaConfig);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 whitespace-nowrap">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
             <FileText className="h-5 w-5 flex-shrink-0" />
             Lançamento de KM
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <FuncionarioSelect value={funcionarioId} onSelect={handleFuncionarioSelect} />
           <VeiculoSelect value={veiculoId} onSelect={handleVeiculoSelect} />
 
           {(selectedFuncionario || selectedVeiculo) && (
-            <div className="p-3 bg-muted rounded-lg text-sm">
-              <div className="grid grid-cols-2 gap-2">
+            <div className="p-2 bg-muted rounded-lg text-xs">
+              <div className="grid grid-cols-2 gap-1">
                 {selectedFuncionario && (
                   <>
-                    <div><span className="text-muted-foreground">Nome:</span><p className="font-medium">{selectedFuncionario.nome}</p></div>
+                    <div><span className="text-muted-foreground">Nome:</span><p className="font-medium truncate">{selectedFuncionario.nome}</p></div>
                     <div><span className="text-muted-foreground">Matrícula:</span><p className="font-medium">{selectedFuncionario.matricula}</p></div>
-                    <div><span className="text-muted-foreground">Função:</span><p className="font-medium">{selectedFuncionario.funcao}</p></div>
+                    <div><span className="text-muted-foreground">Função:</span><p className="font-medium truncate">{selectedFuncionario.funcao}</p></div>
                   </>
                 )}
                 {selectedVeiculo && (
                   <>
-                    <div><span className="text-muted-foreground">Veículo:</span><p className="font-medium">{selectedVeiculo.modelo}</p></div>
+                    <div><span className="text-muted-foreground">Veículo:</span><p className="font-medium truncate">{selectedVeiculo.modelo}</p></div>
                     <div><span className="text-muted-foreground">Placa:</span><p className="font-medium">{selectedVeiculo.placa}</p></div>
                   </>
                 )}
@@ -209,35 +215,35 @@ export function KmTab() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <DatePickerField label="Data" value={data} onChange={setData} />
-            <div className="space-y-2">
-              <Label htmlFor="valorKm">Valor por KM (R$)</Label>
-              <Input id="valorKm" type="number" step="0.01" value={valorKm} onChange={(e) => handleValorKmChange(e.target.value)} placeholder="0,00" />
+            <div className="space-y-1">
+              <Label htmlFor="valorKm" className="text-xs">Valor por KM (R$)</Label>
+              <CurrencyInput id="valorKm" value={valorKm} onChange={handleValorKmChange} />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="kmInicial">KM Inicial</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="kmInicial" className="text-xs">KM Inicial</Label>
               <Input id="kmInicial" type="number" value={kmInicial} onChange={(e) => setKmInicial(e.target.value)} placeholder="0" />
               <ImageAttachButton images={imagensKmInicial} onImagesChange={setImagensKmInicial} label="Comprovante" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="kmFinal">KM Final</Label>
+            <div className="space-y-1">
+              <Label htmlFor="kmFinal" className="text-xs">KM Final</Label>
               <Input id="kmFinal" type="number" value={kmFinal} onChange={(e) => setKmFinal(e.target.value)} placeholder="0" />
               <ImageAttachButton images={imagensKmFinal} onImagesChange={setImagensKmFinal} label="Comprovante" />
             </div>
           </div>
           
-          <div className="bg-muted p-4 rounded-lg space-y-2">
+          <div className="bg-muted p-3 rounded-lg space-y-1">
             <div className="flex justify-between items-center">
-              <Label className="text-base">KM Percorrido:</Label>
-              <span className="text-xl font-bold text-primary">{kmPercorrido} km</span>
+              <Label className="text-sm">KM Percorrido:</Label>
+              <span className="text-base font-bold text-primary">{kmPercorrido} km</span>
             </div>
             <div className="flex justify-between items-center">
-              <Label className="text-base">Valor a Receber:</Label>
-              <span className="text-xl font-bold text-green-600">{formatCurrency(valorTotal)}</span>
+              <Label className="text-sm">Valor a Receber:</Label>
+              <span className="text-base font-bold text-green-600">{formatCurrency(valorTotal)}</span>
             </div>
           </div>
 
@@ -249,34 +255,32 @@ export function KmTab() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center justify-between text-base">
             <span>Relatório de KM</span>
             <Button variant="outline" size="sm" onClick={() => setShowReport(!showReport)}>
-              {showReport ? "Ocultar" : "Mostrar"} Relatório
+              {showReport ? "Ocultar" : "Mostrar"}
             </Button>
           </CardTitle>
         </CardHeader>
         {showReport && (
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               <DatePickerField label="Data Inicial" value={dataInicio} onChange={setDataInicio} placeholder="Início" />
               <DatePickerField label="Data Final" value={dataFim} onChange={setDataFim} placeholder="Fim" />
-              <div className="flex items-end">
-                <ReportExportButton filename="relatorio-km" disabled={completedRecords.length === 0}>
-                  <KmReportContent records={completedRecords} dataInicio={dataInicio} dataFim={dataFim} totalKm={totalKm} totalValor={totalValor} empresaConfig={empresaConfig} />
-                </ReportExportButton>
-              </div>
             </div>
+            <ReportExportButton filename="relatorio-km" disabled={completedRecords.length === 0} onGeneratePdf={handleGeneratePdf}>
+              <KmReportContent records={completedRecords} dataInicio={dataInicio} dataFim={dataFim} totalKm={totalKm} totalValor={totalValor} empresaConfig={empresaConfig} />
+            </ReportExportButton>
 
-            <div className="bg-muted p-4 rounded-lg space-y-2">
+            <div className="bg-muted p-3 rounded-lg space-y-1">
               <div className="flex justify-between items-center">
-                <span className="font-medium">Total KM:</span>
-                <span className="text-lg font-bold text-primary">{totalKm} km</span>
+                <span className="font-medium text-sm">Total KM:</span>
+                <span className="text-base font-bold text-primary">{totalKm} km</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="font-medium">Valor Total:</span>
-                <span className="text-lg font-bold text-green-600">{formatCurrency(totalValor)}</span>
+                <span className="font-medium text-sm">Valor Total:</span>
+                <span className="text-base font-bold text-green-600">{formatCurrency(totalValor)}</span>
               </div>
             </div>
 
@@ -284,60 +288,60 @@ export function KmTab() {
               <div className="flex items-center justify-between gap-2 py-2 border-b">
                 <div className="flex items-center gap-2">
                   <Checkbox checked={selectedIds.size === filteredRecords.length && filteredRecords.length > 0} onCheckedChange={toggleSelectAll} />
-                  <span className="text-sm text-muted-foreground">{selectedIds.size > 0 ? `${selectedIds.size} selecionado(s)` : "Selecionar todos"}</span>
+                  <span className="text-xs text-muted-foreground">{selectedIds.size > 0 ? `${selectedIds.size} selecionado(s)` : "Selecionar todos"}</span>
                 </div>
                 {selectedIds.size > 0 && (
                   <Button variant="destructive" size="sm" onClick={handleDeleteSelected}>
-                    <Trash2 className="h-4 w-4 mr-1" /> Excluir ({selectedIds.size})
+                    <Trash2 className="h-3 w-3 mr-1" /> Excluir ({selectedIds.size})
                   </Button>
                 )}
               </div>
             )}
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               {filteredRecords.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">Nenhum registro encontrado</p>
+                <p className="text-center text-muted-foreground py-4 text-sm">Nenhum registro encontrado</p>
               ) : (
                 filteredRecords.map((record) => (
-                  <div key={record.id} className="p-3 border rounded-lg">
+                  <div key={record.id} className="p-2 border rounded-lg">
                     {tableEditId === record.id ? (
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                         <div className="grid grid-cols-3 gap-2">
-                          <div><Label className="text-xs">KM Inicial</Label><Input type="number" value={tableEditKmInicial} onChange={(e) => setTableEditKmInicial(e.target.value)} className="h-8 text-sm" /></div>
-                          <div><Label className="text-xs">KM Final</Label><Input type="number" value={tableEditKmFinal} onChange={(e) => setTableEditKmFinal(e.target.value)} className="h-8 text-sm" /></div>
-                          <div><Label className="text-xs">Valor KM</Label><Input type="number" step="0.01" value={tableEditValorKm} onChange={(e) => setTableEditValorKm(e.target.value)} className="h-8 text-sm" /></div>
+                          <div><Label className="text-xs">KM Inicial</Label><Input type="number" value={tableEditKmInicial} onChange={(e) => setTableEditKmInicial(e.target.value)} className="h-8 text-xs" /></div>
+                          <div><Label className="text-xs">KM Final</Label><Input type="number" value={tableEditKmFinal} onChange={(e) => setTableEditKmFinal(e.target.value)} className="h-8 text-xs" /></div>
+                          <div><Label className="text-xs">Valor KM</Label><CurrencyInput value={tableEditValorKm} onChange={setTableEditValorKm} className="h-8 text-xs" /></div>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <ImageAttachButton images={tableEditImgInicial} onImagesChange={setTableEditImgInicial} label="Comprovante KM Inicial" />
                           <ImageAttachButton images={tableEditImgFinal} onImagesChange={setTableEditImgFinal} label="Comprovante KM Final" />
                         </div>
                         <div className="flex gap-2">
-                          <Button size="sm" onClick={() => saveTableEdit(record.id)} className="flex-1"><Save className="h-4 w-4 mr-1" /> Salvar</Button>
-                          <Button variant="outline" size="sm" onClick={cancelTableEdit}><X className="h-4 w-4" /></Button>
+                          <Button size="sm" onClick={() => saveTableEdit(record.id)} className="flex-1"><Save className="h-3 w-3 mr-1" /> Salvar</Button>
+                          <Button variant="outline" size="sm" onClick={cancelTableEdit}><X className="h-3 w-3" /></Button>
                         </div>
                       </div>
                     ) : (
                       <div className="flex items-start gap-2">
                         <Checkbox checked={selectedIds.has(record.id)} onCheckedChange={() => toggleSelectId(record.id)} className="mt-1" />
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm flex-1 min-w-0">
-                          <div><span className="text-muted-foreground text-xs">Data:</span><p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p></div>
-                          <div><span className="text-muted-foreground text-xs">Funcionário:</span><p className="font-medium truncate">{record.funcionarioNome}</p></div>
-                          <div><span className="text-muted-foreground text-xs">KM Inicial:</span><p className="font-medium">{record.kmInicial ?? "-"}</p></div>
-                          <div><span className="text-muted-foreground text-xs">KM Final:</span><p className="font-medium">{record.kmFinal ?? "-"}</p></div>
-                          <div><span className="text-muted-foreground text-xs">Percorrido:</span><p className="font-medium text-primary">{record.kmPercorrido} km</p></div>
-                          <div><span className="text-muted-foreground text-xs">Valor:</span><p className="font-medium text-green-600">{formatCurrency(record.valorTotal || 0)}</p></div>
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs flex-1 min-w-0">
+                          <div><span className="text-muted-foreground">Data:</span><p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p></div>
+                          <div><span className="text-muted-foreground">Funcionário:</span><p className="font-medium truncate">{record.funcionarioNome || "-"}</p></div>
+                          <div><span className="text-muted-foreground">KM Inicial:</span><p className="font-medium">{record.kmInicial ?? "-"}</p></div>
+                          <div><span className="text-muted-foreground">KM Final:</span><p className="font-medium">{record.kmFinal ?? "-"}</p></div>
+                          <div><span className="text-muted-foreground">Percorrido:</span><p className="font-medium text-primary">{record.kmPercorrido} km</p></div>
+                          <div><span className="text-muted-foreground">Valor:</span><p className="font-medium text-green-600">{formatCurrency(record.valorTotal || 0)}</p></div>
                           <div className="col-span-2">
-                            <span className={cn("text-xs px-2 py-1 rounded-full", record.status === 'completo' ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800")}>
+                            <span className={cn("text-xs px-2 py-0.5 rounded-full", record.status === 'completo' ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800")}>
                               {record.status === 'completo' ? "Completo" : "Parcial"}
                             </span>
                             {((record.imagensKmInicial && record.imagensKmInicial.length > 0) || (record.imagensKmFinal && record.imagensKmFinal.length > 0)) && (
-                              <span className="text-xs text-muted-foreground ml-2">📷 {(record.imagensKmInicial?.length || 0) + (record.imagensKmFinal?.length || 0)} comprovante(s)</span>
+                              <span className="text-xs text-muted-foreground ml-2">📷 {(record.imagensKmInicial?.length || 0) + (record.imagensKmFinal?.length || 0)}</span>
                             )}
                           </div>
                         </div>
                         <div className="flex gap-1 flex-shrink-0">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startTableEdit(record)}><Edit2 className="h-4 w-4 text-blue-600" /></Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(record.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startTableEdit(record)}><Edit2 className="h-3 w-3 text-blue-600" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(record.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                         </div>
                       </div>
                     )}

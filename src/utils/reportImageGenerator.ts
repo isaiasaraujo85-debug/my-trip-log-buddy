@@ -1,5 +1,4 @@
 import html2canvas from "html2canvas";
-import { format } from "date-fns";
 
 export type ImageFormat = "png" | "jpeg";
 
@@ -55,6 +54,13 @@ async function shareOrDownload(blob: Blob, filename: string, mimeType: string): 
   URL.revokeObjectURL(url);
 }
 
+function getReportTypeLabel(filename: string): string {
+  if (filename.includes("km")) return "relatorio km";
+  if (filename.includes("pedagio") || filename.includes("ped")) return "relatorio ped";
+  if (filename.includes("refeicao") || filename.includes("ref")) return "relatorio ref";
+  return filename;
+}
+
 export async function generateReportImage({
   element,
   format: imageFormat,
@@ -64,24 +70,23 @@ export async function generateReportImage({
     const mimeType = imageFormat === "png" ? "image/png" : "image/jpeg";
     const quality = imageFormat === "jpeg" ? 0.92 : undefined;
     const extension = imageFormat === "png" ? "png" : "jpg";
-    const dateStr = format(new Date(), "yyyyMMdd");
+    const label = getReportTypeLabel(filename);
 
-    // Check if element has multiple child pages (direct child divs)
+    // Get all direct child divs of the wrapper
     const pages = element.querySelectorAll(':scope > div > div');
     
     if (pages.length > 1) {
-      // Multi-page: generate one image per page
       const blobs: { blob: Blob; filename: string }[] = [];
       
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i] as HTMLElement;
         const canvas = await captureElement(page);
         const blob = await canvasToBlob(canvas, mimeType, quality);
-        const pageFilename = `${filename}-${dateStr}-p${i + 1}.${extension}`;
+        const pageNum = String(i + 1).padStart(2, "0");
+        const pageFilename = `${label} pag ${pageNum}.${extension}`;
         blobs.push({ blob, filename: pageFilename });
       }
 
-      // Try sharing all files at once
       if (navigator.share && navigator.canShare) {
         const files = blobs.map(b => new File([b.blob], b.filename, { type: mimeType }));
         const shareData = { files };
@@ -97,14 +102,12 @@ export async function generateReportImage({
         }
       }
 
-      // Fallback: download each
       for (const { blob, filename: fname } of blobs) {
         await shareOrDownload(blob, fname, mimeType);
       }
     } else {
-      // Single page
       const canvas = await captureElement(element);
-      const fullFilename = `${filename}-${dateStr}.${extension}`;
+      const fullFilename = `${label} pag 01.${extension}`;
       const blob = await canvasToBlob(canvas, mimeType, quality);
       await shareOrDownload(blob, fullFilename, mimeType);
     }

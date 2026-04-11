@@ -12,6 +12,10 @@ export function FuncionarioSelect({ value, onSelect }: FuncionarioSelectProps) {
   const [funcionarios] = useLocalStorage<Funcionario[]>("funcionarios", []);
 
   const handleChange = (id: string) => {
+    if (id === "__blank__") {
+      onSelect(undefined);
+      return;
+    }
     const funcionario = funcionarios.find(f => f.id === id);
     onSelect(funcionario);
   };
@@ -19,22 +23,17 @@ export function FuncionarioSelect({ value, onSelect }: FuncionarioSelectProps) {
   return (
     <div className="space-y-2">
       <Label>Selecione o Funcionário</Label>
-      <Select value={value} onValueChange={handleChange}>
+      <Select value={value || "__blank__"} onValueChange={handleChange}>
         <SelectTrigger>
           <SelectValue placeholder="Selecione o funcionário" />
         </SelectTrigger>
         <SelectContent>
-          {funcionarios.length === 0 ? (
-            <SelectItem value="none" disabled>
-              Nenhum funcionário cadastrado
+          <SelectItem value="__blank__">— Nenhum —</SelectItem>
+          {funcionarios.map((funcionario) => (
+            <SelectItem key={funcionario.id} value={funcionario.id}>
+              {funcionario.nome}
             </SelectItem>
-          ) : (
-            funcionarios.map((funcionario) => (
-              <SelectItem key={funcionario.id} value={funcionario.id}>
-                {funcionario.nome}
-              </SelectItem>
-            ))
-          )}
+          ))}
         </SelectContent>
       </Select>
     </div>

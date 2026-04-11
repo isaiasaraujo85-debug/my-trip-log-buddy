@@ -1,5 +1,5 @@
 import { useState, useRef, ReactNode } from "react";
-import { Image, Share2, Download } from "lucide-react";
+import { Image, Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,18 +8,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { generateReportImage, ImageFormat } from "@/utils/reportImageGenerator";
-import { useToast } from "@/hooks/use-toast";
 
 interface ReportExportButtonProps {
   children: ReactNode;
   filename: string;
   disabled?: boolean;
+  onGeneratePdf?: () => void;
 }
 
-export function ReportExportButton({ children, filename, disabled }: ReportExportButtonProps) {
+export function ReportExportButton({ children, filename, disabled, onGeneratePdf }: ReportExportButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
 
   const handleExport = async (format: ImageFormat) => {
     if (!containerRef.current) return;
@@ -31,24 +30,21 @@ export function ReportExportButton({ children, filename, disabled }: ReportExpor
         format,
         filename,
       });
-      toast({
-        title: "Sucesso",
-        description: "Relatório gerado com sucesso!",
-      });
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Falha ao gerar o relatório. Tente novamente.",
-        variant: "destructive",
-      });
+      console.error("Falha ao gerar relatório", error);
     } finally {
       setIsGenerating(false);
     }
   };
 
+  const handlePdf = () => {
+    if (onGeneratePdf) {
+      onGeneratePdf();
+    }
+  };
+
   return (
     <>
-      {/* Hidden container for report rendering */}
       <div 
         ref={containerRef} 
         className="fixed left-[-9999px] top-0"
@@ -82,6 +78,12 @@ export function ReportExportButton({ children, filename, disabled }: ReportExpor
             <Download className="mr-2 h-4 w-4" />
             Baixar como JPEG
           </DropdownMenuItem>
+          {onGeneratePdf && (
+            <DropdownMenuItem onClick={handlePdf}>
+              <FileText className="mr-2 h-4 w-4" />
+              Baixar como PDF
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

@@ -13,9 +13,18 @@ interface PedagioReportContentProps {
 
 const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-const A4_STYLE = {
+const A4_LANDSCAPE = {
   width: '1123px',
   minHeight: '794px',
+  padding: '40px',
+  fontFamily: 'Arial, sans-serif',
+  boxSizing: 'border-box' as const,
+  textTransform: 'uppercase' as const,
+};
+
+const A4_PORTRAIT = {
+  width: '794px',
+  minHeight: '1123px',
   padding: '40px',
   fontFamily: 'Arial, sans-serif',
   boxSizing: 'border-box' as const,
@@ -25,36 +34,57 @@ const A4_STYLE = {
 export function PedagioReportContent({ records, dataInicio, dataFim, total, empresaConfig }: PedagioReportContentProps) {
   const firstRecord = records[0];
 
-  const allImages: { label: string; base64: string }[] = [];
+  const allImages: { date: string; label: string; base64: string; direcao: string }[] = [];
   const sortedRecords = [...records].sort((a, b) => a.data.localeCompare(b.data));
   
   for (const record of sortedRecords) {
     if (record.imagensComprovante) {
       const dateLabel = format(parseLocalDate(record.data), "dd/MM/yyyy");
       for (const img of record.imagensComprovante) {
-        allImages.push({ label: `${dateLabel} - PEDÁGIO (${record.direcao === 'ida' ? 'IDA' : 'VOLTA'}): ${formatCurrency(record.valor)}`, base64: img.base64 });
+        allImages.push({
+          date: record.data,
+          label: `${dateLabel} - PEDÁGIO (${record.direcao === 'ida' ? 'IDA' : 'VOLTA'}): ${formatCurrency(record.valor)}`,
+          base64: img.base64,
+          direcao: record.direcao,
+        });
       }
     }
   }
 
+  // Sort: date asc, ida before volta
+  allImages.sort((a, b) => {
+    if (a.date !== b.date) return a.date.localeCompare(b.date);
+    if (a.direcao !== b.direcao) return a.direcao === 'ida' ? -1 : 1;
+    return 0;
+  });
+
+  // Group by date
+  const dateGroups = new Map<string, typeof allImages>();
+  for (const img of allImages) {
+    if (!dateGroups.has(img.date)) dateGroups.set(img.date, []);
+    dateGroups.get(img.date)!.push(img);
+  }
+
   const imagePages: typeof allImages[] = [];
-  for (let i = 0; i < allImages.length; i += 2) {
-    imagePages.push(allImages.slice(i, i + 2));
+  for (const [, imgs] of dateGroups) {
+    for (let i = 0; i < imgs.length; i += 2) {
+      imagePages.push(imgs.slice(i, i + 2));
+    }
   }
 
   return (
     <div>
-      <div className="bg-white text-black" style={A4_STYLE}>
+      <div className="bg-white text-black" style={A4_LANDSCAPE}>
         <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-blue-500">
           {empresaConfig.logoBase64 ? (
-            <img src={empresaConfig.logoBase64} alt="Logo" className="w-32 h-16 object-contain" />
+            <img src={empresaConfig.logoBase64} alt="Logo" className="object-contain" style={{ width: '128px', height: '64px' }} />
           ) : (
-            <div className="w-32 h-16 bg-blue-500 rounded flex items-center justify-center">
+            <div className="bg-blue-500 rounded flex items-center justify-center" style={{ width: '128px', height: '64px' }}>
               <span className="text-white font-bold text-xl">KM</span>
             </div>
           )}
           <div>
-            <h1 className="text-xl font-bold">{(empresaConfig.nome || "Sua Empresa").toUpperCase()}</h1>
+            <h1 className="text-xl font-bold">{(empresaConfig.nome || "SUA EMPRESA").toUpperCase()}</h1>
             <p className="text-gray-600 font-semibold">CONTROLE DE DESPESAS</p>
           </div>
         </div>
@@ -107,7 +137,7 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
       </div>
 
       {imagePages.map((page, pageIndex) => (
-        <div key={pageIndex} className="bg-white text-black" style={{ ...A4_STYLE, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div key={pageIndex} className="bg-white text-black" style={{ ...A4_PORTRAIT, display: 'flex', flexDirection: 'column' }}>
           <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-300">
             <span className="text-sm font-bold text-gray-600">COMPROVANTES ANEXADOS - PÁGINA {pageIndex + 1}</span>
           </div>
@@ -115,7 +145,7 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
             {page.map((img, imgIndex) => (
               <div key={imgIndex} className="flex-1 flex flex-col items-center justify-center border border-gray-300 rounded p-3">
                 <p className="text-sm font-semibold text-gray-700 mb-2">{img.label}</p>
-                <img src={img.base64} alt={img.label} className="max-w-full h-auto rounded" style={{ maxHeight: '300px', objectFit: 'contain' }} />
+                <img src={img.base64} alt={img.label} className="max-w-full h-auto rounded" style={{ maxHeight: '420px', objectFit: 'contain' }} />
               </div>
             ))}
           </div>
