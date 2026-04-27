@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AttachedImage } from "@/types";
+import { toast } from "@/hooks/use-toast";
 
 interface ImageAttachButtonProps {
   images: AttachedImage[];
@@ -63,6 +64,65 @@ export function ImageAttachButton({ images, onImagesChange, label = "Imagem" }: 
     onImagesChange(images.filter((img) => img.id !== id));
   };
 
+  const openCamera = async () => {
+    // Verifica suporte e permissão antes de abrir
+    try {
+      if (typeof navigator !== "undefined" && (navigator as any).permissions?.query) {
+        try {
+          const status = await (navigator as any).permissions.query({ name: "camera" as PermissionName });
+          if (status.state === "denied") {
+            toast({
+              title: "Acesso à câmera negado",
+              description: "Habilite o acesso à câmera nas configurações do navegador para usar esta função.",
+              variant: "destructive",
+            });
+            return;
+          }
+        } catch {
+          // permission name não suportado em alguns navegadores - segue
+        }
+      }
+
+      // Tenta solicitar permissão explicitamente para garantir prompt do SO
+      if (navigator.mediaDevices?.getUserMedia) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: "environment" } },
+          });
+          // Solta a stream imediatamente — usaremos o input file para captura
+          stream.getTracks().forEach((t) => t.stop());
+        } catch (err: any) {
+          if (err?.name === "NotAllowedError") {
+            toast({
+              title: "Permissão negada",
+              description: "Permita o acesso à câmera nas configurações do navegador.",
+              variant: "destructive",
+            });
+            return;
+          }
+          if (err?.name === "NotFoundError") {
+            toast({
+              title: "Câmera não encontrada",
+              description: "Nenhuma câmera disponível neste dispositivo.",
+              variant: "destructive",
+            });
+            return;
+          }
+          // Outros erros: ainda tenta o input file (pode funcionar em iOS Safari)
+        }
+      }
+
+      cameraInputRef.current?.click();
+    } catch (err) {
+      console.error("Erro ao abrir câmera:", err);
+      toast({
+        title: "Erro ao abrir a câmera",
+        description: "Tente anexar uma imagem da galeria.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
@@ -83,7 +143,7 @@ export function ImageAttachButton({ images, onImagesChange, label = "Imagem" }: 
               <Paperclip className="mr-2 h-4 w-4" />
               Anexar Imagem
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => cameraInputRef.current?.click()}>
+            <DropdownMenuItem onClick={openCamera}>
               <Camera className="mr-2 h-4 w-4" />
               Tirar Foto
             </DropdownMenuItem>

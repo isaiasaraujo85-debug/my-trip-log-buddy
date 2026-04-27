@@ -100,36 +100,40 @@ function addAttachmentPages(doc: jsPDF, images: ImageEntry[]) {
   }
 
   for (const page of pages) {
-    doc.addPage("a4", "portrait");
+    doc.addPage("a4", "landscape");
     const pw = doc.internal.pageSize.getWidth();
+    const ph = doc.internal.pageSize.getHeight();
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(100, 100, 100);
-    doc.text("COMPROVANTES ANEXADOS", 20, 20);
+    doc.text("COMPROVANTES ANEXADOS", 15, 15);
     doc.setDrawColor(200, 200, 200);
-    doc.line(20, 23, pw - 20, 23);
+    doc.line(15, 18, pw - 15, 18);
 
-    const imgAreaTop = 30;
-    const imgAreaHeight = (doc.internal.pageSize.getHeight() - 50) / 2;
+    // 2 imagens lado a lado em paisagem
+    const margin = 15;
+    const gap = 10;
+    const colWidth = (pw - margin * 2 - gap) / 2;
+    const yTop = 25;
+    const labelHeight = 8;
+    const imgHeight = ph - yTop - labelHeight - margin;
 
     for (let i = 0; i < page.length; i++) {
       const img = page[i];
-      const yStart = imgAreaTop + i * imgAreaHeight;
+      const xStart = margin + i * (colWidth + gap);
 
       doc.setFontSize(9);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(0, 0, 0);
-      doc.text(img.label.toUpperCase(), 20, yStart + 5);
+      doc.text(img.label.toUpperCase(), xStart, yTop);
 
       try {
-        const maxW = pw - 40;
-        const maxH = imgAreaHeight - 20;
-        doc.addImage(img.base64, 'JPEG', 20, yStart + 10, maxW, maxH, undefined, 'FAST');
+        doc.addImage(img.base64, 'JPEG', xStart, yTop + 4, colWidth, imgHeight, undefined, 'FAST');
       } catch (e) {
         doc.setFontSize(8);
         doc.setTextColor(200, 0, 0);
-        doc.text("ERRO AO CARREGAR IMAGEM", 20, yStart + 20);
+        doc.text("ERRO AO CARREGAR IMAGEM", xStart, yTop + 20);
       }
     }
   }
