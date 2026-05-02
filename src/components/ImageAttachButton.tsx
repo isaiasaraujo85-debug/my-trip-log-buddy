@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Paperclip, Image as ImageIcon, X } from "lucide-react";
+import { Paperclip, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AttachedImage } from "@/types";
 
