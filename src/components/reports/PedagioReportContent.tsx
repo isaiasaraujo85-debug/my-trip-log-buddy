@@ -137,15 +137,15 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
       </div>
 
       {imagePages.map((page, pageIndex) => (
-        <div key={pageIndex} className="bg-white text-black" style={{ ...A4_PORTRAIT, display: 'flex', flexDirection: 'column' }}>
+        <div key={pageIndex} className="bg-white text-black" style={{ ...A4_LANDSCAPE, display: 'flex', flexDirection: 'column' }}>
           <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-300">
             <span className="text-sm font-bold text-gray-600">COMPROVANTES ANEXADOS - PÁGINA {pageIndex + 1}</span>
           </div>
-          <div className="flex-1 flex flex-col gap-4 justify-center">
+          <div className="flex-1 flex flex-row gap-4 justify-center items-stretch">
             {page.map((img, imgIndex) => (
-              <div key={imgIndex} className="flex-1 flex flex-col items-center justify-center border border-gray-300 rounded p-3">
+              <div key={imgIndex} className="flex-1 flex flex-col items-center justify-center border border-gray-300 rounded p-3" style={{ minWidth: 0 }}>
                 <p className="text-sm font-semibold text-gray-700 mb-2">{img.label}</p>
-                <img src={img.base64} alt={img.label} className="max-w-full h-auto rounded" style={{ maxHeight: '420px', objectFit: 'contain' }} />
+                <img src={img.base64} alt={img.label} className="max-w-full h-auto rounded" style={{ maxHeight: '620px', maxWidth: '100%', objectFit: 'contain' }} />
               </div>
             ))}
           </div>

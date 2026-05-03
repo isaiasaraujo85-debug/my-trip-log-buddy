@@ -70,10 +70,6 @@ export function ReportExportButton({ children, filename, disabled, onGeneratePdf
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => handleExport("png")}>
-            <Download className="mr-2 h-4 w-4" />
-            Baixar como PNG
-          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => handleExport("jpeg")}>
             <Download className="mr-2 h-4 w-4" />
             Baixar como JPEG
