@@ -4,6 +4,15 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { KmRecord, PedagioRecord, RefeicaoRecord, EmpresaConfig, TipoRefeicao, AttachedImage } from "@/types";
 import { parseLocalDate } from "@/utils/dateUtils";
+import { downloadBase64 } from "@/utils/downloadHelper";
+
+function savePdf(doc: jsPDF, filename: string) {
+  // Gera o PDF como data URL base64 e usa o helper compatível com WebView.
+  const dataUri = doc.output("datauristring");
+  // jsPDF inclui ;filename=... no datauristring — limpamos para um data URL puro.
+  const cleaned = dataUri.replace(/;filename=[^;,]+/, "");
+  void downloadBase64(cleaned, filename, "application/pdf");
+}
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('pt-BR', {
@@ -207,7 +216,7 @@ export const generateKmPdf = (
   }
   addAttachmentPages(doc, images);
   
-  doc.save(`relatorio-km-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+  savePdf(doc, `relatorio-km-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
 
 export const generatePedagioPdf = (
@@ -274,7 +283,7 @@ export const generatePedagioPdf = (
   }
   addAttachmentPages(doc, images);
   
-  doc.save(`relatorio-pedagio-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+  savePdf(doc, `relatorio-pedagio-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
 
 export const generateRefeicaoPdf = (
@@ -339,5 +348,5 @@ export const generateRefeicaoPdf = (
   }
   addAttachmentPages(doc, images);
   
-  doc.save(`relatorio-refeicao-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+  savePdf(doc, `relatorio-refeicao-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
