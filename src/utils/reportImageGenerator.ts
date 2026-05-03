@@ -1,4 +1,5 @@
 import html2canvas from "html2canvas";
+import { downloadBase64, blobToBase64 } from "@/utils/downloadHelper";
 
 export type ImageFormat = "png" | "jpeg";
 
@@ -29,29 +30,8 @@ function canvasToBlob(canvas: HTMLCanvasElement, mimeType: string, quality?: num
 }
 
 async function shareOrDownload(blob: Blob, filename: string, mimeType: string): Promise<void> {
-  if (navigator.share && navigator.canShare) {
-    const file = new File([blob], filename, { type: mimeType });
-    const shareData = { files: [file] };
-    if (navigator.canShare(shareData)) {
-      try {
-        await navigator.share(shareData);
-        return;
-      } catch (err) {
-        if ((err as Error).name !== "AbortError") {
-          console.log("Share failed, falling back to download");
-        }
-      }
-    }
-  }
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  const dataUrl = await blobToBase64(blob);
+  await downloadBase64(dataUrl, filename, mimeType);
 }
 
 function getReportTypeLabel(filename: string): string {
@@ -87,19 +67,19 @@ export async function generateReportImage({
         blobs.push({ blob, filename: pageFilename });
       }
 
-      if (navigator.share && navigator.canShare) {
-        const files = blobs.map(b => new File([b.blob], b.filename, { type: mimeType }));
-        const shareData = { files };
-        if (navigator.canShare(shareData)) {
-          try {
-            await navigator.share(shareData);
+      // Tenta compartilhar todos juntos via Web Share (melhor em mobile/WebView)
+      try {
+        if ((navigator as any).canShare) {
+          const files = blobs.map(b => new File([b.blob], b.filename, { type: mimeType }));
+          const shareData = { files } as any;
+          if ((navigator as any).canShare(shareData)) {
+            await (navigator as any).share(shareData);
             return;
-          } catch (err) {
-            if ((err as Error).name !== "AbortError") {
-              console.log("Share failed, falling back to download");
-            }
           }
         }
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+        console.log("Share failed, falling back to individual downloads");
       }
 
       for (const { blob, filename: fname } of blobs) {
