@@ -41,6 +41,12 @@ export function KmTab() {
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
+
+  // Overrides aplicados apenas no relatório (não alteram os registros salvos)
+  const [reportFuncionarioId, setReportFuncionarioId] = useState("");
+  const [reportFuncionario, setReportFuncionario] = useState<Funcionario | undefined>();
+  const [reportVeiculoId, setReportVeiculoId] = useState("");
+  const [reportVeiculo, setReportVeiculo] = useState<Veiculo | undefined>();
   
   const [tableEditId, setTableEditId] = useState<string | null>(null);
   const [tableEditKmInicial, setTableEditKmInicial] = useState("");
@@ -173,13 +179,20 @@ export function KmTab() {
   });
 
   const completedRecords = filteredRecords.filter(r => r.status === 'completo');
-  const totalKm = completedRecords.reduce((sum, r) => sum + r.kmPercorrido, 0);
-  const totalValor = completedRecords.reduce((sum, r) => sum + (r.valorTotal || 0), 0);
+  const reportRecords: KmRecord[] = completedRecords.map(r => ({
+    ...r,
+    funcionarioNome: reportFuncionario ? reportFuncionario.nome.toUpperCase() : r.funcionarioNome,
+    funcionarioMatricula: reportFuncionario ? (reportFuncionario.matricula || "").toUpperCase() : r.funcionarioMatricula,
+    veiculo: reportVeiculo ? reportVeiculo.modelo.toUpperCase() : r.veiculo,
+    placa: reportVeiculo ? (reportVeiculo.placa || "").toUpperCase() : r.placa,
+  }));
+  const totalKm = reportRecords.reduce((sum, r) => sum + r.kmPercorrido, 0);
+  const totalValor = reportRecords.reduce((sum, r) => sum + (r.valorTotal || 0), 0);
 
   const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   const handleGeneratePdf = () => {
-    generateKmPdf(completedRecords, dataInicio, dataFim, totalKm, totalValor, empresaConfig);
+    generateKmPdf(reportRecords, dataInicio, dataFim, totalKm, totalValor, empresaConfig);
   };
 
   return (
@@ -269,8 +282,14 @@ export function KmTab() {
               <DatePickerField label="Data Inicial" value={dataInicio} onChange={setDataInicio} placeholder="Início" />
               <DatePickerField label="Data Final" value={dataFim} onChange={setDataFim} placeholder="Fim" />
             </div>
-            <ReportExportButton filename="relatorio-km" disabled={completedRecords.length === 0} onGeneratePdf={handleGeneratePdf}>
-              <KmReportContent records={completedRecords} dataInicio={dataInicio} dataFim={dataFim} totalKm={totalKm} totalValor={totalValor} empresaConfig={empresaConfig} />
+            <div className="space-y-2">
+              <Label className="text-xs">Funcionário (Relatório)</Label>
+              <FuncionarioSelect value={reportFuncionarioId} onSelect={(f) => { setReportFuncionario(f); setReportFuncionarioId(f?.id || ""); }} />
+              <Label className="text-xs">Veículo (Relatório)</Label>
+              <VeiculoSelect value={reportVeiculoId} onSelect={(v) => { setReportVeiculo(v); setReportVeiculoId(v?.id || ""); }} />
+            </div>
+            <ReportExportButton filename="relatorio-km" disabled={reportRecords.length === 0} onGeneratePdf={handleGeneratePdf}>
+              <KmReportContent records={reportRecords} dataInicio={dataInicio} dataFim={dataFim} totalKm={totalKm} totalValor={totalValor} empresaConfig={empresaConfig} />
             </ReportExportButton>
 
             <div className="bg-muted p-3 rounded-lg space-y-1">
