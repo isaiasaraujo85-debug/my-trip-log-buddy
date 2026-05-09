@@ -35,6 +35,11 @@ export function PedagioTab() {
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
 
+  const [reportFuncionarioId, setReportFuncionarioId] = useState("");
+  const [reportFuncionario, setReportFuncionario] = useState<Funcionario | undefined>();
+  const [reportVeiculoId, setReportVeiculoId] = useState("");
+  const [reportVeiculo, setReportVeiculo] = useState<Veiculo | undefined>();
+
   const [editId, setEditId] = useState<string | null>(null);
   const [editValor, setEditValor] = useState("");
   const [editDirecao, setEditDirecao] = useState<'ida' | 'volta'>('ida');
