@@ -35,11 +35,6 @@ export function PedagioTab() {
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
 
-  const [reportFuncionarioId, setReportFuncionarioId] = useState("");
-  const [reportFuncionario, setReportFuncionario] = useState<Funcionario | undefined>();
-  const [reportVeiculoId, setReportVeiculoId] = useState("");
-  const [reportVeiculo, setReportVeiculo] = useState<Veiculo | undefined>();
-
   const [editId, setEditId] = useState<string | null>(null);
   const [editValor, setEditValor] = useState("");
   const [editDirecao, setEditDirecao] = useState<'ida' | 'volta'>('ida');
@@ -125,18 +120,11 @@ export function PedagioTab() {
     return recordDate >= dataInicio && recordDate <= dataFim;
   });
 
-  const reportRecords: PedagioRecord[] = filteredRecords.map(r => ({
-    ...r,
-    funcionarioNome: reportFuncionario ? reportFuncionario.nome.toUpperCase() : r.funcionarioNome,
-    funcionarioMatricula: reportFuncionario ? (reportFuncionario.matricula || "").toUpperCase() : r.funcionarioMatricula,
-    veiculo: reportVeiculo ? reportVeiculo.modelo.toUpperCase() : r.veiculo,
-    placa: reportVeiculo ? (reportVeiculo.placa || "").toUpperCase() : r.placa,
-  }));
-  const total = reportRecords.reduce((sum, r) => sum + r.valor, 0);
+  const total = filteredRecords.reduce((sum, r) => sum + r.valor, 0);
   const formatCurrencyDisplay = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   const handleGeneratePdf = () => {
-    generatePedagioPdf(reportRecords, dataInicio, dataFim, total, empresaConfig);
+    generatePedagioPdf(filteredRecords, dataInicio, dataFim, total, empresaConfig);
   };
 
   return (
@@ -217,14 +205,8 @@ export function PedagioTab() {
               <DatePickerField label="Data Inicial" value={dataInicio} onChange={setDataInicio} placeholder="Início" />
               <DatePickerField label="Data Final" value={dataFim} onChange={setDataFim} placeholder="Fim" />
             </div>
-            <div className="space-y-2">
-              <Label className="text-xs">Funcionário (Relatório)</Label>
-              <FuncionarioSelect value={reportFuncionarioId} onSelect={(f) => { setReportFuncionario(f); setReportFuncionarioId(f?.id || ""); }} />
-              <Label className="text-xs">Veículo (Relatório)</Label>
-              <VeiculoSelect value={reportVeiculoId} onSelect={(v) => { setReportVeiculo(v); setReportVeiculoId(v?.id || ""); }} />
-            </div>
-            <ReportExportButton filename="relatorio-pedagio" disabled={reportRecords.length === 0} onGeneratePdf={handleGeneratePdf}>
-              <PedagioReportContent records={reportRecords} dataInicio={dataInicio} dataFim={dataFim} total={total} empresaConfig={empresaConfig} />
+            <ReportExportButton filename="relatorio-pedagio" disabled={filteredRecords.length === 0} onGeneratePdf={handleGeneratePdf}>
+              <PedagioReportContent records={filteredRecords} dataInicio={dataInicio} dataFim={dataFim} total={total} empresaConfig={empresaConfig} />
             </ReportExportButton>
 
             <div className="bg-muted p-3 rounded-lg">

@@ -39,9 +39,6 @@ export function RefeicaoTab() {
   const [dataFim, setDataFim] = useState<Date | undefined>();
   const [showReport, setShowReport] = useState(false);
 
-  const [reportFuncionarioId, setReportFuncionarioId] = useState("");
-  const [reportFuncionario, setReportFuncionario] = useState<Funcionario | undefined>();
-
   const [editId, setEditId] = useState<string | null>(null);
   const [editTipo, setEditTipo] = useState<TipoRefeicao>("almoco");
   const [editValor, setEditValor] = useState("");
@@ -119,16 +116,11 @@ export function RefeicaoTab() {
     return recordDate >= dataInicio && recordDate <= dataFim;
   });
 
-  const reportRecords: RefeicaoRecord[] = filteredRecords.map(r => ({
-    ...r,
-    funcionarioNome: reportFuncionario ? reportFuncionario.nome.toUpperCase() : r.funcionarioNome,
-    funcionarioMatricula: reportFuncionario ? (reportFuncionario.matricula || "").toUpperCase() : r.funcionarioMatricula,
-  }));
-  const total = reportRecords.reduce((sum, r) => sum + r.valor, 0);
+  const total = filteredRecords.reduce((sum, r) => sum + r.valor, 0);
   const formatCurrencyDisplay = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   const handleGeneratePdf = () => {
-    generateRefeicaoPdf(reportRecords, dataInicio, dataFim, total, empresaConfig);
+    generateRefeicaoPdf(filteredRecords, dataInicio, dataFim, total, empresaConfig);
   };
 
   return (
@@ -195,12 +187,8 @@ export function RefeicaoTab() {
               <DatePickerField label="Data Inicial" value={dataInicio} onChange={setDataInicio} placeholder="Início" />
               <DatePickerField label="Data Final" value={dataFim} onChange={setDataFim} placeholder="Fim" />
             </div>
-            <div className="space-y-2">
-              <Label className="text-xs">Funcionário (Relatório)</Label>
-              <FuncionarioSelect value={reportFuncionarioId} onSelect={(f) => { setReportFuncionario(f); setReportFuncionarioId(f?.id || ""); }} />
-            </div>
-            <ReportExportButton filename="relatorio-refeicao" disabled={reportRecords.length === 0} onGeneratePdf={handleGeneratePdf}>
-              <RefeicaoReportContent records={reportRecords} dataInicio={dataInicio} dataFim={dataFim} total={total} empresaConfig={empresaConfig} />
+            <ReportExportButton filename="relatorio-refeicao" disabled={filteredRecords.length === 0} onGeneratePdf={handleGeneratePdf}>
+              <RefeicaoReportContent records={filteredRecords} dataInicio={dataInicio} dataFim={dataFim} total={total} empresaConfig={empresaConfig} />
             </ReportExportButton>
 
             <div className="bg-muted p-3 rounded-lg">
