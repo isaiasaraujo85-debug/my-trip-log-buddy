@@ -9,16 +9,34 @@ interface ImageAttachButtonProps {
   label?: string;
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
+async function processImageFile(file: File, maxWidth = 800): Promise<string> {
+  // Use createImageBitmap with imageOrientation to honor EXIF and preserve
+  // the original photo orientation when drawing to canvas (avoids rotation).
+  let bitmap: ImageBitmap | null = null;
+  try {
+    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" } as any);
+  } catch {
+    bitmap = null;
+  }
+
+  if (bitmap) {
+    const ratio = Math.min(maxWidth / bitmap.width, 1);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * ratio);
+    canvas.height = Math.round(bitmap.height * ratio);
+    const ctx = canvas.getContext("2d")!;
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    return canvas.toDataURL("image/jpeg", 0.7);
+  }
+
+  // Fallback: read file as data URL and use HTMLImageElement
+  const base64: string = await new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-}
-
-function resizeImage(base64: string, maxWidth = 800): Promise<string> {
   return new Promise((resolve) => {
     const img = new window.Image();
     img.onload = () => {
@@ -41,8 +59,7 @@ export function ImageAttachButton({ images, onImagesChange, label = "Imagem" }: 
     if (!files) return;
     const newImages: AttachedImage[] = [];
     for (let i = 0; i < files.length; i++) {
-      const base64 = await fileToBase64(files[i]);
-      const resized = await resizeImage(base64);
+      const resized = await processImageFile(files[i]);
       newImages.push({
         id: crypto.randomUUID(),
         base64: resized,
