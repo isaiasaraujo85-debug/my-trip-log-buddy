@@ -39,6 +39,9 @@ export function PedagioTab() {
   const [editValor, setEditValor] = useState("");
   const [editDirecao, setEditDirecao] = useState<'ida' | 'volta'>('ida');
   const [editImagens, setEditImagens] = useState<AttachedImage[]>([]);
+  const [editData, setEditData] = useState<Date | undefined>();
+  const [editFuncionario, setEditFuncionario] = useState<Funcionario | undefined>();
+  const [editVeiculo, setEditVeiculo] = useState<Veiculo | undefined>();
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -99,6 +102,9 @@ export function PedagioTab() {
     setEditValor(record.valor.toString());
     setEditDirecao(record.direcao || 'ida');
     setEditImagens(record.imagensComprovante || []);
+    setEditData(record.data ? parseLocalDate(record.data) : undefined);
+    setEditFuncionario(record.funcionarioId ? { id: record.funcionarioId, nome: record.funcionarioNome, matricula: record.funcionarioMatricula, funcao: "" } : undefined);
+    setEditVeiculo(record.veiculoId ? { id: record.veiculoId, modelo: record.veiculo, placa: record.placa } : undefined);
   };
 
   const cancelEdit = () => { setEditId(null); setEditValor(""); setEditImagens([]); };
@@ -107,6 +113,13 @@ export function PedagioTab() {
     if (!editValor) return;
     setRecords(records.map(r => r.id === id ? {
       ...r,
+      data: editData ? format(editData, "yyyy-MM-dd") : r.data,
+      funcionarioId: editFuncionario?.id || "",
+      funcionarioNome: editFuncionario?.nome?.toUpperCase() || "",
+      funcionarioMatricula: editFuncionario?.matricula?.toUpperCase() || "",
+      veiculoId: editVeiculo?.id || "",
+      veiculo: editVeiculo?.modelo?.toUpperCase() || "",
+      placa: editVeiculo?.placa?.toUpperCase() || "",
       valor: parseFloat(editValor),
       direcao: editDirecao,
       imagensComprovante: editImagens.length > 0 ? editImagens : undefined,
@@ -238,6 +251,9 @@ export function PedagioTab() {
                   <div key={record.id} className="p-2 border rounded-lg">
                     {editId === record.id ? (
                       <div className="space-y-2">
+                        <FuncionarioSelect value={editFuncionario?.id || ""} onSelect={setEditFuncionario} />
+                        <VeiculoSelect value={editVeiculo?.id || ""} onSelect={setEditVeiculo} />
+                        <DatePickerField label="Data" value={editData} onChange={setEditData} />
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <Label className="text-xs">Valor (R$)</Label>

@@ -48,6 +48,9 @@ export function KmTab() {
   const [tableEditValorKm, setTableEditValorKm] = useState("");
   const [tableEditImgInicial, setTableEditImgInicial] = useState<AttachedImage[]>([]);
   const [tableEditImgFinal, setTableEditImgFinal] = useState<AttachedImage[]>([]);
+  const [tableEditData, setTableEditData] = useState<Date | undefined>();
+  const [tableEditFuncionario, setTableEditFuncionario] = useState<Funcionario | undefined>();
+  const [tableEditVeiculo, setTableEditVeiculo] = useState<Veiculo | undefined>();
   
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -141,6 +144,9 @@ export function KmTab() {
     setTableEditValorKm(record.valorKm?.toString() || "");
     setTableEditImgInicial(record.imagensKmInicial || []);
     setTableEditImgFinal(record.imagensKmFinal || []);
+    setTableEditData(record.data ? parseLocalDate(record.data) : undefined);
+    setTableEditFuncionario(record.funcionarioId ? { id: record.funcionarioId, nome: record.funcionarioNome, matricula: record.funcionarioMatricula, funcao: "" } : undefined);
+    setTableEditVeiculo(record.veiculoId ? { id: record.veiculoId, modelo: record.veiculo, placa: record.placa } : undefined);
   };
 
   const cancelTableEdit = () => { setTableEditId(null); };
@@ -154,6 +160,13 @@ export function KmTab() {
     const status: 'parcial' | 'completo' = (kmInicialValue !== null && kmFinalValue !== null) ? 'completo' : 'parcial';
     setRecords(records.map(r => r.id === id ? {
       ...r,
+      data: tableEditData ? format(tableEditData, "yyyy-MM-dd") : r.data,
+      funcionarioId: tableEditFuncionario?.id || "",
+      funcionarioNome: tableEditFuncionario?.nome?.toUpperCase() || "",
+      funcionarioMatricula: tableEditFuncionario?.matricula?.toUpperCase() || "",
+      veiculoId: tableEditVeiculo?.id || "",
+      veiculo: tableEditVeiculo?.modelo?.toUpperCase() || "",
+      placa: tableEditVeiculo?.placa?.toUpperCase() || "",
       kmInicial: kmInicialValue,
       kmFinal: kmFinalValue,
       kmPercorrido: calculatedKm,
@@ -306,6 +319,9 @@ export function KmTab() {
                   <div key={record.id} className="p-2 border rounded-lg">
                     {tableEditId === record.id ? (
                       <div className="space-y-2">
+                        <FuncionarioSelect value={tableEditFuncionario?.id || ""} onSelect={setTableEditFuncionario} />
+                        <VeiculoSelect value={tableEditVeiculo?.id || ""} onSelect={setTableEditVeiculo} />
+                        <DatePickerField label="Data" value={tableEditData} onChange={setTableEditData} />
                         <div className="grid grid-cols-3 gap-2">
                           <div><Label className="text-xs">KM Inicial</Label><Input type="number" value={tableEditKmInicial} onChange={(e) => setTableEditKmInicial(e.target.value)} className="h-8 text-xs" /></div>
                           <div><Label className="text-xs">KM Final</Label><Input type="number" value={tableEditKmFinal} onChange={(e) => setTableEditKmFinal(e.target.value)} className="h-8 text-xs" /></div>
