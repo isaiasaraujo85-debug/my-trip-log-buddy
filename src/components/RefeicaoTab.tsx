@@ -43,6 +43,8 @@ export function RefeicaoTab() {
   const [editTipo, setEditTipo] = useState<TipoRefeicao>("almoco");
   const [editValor, setEditValor] = useState("");
   const [editImagens, setEditImagens] = useState<AttachedImage[]>([]);
+  const [editData, setEditData] = useState<Date | undefined>();
+  const [editFuncionario, setEditFuncionario] = useState<Funcionario | undefined>();
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -95,6 +97,8 @@ export function RefeicaoTab() {
     setEditTipo(record.tipo);
     setEditValor(record.valor.toString());
     setEditImagens(record.imagens || []);
+    setEditData(record.data ? parseLocalDate(record.data) : undefined);
+    setEditFuncionario(record.funcionarioId ? { id: record.funcionarioId, nome: record.funcionarioNome, matricula: record.funcionarioMatricula, funcao: "" } : undefined);
   };
 
   const cancelEdit = () => { setEditId(null); setEditTipo("almoco"); setEditValor(""); setEditImagens([]); };
@@ -103,6 +107,10 @@ export function RefeicaoTab() {
     if (!editValor || !editTipo) return;
     setRecords(records.map(r => r.id === id ? {
       ...r,
+      data: editData ? format(editData, "yyyy-MM-dd") : r.data,
+      funcionarioId: editFuncionario?.id || "",
+      funcionarioNome: editFuncionario?.nome?.toUpperCase() || "",
+      funcionarioMatricula: editFuncionario?.matricula?.toUpperCase() || "",
       tipo: editTipo,
       valor: parseFloat(editValor),
       imagens: editImagens.length > 0 ? editImagens : undefined,
@@ -220,6 +228,8 @@ export function RefeicaoTab() {
                   <div key={record.id} className="p-2 border rounded-lg">
                     {editId === record.id ? (
                       <div className="space-y-2">
+                        <FuncionarioSelect value={editFuncionario?.id || ""} onSelect={setEditFuncionario} />
+                        <DatePickerField label="Data" value={editData} onChange={setEditData} />
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <Label className="text-xs">Tipo</Label>
