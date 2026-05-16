@@ -72,9 +72,9 @@ export function RefeicaoReportContent({ records, dataInicio, dataFim, total, emp
       <div className="bg-white text-black" style={A4_LANDSCAPE}>
         <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-blue-500">
           {empresaConfig.logoBase64 ? (
-            <img src={empresaConfig.logoBase64} alt="Logo" className="object-contain" style={{ width: '192px', height: '64px' }} />
+            <img src={empresaConfig.logoBase64} alt="Logo" className="object-contain" style={{ width: '288px', height: '64px' }} />
           ) : (
-            <div className="bg-blue-500 rounded flex items-center justify-center" style={{ width: '192px', height: '64px' }}>
+            <div className="bg-blue-500 rounded flex items-center justify-center" style={{ width: '288px', height: '64px' }}>
               <span className="text-white font-bold text-xl">KM</span>
             </div>
           )}
