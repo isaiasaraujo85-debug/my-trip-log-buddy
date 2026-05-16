@@ -122,7 +122,7 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
             </tr>
           </thead>
           <tbody>
-            {records.map((record, index) => (
+            {sortedRecords.map((record, index) => (
               <tr key={record.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
                 <td className="p-2 border border-gray-300">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</td>
                 <td className="p-2 border border-gray-300">{record.funcionarioNome}</td>
