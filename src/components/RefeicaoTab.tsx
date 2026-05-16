@@ -122,7 +122,7 @@ export function RefeicaoTab() {
     if (!dataInicio || !dataFim) return true;
     const recordDate = parseLocalDate(r.data);
     return recordDate >= dataInicio && recordDate <= dataFim;
-  });
+  }).sort((a, b) => a.data.localeCompare(b.data));
 
   const total = filteredRecords.reduce((sum, r) => sum + r.valor, 0);
   const formatCurrencyDisplay = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
