@@ -183,7 +183,7 @@ export function KmTab() {
     if (!dataInicio || !dataFim) return true;
     const recordDate = parseLocalDate(r.data);
     return recordDate >= dataInicio && recordDate <= dataFim;
-  });
+  }).sort((a, b) => a.data.localeCompare(b.data));
 
   const completedRecords = filteredRecords.filter(r => r.status === 'completo');
   const totalKm = completedRecords.reduce((sum, r) => sum + r.kmPercorrido, 0);
