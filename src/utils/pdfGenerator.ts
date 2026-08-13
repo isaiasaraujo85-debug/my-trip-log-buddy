@@ -2,9 +2,10 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { KmRecord, PedagioRecord, RefeicaoRecord, EmpresaConfig, TipoRefeicao, AttachedImage } from "@/types";
+import { KmRecord, PedagioRecord, RefeicaoRecord, TransporteRecord, HospedagemRecord, EmpresaConfig, TipoRefeicao, TipoHospedagem, AttachedImage } from "@/types";
 import { parseLocalDate } from "@/utils/dateUtils";
 import { downloadBase64 } from "@/utils/downloadHelper";
+import { tipoTransporteLabels } from "@/components/TransporteSelect";
 
 function savePdf(doc: jsPDF, filename: string) {
   // Gera o PDF como data URL base64 e usa o helper compatível com WebView.
@@ -25,6 +26,13 @@ const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
   cafe: "CAFÉ",
   almoco: "ALMOÇO",
   jantar: "JANTAR",
+  outros: "OUTROS"
+};
+
+const tipoHospedagemLabels: Record<TipoHospedagem, string> = {
+  hotel: "HOTEL",
+  airbnb: "AIRBNB",
+  pousada: "POUSADA",
   outros: "OUTROS"
 };
 
