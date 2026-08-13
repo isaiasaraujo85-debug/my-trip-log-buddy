@@ -67,3 +67,30 @@ export interface RefeicaoRecord {
   valor: number;
   imagens?: AttachedImage[];
 }
+
+export type TipoTransporte = '99' | 'onibus' | 'outros' | 'taxi' | 'uber';
+
+export interface TransporteRecord {
+  id: string;
+  funcionarioId: string;
+  funcionarioNome: string;
+  funcionarioMatricula: string;
+  transporte: TipoTransporte;
+  data: string;
+  valor: number;
+  direcao: 'ida' | 'volta';
+  imagensComprovante?: AttachedImage[];
+}
+
+export type TipoHospedagem = 'hotel' | 'airbnb' | 'pousada' | 'outros';
+
+export interface HospedagemRecord {
+  id: string;
+  funcionarioId: string;
+  funcionarioNome: string;
+  funcionarioMatricula: string;
+  data: string;
+  tipo: TipoHospedagem;
+  valor: number;
+  imagens?: AttachedImage[];
+}

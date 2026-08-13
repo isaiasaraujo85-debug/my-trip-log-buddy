@@ -2,9 +2,10 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { KmRecord, PedagioRecord, RefeicaoRecord, EmpresaConfig, TipoRefeicao, AttachedImage } from "@/types";
+import { KmRecord, PedagioRecord, RefeicaoRecord, TransporteRecord, HospedagemRecord, EmpresaConfig, TipoRefeicao, TipoHospedagem, AttachedImage } from "@/types";
 import { parseLocalDate } from "@/utils/dateUtils";
 import { downloadBase64 } from "@/utils/downloadHelper";
+import { tipoTransporteLabels } from "@/components/TransporteSelect";
 
 function savePdf(doc: jsPDF, filename: string) {
   // Gera o PDF como data URL base64 e usa o helper compatível com WebView.
@@ -25,6 +26,13 @@ const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
   cafe: "CAFÉ",
   almoco: "ALMOÇO",
   jantar: "JANTAR",
+  outros: "OUTROS"
+};
+
+const tipoHospedagemLabels: Record<TipoHospedagem, string> = {
+  hotel: "HOTEL",
+  airbnb: "AIRBNB",
+  pousada: "POUSADA",
   outros: "OUTROS"
 };
 
@@ -349,4 +357,132 @@ export const generateRefeicaoPdf = (
   addAttachmentPages(doc, images);
   
   savePdf(doc, `relatorio-refeicao-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+};
+
+export const generateTransportePdf = (
+  records: TransporteRecord[],
+  dataInicio?: Date,
+  dataFim?: Date,
+  total?: number,
+  empresaConfig?: EmpresaConfig
+) => {
+  const doc = new jsPDF("landscape");
+
+  addHeader(doc, "RELATÓRIO DE TRANSPORTE", empresaConfig, dataInicio, dataFim);
+
+  if (records.length > 0) {
+    const firstRecord = records[0];
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "normal");
+    doc.text(`FUNCIONÁRIO: ${firstRecord.funcionarioNome}`, 20, 82);
+    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 88);
+  }
+
+  const tableData = records.map(r => [
+    format(parseLocalDate(r.data), "dd/MM/yyyy"),
+    r.funcionarioNome,
+    (tipoTransporteLabels[r.transporte] || r.transporte).toUpperCase(),
+    r.direcao === 'ida' ? 'IDA' : 'VOLTA',
+    formatCurrency(r.valor)
+  ]);
+
+  autoTable(doc, {
+    startY: 95,
+    head: [["DATA", "FUNCIONÁRIO", "TRANSPORTE", "DIREÇÃO", "VALOR"]],
+    body: tableData,
+    theme: "striped",
+    headStyles: { fillColor: [59, 130, 246] },
+    styles: { fontSize: 10 }
+  });
+
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0, 0, 0);
+  doc.text(`TOTAL GASTO: ${formatCurrency(total || 0)}`, 20, finalY);
+
+  const images: ImageEntry[] = [];
+  const sortedRecords = [...records].sort((a, b) => a.data.localeCompare(b.data));
+  for (const record of sortedRecords) {
+    const dateLabel = format(parseLocalDate(record.data), "dd/MM/yyyy");
+    if (record.imagensComprovante) {
+      for (const img of record.imagensComprovante) {
+        images.push({
+          date: record.data,
+          label: `${dateLabel} - TRANSPORTE ${record.direcao === 'ida' ? 'IDA' : 'VOLTA'}: ${formatCurrency(record.valor)}`,
+          base64: img.base64,
+          sortKey: record.direcao === 'ida' ? 0 : 1,
+          sortKey2: 0
+        });
+      }
+    }
+  }
+  addAttachmentPages(doc, images);
+
+  savePdf(doc, `relatorio-transporte-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+};
+
+export const generateHospedagemPdf = (
+  records: HospedagemRecord[],
+  dataInicio?: Date,
+  dataFim?: Date,
+  total?: number,
+  empresaConfig?: EmpresaConfig
+) => {
+  const doc = new jsPDF("landscape");
+
+  addHeader(doc, "RELATÓRIO DE HOSPEDAGEM", empresaConfig, dataInicio, dataFim);
+
+  if (records.length > 0) {
+    const firstRecord = records[0];
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "normal");
+    doc.text(`FUNCIONÁRIO: ${firstRecord.funcionarioNome}`, 20, 82);
+    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 88);
+  }
+
+  const tableData = records.map(r => [
+    format(parseLocalDate(r.data), "dd/MM/yyyy"),
+    r.funcionarioNome,
+    r.funcionarioMatricula,
+    tipoHospedagemLabels[r.tipo] || r.tipo,
+    formatCurrency(r.valor)
+  ]);
+
+  autoTable(doc, {
+    startY: 95,
+    head: [["DATA", "FUNCIONÁRIO", "CHAPA", "TIPO", "VALOR"]],
+    body: tableData,
+    theme: "striped",
+    headStyles: { fillColor: [59, 130, 246] },
+    styles: { fontSize: 10 }
+  });
+
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0, 0, 0);
+  doc.text(`TOTAL GASTO: ${formatCurrency(total || 0)}`, 20, finalY);
+
+  const images: ImageEntry[] = [];
+  const sortedRecords = [...records].sort((a, b) => a.data.localeCompare(b.data));
+  for (const record of sortedRecords) {
+    const dateLabel = format(parseLocalDate(record.data), "dd/MM/yyyy");
+    if (record.imagens) {
+      for (const img of record.imagens) {
+        images.push({
+          date: record.data,
+          label: `${dateLabel} - HOSPEDAGEM: ${formatCurrency(record.valor)}`,
+          base64: img.base64,
+          sortKey: record.valor,
+          sortKey2: 0
+        });
+      }
+    }
+  }
+  addAttachmentPages(doc, images);
+
+  savePdf(doc, `relatorio-hospedagem-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
