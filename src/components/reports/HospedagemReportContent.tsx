@@ -14,6 +14,7 @@ interface HospedagemReportContentProps {
 const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
 const tipoHospedagemLabels: Record<TipoHospedagem, string> = {
+  nenhum: "Nenhum",
   hotel: "HOTEL",
   airbnb: "AIRBNB",
   pousada: "POUSADA",

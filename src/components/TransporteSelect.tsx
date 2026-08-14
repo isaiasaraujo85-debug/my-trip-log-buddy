@@ -3,14 +3,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const tipoTransporteLabels: Record<TipoTransporte, string> = {
+  nenhum: "Nenhum",
   "99": "99",
+  uber: "Uber",
+  taxi: "Taxi",
   onibus: "Ônibus",
   outros: "Outros",
-  taxi: "Taxi",
-  uber: "Uber",
 };
 
-export const tipoTransporteOrdem: TipoTransporte[] = ["99", "onibus", "outros", "taxi", "uber"];
+export const tipoTransporteOrdem: TipoTransporte[] = ["nenhum", "99", "uber", "taxi", "onibus", "outros"];
 
 interface TransporteSelectProps {
   value: TipoTransporte;
