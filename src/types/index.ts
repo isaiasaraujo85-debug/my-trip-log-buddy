@@ -68,7 +68,7 @@ export interface RefeicaoRecord {
   imagens?: AttachedImage[];
 }
 
-export type TipoTransporte = '99' | 'onibus' | 'outros' | 'taxi' | 'uber';
+export type TipoTransporte = 'nenhum' | '99' | 'uber' | 'taxi' | 'onibus' | 'outros';
 
 export interface TransporteRecord {
   id: string;
@@ -82,7 +82,7 @@ export interface TransporteRecord {
   imagensComprovante?: AttachedImage[];
 }
 
-export type TipoHospedagem = 'hotel' | 'airbnb' | 'pousada' | 'outros';
+export type TipoHospedagem = 'nenhum' | 'airbnb' | 'hotel' | 'pousada' | 'outros';
 
 export interface HospedagemRecord {
   id: string;

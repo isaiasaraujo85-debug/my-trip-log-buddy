@@ -30,6 +30,7 @@ const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
 };
 
 const tipoHospedagemLabels: Record<TipoHospedagem, string> = {
+  nenhum: "Nenhum",
   hotel: "HOTEL",
   airbnb: "AIRBNB",
   pousada: "POUSADA",

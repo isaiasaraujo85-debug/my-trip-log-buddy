@@ -24,7 +24,7 @@ export function TransporteTab() {
 
   const [funcionarioId, setFuncionarioId] = useState("");
   const [selectedFuncionario, setSelectedFuncionario] = useState<Funcionario | undefined>();
-  const [transporte, setTransporte] = useState<TipoTransporte>("taxi");
+  const [transporte, setTransporte] = useState<TipoTransporte>("nenhum");
   const [data, setData] = useState<Date | undefined>(new Date());
   const [valor, setValor] = useState("");
   const [direcao, setDirecao] = useState<'ida' | 'volta'>('ida');
@@ -37,7 +37,7 @@ export function TransporteTab() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editValor, setEditValor] = useState("");
   const [editDirecao, setEditDirecao] = useState<'ida' | 'volta'>('ida');
-  const [editTransporte, setEditTransporte] = useState<TipoTransporte>("taxi");
+  const [editTransporte, setEditTransporte] = useState<TipoTransporte>("nenhum");
   const [editImagens, setEditImagens] = useState<AttachedImage[]>([]);
   const [editData, setEditData] = useState<Date | undefined>();
   const [editFuncionario, setEditFuncionario] = useState<Funcionario | undefined>();
@@ -50,7 +50,7 @@ export function TransporteTab() {
   };
 
   const handleAdd = () => {
-    if (!data || !valor) return;
+    if (!data || !valor || transporte === "nenhum") return;
 
     const newRecord: TransporteRecord = {
       id: crypto.randomUUID(),
@@ -93,7 +93,7 @@ export function TransporteTab() {
     setEditId(record.id);
     setEditValor(record.valor.toString());
     setEditDirecao(record.direcao || 'ida');
-    setEditTransporte(record.transporte || 'taxi');
+    setEditTransporte(record.transporte || 'nenhum');
     setEditImagens(record.imagensComprovante || []);
     setEditData(record.data ? parseLocalDate(record.data) : undefined);
     setEditFuncionario(record.funcionarioId ? { id: record.funcionarioId, nome: record.funcionarioNome, matricula: record.funcionarioMatricula, funcao: "" } : undefined);

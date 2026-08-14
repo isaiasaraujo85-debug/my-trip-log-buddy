@@ -18,8 +18,9 @@ import { parseLocalDate } from "@/utils/dateUtils";
 import { generateHospedagemPdf } from "@/utils/pdfGenerator";
 
 const tipoHospedagemLabels: Record<TipoHospedagem, string> = {
-  hotel: "Hotel",
+  nenhum: "Nenhum",
   airbnb: "Airbnb",
+  hotel: "Hotel",
   pousada: "Pousada",
   outros: "Outros"
 };
@@ -31,7 +32,7 @@ export function HospedagemTab() {
   const [funcionarioId, setFuncionarioId] = useState("");
   const [selectedFuncionario, setSelectedFuncionario] = useState<Funcionario | undefined>();
   const [data, setData] = useState<Date | undefined>(new Date());
-  const [tipo, setTipo] = useState<TipoHospedagem>("hotel");
+  const [tipo, setTipo] = useState<TipoHospedagem>("nenhum");
   const [valor, setValor] = useState("");
   const [imagens, setImagens] = useState<AttachedImage[]>([]);
 
@@ -40,7 +41,7 @@ export function HospedagemTab() {
   const [showReport, setShowReport] = useState(false);
 
   const [editId, setEditId] = useState<string | null>(null);
-  const [editTipo, setEditTipo] = useState<TipoHospedagem>("hotel");
+  const [editTipo, setEditTipo] = useState<TipoHospedagem>("nenhum");
   const [editValor, setEditValor] = useState("");
   const [editImagens, setEditImagens] = useState<AttachedImage[]>([]);
   const [editData, setEditData] = useState<Date | undefined>();
@@ -54,7 +55,7 @@ export function HospedagemTab() {
   };
 
   const handleAdd = () => {
-    if (!data || !valor || !tipo) return;
+    if (!data || !valor || !tipo || tipo === "nenhum") return;
 
     const newRecord: HospedagemRecord = {
       id: crypto.randomUUID(),
@@ -101,10 +102,10 @@ export function HospedagemTab() {
     setEditFuncionario(record.funcionarioId ? { id: record.funcionarioId, nome: record.funcionarioNome, matricula: record.funcionarioMatricula, funcao: "" } : undefined);
   };
 
-  const cancelEdit = () => { setEditId(null); setEditTipo("hotel"); setEditValor(""); setEditImagens([]); };
+  const cancelEdit = () => { setEditId(null); setEditTipo("nenhum"); setEditValor(""); setEditImagens([]); };
 
   const saveEdit = (id: string) => {
-    if (!editValor || !editTipo) return;
+    if (!editValor || !editTipo || editTipo === "nenhum") return;
     setRecords(records.map(r => r.id === id ? {
       ...r,
       data: editData ? format(editData, "yyyy-MM-dd") : r.data,
@@ -160,8 +161,9 @@ export function HospedagemTab() {
               <Select value={tipo} onValueChange={(v) => setTipo(v as TipoHospedagem)}>
                 <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="hotel">Hotel</SelectItem>
+                  <SelectItem value="nenhum">Nenhum</SelectItem>
                   <SelectItem value="airbnb">Airbnb</SelectItem>
+                  <SelectItem value="hotel">Hotel</SelectItem>
                   <SelectItem value="pousada">Pousada</SelectItem>
                   <SelectItem value="outros">Outros</SelectItem>
                 </SelectContent>
@@ -236,8 +238,9 @@ export function HospedagemTab() {
                             <Select value={editTipo} onValueChange={(v) => setEditTipo(v as TipoHospedagem)}>
                               <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="hotel">Hotel</SelectItem>
+                                <SelectItem value="nenhum">Nenhum</SelectItem>
                                 <SelectItem value="airbnb">Airbnb</SelectItem>
+                                <SelectItem value="hotel">Hotel</SelectItem>
                                 <SelectItem value="pousada">Pousada</SelectItem>
                                 <SelectItem value="outros">Outros</SelectItem>
                               </SelectContent>
