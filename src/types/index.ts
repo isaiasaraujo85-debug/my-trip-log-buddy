@@ -39,6 +39,7 @@ export interface KmRecord {
   status: 'parcial' | 'completo';
   imagensKmInicial?: AttachedImage[];
   imagensKmFinal?: AttachedImage[];
+  observacao?: string;
 }
 
 export interface PedagioRecord {
@@ -53,6 +54,7 @@ export interface PedagioRecord {
   valor: number;
   direcao: 'ida' | 'volta';
   imagensComprovante?: AttachedImage[];
+  observacao?: string;
 }
 
 export type TipoRefeicao = 'cafe' | 'almoco' | 'jantar' | 'outros';
@@ -66,6 +68,7 @@ export interface RefeicaoRecord {
   tipo: TipoRefeicao;
   valor: number;
   imagens?: AttachedImage[];
+  observacao?: string;
 }
 
 export type TipoTransporte = 'nenhum' | '99' | 'uber' | 'taxi' | 'onibus' | 'outros';
@@ -80,6 +83,7 @@ export interface TransporteRecord {
   valor: number;
   direcao: 'ida' | 'volta';
   imagensComprovante?: AttachedImage[];
+  observacao?: string;
 }
 
 export type TipoHospedagem = 'nenhum' | 'airbnb' | 'hotel' | 'pousada' | 'outros';
@@ -93,4 +97,5 @@ export interface HospedagemRecord {
   tipo: TipoHospedagem;
   valor: number;
   imagens?: AttachedImage[];
+  observacao?: string;
 }
