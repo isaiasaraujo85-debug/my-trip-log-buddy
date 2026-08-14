@@ -113,6 +113,7 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
               <th className="p-2 text-left border border-blue-600">PLACA</th>
               <th className="p-2 text-left border border-blue-600">DIREÇÃO</th>
               <th className="p-2 text-right border border-blue-600">VALOR</th>
+              <th className="p-2 text-left border border-blue-600">OBSERVAÇÃO</th>
             </tr>
           </thead>
           <tbody>
@@ -123,6 +124,7 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
                 <td className="p-2 border border-gray-300">{record.placa}</td>
                 <td className="p-2 border border-gray-300">{record.direcao === 'ida' ? 'IDA' : 'VOLTA'}</td>
                 <td className="p-2 border border-gray-300 text-right">{formatCurrency(record.valor)}</td>
+                <td className="p-2 border border-gray-300">{record.observacao || "-"}</td>
               </tr>
             ))}
           </tbody>

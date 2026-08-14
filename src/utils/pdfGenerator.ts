@@ -187,12 +187,13 @@ export const generateKmPdf = (
     r.kmInicial?.toString() || "-",
     r.kmFinal?.toString() || "-",
     `${r.kmPercorrido} KM`,
-    formatCurrency(r.valorTotal || 0)
+    formatCurrency(r.valorTotal || 0),
+    r.observacao || "-"
   ]);
   
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "FUNCIONÁRIO", "PLACA", "KM INICIAL", "KM FINAL", "PERCORRIDO", "VALOR"]],
+    head: [["DATA", "FUNCIONÁRIO", "PLACA", "KM INICIAL", "KM FINAL", "PERCORRIDO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -255,12 +256,13 @@ export const generatePedagioPdf = (
     r.funcionarioNome,
     r.placa,
     r.direcao === 'ida' ? 'IDA' : 'VOLTA',
-    formatCurrency(r.valor)
+    formatCurrency(r.valor),
+    r.observacao || "-"
   ]);
   
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "FUNCIONÁRIO", "PLACA", "DIREÇÃO", "VALOR"]],
+    head: [["DATA", "FUNCIONÁRIO", "PLACA", "DIREÇÃO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -320,12 +322,13 @@ export const generateRefeicaoPdf = (
     r.funcionarioNome,
     r.funcionarioMatricula,
     tipoRefeicaoLabels[r.tipo] || r.tipo,
-    formatCurrency(r.valor)
+    formatCurrency(r.valor),
+    r.observacao || "-"
   ]);
   
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "FUNCIONÁRIO", "CHAPA", "TIPO", "VALOR"]],
+    head: [["DATA", "FUNCIONÁRIO", "CHAPA", "TIPO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -385,12 +388,13 @@ export const generateTransportePdf = (
     r.funcionarioNome,
     (tipoTransporteLabels[r.transporte] || r.transporte).toUpperCase(),
     r.direcao === 'ida' ? 'IDA' : 'VOLTA',
-    formatCurrency(r.valor)
+    formatCurrency(r.valor),
+    r.observacao || "-"
   ]);
 
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "FUNCIONÁRIO", "TRANSPORTE", "DIREÇÃO", "VALOR"]],
+    head: [["DATA", "FUNCIONÁRIO", "TRANSPORTE", "DIREÇÃO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -449,12 +453,13 @@ export const generateHospedagemPdf = (
     r.funcionarioNome,
     r.funcionarioMatricula,
     tipoHospedagemLabels[r.tipo] || r.tipo,
-    formatCurrency(r.valor)
+    formatCurrency(r.valor),
+    r.observacao || "-"
   ]);
 
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "FUNCIONÁRIO", "CHAPA", "TIPO", "VALOR"]],
+    head: [["DATA", "FUNCIONÁRIO", "CHAPA", "TIPO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },

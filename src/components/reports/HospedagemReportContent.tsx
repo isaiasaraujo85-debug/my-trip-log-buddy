@@ -97,6 +97,7 @@ export function HospedagemReportContent({ records, dataInicio, dataFim, total, e
               <th className="p-2 text-left border border-blue-600">MATRÍCULA</th>
               <th className="p-2 text-left border border-blue-600">TIPO</th>
               <th className="p-2 text-right border border-blue-600">VALOR</th>
+              <th className="p-2 text-left border border-blue-600">OBSERVAÇÃO</th>
             </tr>
           </thead>
           <tbody>
@@ -107,6 +108,7 @@ export function HospedagemReportContent({ records, dataInicio, dataFim, total, e
                 <td className="p-2 border border-gray-300">{record.funcionarioMatricula}</td>
                 <td className="p-2 border border-gray-300">{tipoHospedagemLabels[record.tipo] || record.tipo}</td>
                 <td className="p-2 border border-gray-300 text-right">{formatCurrency(record.valor)}</td>
+                <td className="p-2 border border-gray-300">{record.observacao || "-"}</td>
               </tr>
             ))}
           </tbody>
