@@ -17,6 +17,7 @@ import { ReportExportButton } from "./reports/ReportExportButton";
 import { KmReportContent } from "./reports/KmReportContent";
 import { ImageAttachButton } from "./ImageAttachButton";
 import { CurrencyInput } from "./CurrencyInput";
+import { ObservacaoField } from "./ObservacaoField";
 import { generateKmPdf } from "@/utils/pdfGenerator";
 
 export function KmTab() {
@@ -37,6 +38,7 @@ export function KmTab() {
   
   const [imagensKmInicial, setImagensKmInicial] = useState<AttachedImage[]>([]);
   const [imagensKmFinal, setImagensKmFinal] = useState<AttachedImage[]>([]);
+  const [observacao, setObservacao] = useState("");
   
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
   const [dataFim, setDataFim] = useState<Date | undefined>();
@@ -48,6 +50,7 @@ export function KmTab() {
   const [tableEditValorKm, setTableEditValorKm] = useState("");
   const [tableEditImgInicial, setTableEditImgInicial] = useState<AttachedImage[]>([]);
   const [tableEditImgFinal, setTableEditImgFinal] = useState<AttachedImage[]>([]);
+  const [tableEditObservacao, setTableEditObservacao] = useState("");
   const [tableEditData, setTableEditData] = useState<Date | undefined>();
   const [tableEditFuncionario, setTableEditFuncionario] = useState<Funcionario | undefined>();
   const [tableEditVeiculo, setTableEditVeiculo] = useState<Veiculo | undefined>();
@@ -109,12 +112,14 @@ export function KmTab() {
       status,
       imagensKmInicial: imagensKmInicial.length > 0 ? imagensKmInicial : undefined,
       imagensKmFinal: imagensKmFinal.length > 0 ? imagensKmFinal : undefined,
+      observacao: observacao.trim() || undefined,
     };
     setRecords([...records, newRecord]);
     setKmInicial("");
     setKmFinal("");
     setImagensKmInicial([]);
     setImagensKmFinal([]);
+    setObservacao("");
   };
 
   const handleDelete = (id: string) => {
@@ -144,6 +149,7 @@ export function KmTab() {
     setTableEditValorKm(record.valorKm?.toString() || "");
     setTableEditImgInicial(record.imagensKmInicial || []);
     setTableEditImgFinal(record.imagensKmFinal || []);
+    setTableEditObservacao(record.observacao || "");
     setTableEditData(record.data ? parseLocalDate(record.data) : undefined);
     setTableEditFuncionario(record.funcionarioId ? { id: record.funcionarioId, nome: record.funcionarioNome, matricula: record.funcionarioMatricula, funcao: "" } : undefined);
     setTableEditVeiculo(record.veiculoId ? { id: record.veiculoId, modelo: record.veiculo, placa: record.placa } : undefined);
@@ -175,6 +181,7 @@ export function KmTab() {
       status,
       imagensKmInicial: tableEditImgInicial.length > 0 ? tableEditImgInicial : undefined,
       imagensKmFinal: tableEditImgFinal.length > 0 ? tableEditImgFinal : undefined,
+      observacao: tableEditObservacao.trim() || undefined,
     } : r));
     cancelTableEdit();
   };
@@ -248,7 +255,9 @@ export function KmTab() {
               <ImageAttachButton images={imagensKmFinal} onImagesChange={setImagensKmFinal} label="Comprovante" />
             </div>
           </div>
-          
+
+          <ObservacaoField id="observacao-km" value={observacao} onChange={setObservacao} />
+
           <div className="bg-muted p-3 rounded-lg space-y-1">
             <div className="flex justify-between items-center">
               <Label className="text-sm">KM Percorrido:</Label>
@@ -331,6 +340,7 @@ export function KmTab() {
                           <ImageAttachButton images={tableEditImgInicial} onImagesChange={setTableEditImgInicial} label="Comprovante KM Inicial" />
                           <ImageAttachButton images={tableEditImgFinal} onImagesChange={setTableEditImgFinal} label="Comprovante KM Final" />
                         </div>
+                        <ObservacaoField value={tableEditObservacao} onChange={setTableEditObservacao} className="h-8 text-xs" />
                         <div className="flex gap-2">
                           <Button size="sm" onClick={() => saveTableEdit(record.id)} className="flex-1"><Save className="h-3 w-3 mr-1" /> Salvar</Button>
                           <Button variant="outline" size="sm" onClick={cancelTableEdit}><X className="h-3 w-3" /></Button>
@@ -346,6 +356,9 @@ export function KmTab() {
                           <div><span className="text-muted-foreground">KM Final:</span><p className="font-medium">{record.kmFinal ?? "-"}</p></div>
                           <div><span className="text-muted-foreground">Percorrido:</span><p className="font-medium text-primary">{record.kmPercorrido} km</p></div>
                           <div><span className="text-muted-foreground">Valor:</span><p className="font-medium text-green-600">{formatCurrency(record.valorTotal || 0)}</p></div>
+                          {record.observacao && (
+                            <div className="col-span-2"><span className="text-muted-foreground">Observação:</span><p className="font-medium">{record.observacao}</p></div>
+                          )}
                           <div className="col-span-2">
                             <span className={cn("text-xs px-2 py-0.5 rounded-full", record.status === 'completo' ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800")}>
                               {record.status === 'completo' ? "Completo" : "Parcial"}

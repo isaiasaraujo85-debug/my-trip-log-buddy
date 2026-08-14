@@ -101,6 +101,7 @@ export function TransporteReportContent({ records, dataInicio, dataFim, total, e
               <th className="p-2 text-left border border-blue-600">TRANSPORTE</th>
               <th className="p-2 text-left border border-blue-600">DIREÇÃO</th>
               <th className="p-2 text-right border border-blue-600">VALOR</th>
+              <th className="p-2 text-left border border-blue-600">OBSERVAÇÃO</th>
             </tr>
           </thead>
           <tbody>
@@ -111,6 +112,7 @@ export function TransporteReportContent({ records, dataInicio, dataFim, total, e
                 <td className="p-2 border border-gray-300">{tipoTransporteLabels[record.transporte] || record.transporte}</td>
                 <td className="p-2 border border-gray-300">{record.direcao === 'ida' ? 'IDA' : 'VOLTA'}</td>
                 <td className="p-2 border border-gray-300 text-right">{formatCurrency(record.valor)}</td>
+                <td className="p-2 border border-gray-300">{record.observacao || "-"}</td>
               </tr>
             ))}
           </tbody>

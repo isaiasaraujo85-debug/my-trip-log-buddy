@@ -119,6 +119,7 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
               <th className="p-2 text-right border border-blue-600">KM FINAL</th>
               <th className="p-2 text-right border border-blue-600">PERCORRIDO</th>
               <th className="p-2 text-right border border-blue-600">VALOR</th>
+              <th className="p-2 text-left border border-blue-600">OBSERVAÇÃO</th>
             </tr>
           </thead>
           <tbody>
@@ -131,6 +132,7 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
                 <td className="p-2 border border-gray-300 text-right">{record.kmFinal ?? "-"}</td>
                 <td className="p-2 border border-gray-300 text-right">{record.kmPercorrido} KM</td>
                 <td className="p-2 border border-gray-300 text-right">{formatCurrency(record.valorTotal || 0)}</td>
+                <td className="p-2 border border-gray-300">{record.observacao || "-"}</td>
               </tr>
             ))}
           </tbody>
