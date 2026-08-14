@@ -14,6 +14,7 @@ import { ReportExportButton } from "./reports/ReportExportButton";
 import { HospedagemReportContent } from "./reports/HospedagemReportContent";
 import { ImageAttachButton } from "./ImageAttachButton";
 import { CurrencyInput } from "./CurrencyInput";
+import { ObservacaoField } from "./ObservacaoField";
 import { parseLocalDate } from "@/utils/dateUtils";
 import { generateHospedagemPdf } from "@/utils/pdfGenerator";
 
@@ -35,6 +36,7 @@ export function HospedagemTab() {
   const [tipo, setTipo] = useState<TipoHospedagem>("nenhum");
   const [valor, setValor] = useState("");
   const [imagens, setImagens] = useState<AttachedImage[]>([]);
+  const [observacao, setObservacao] = useState("");
 
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
   const [dataFim, setDataFim] = useState<Date | undefined>();
@@ -44,6 +46,7 @@ export function HospedagemTab() {
   const [editTipo, setEditTipo] = useState<TipoHospedagem>("nenhum");
   const [editValor, setEditValor] = useState("");
   const [editImagens, setEditImagens] = useState<AttachedImage[]>([]);
+  const [editObservacao, setEditObservacao] = useState("");
   const [editData, setEditData] = useState<Date | undefined>();
   const [editFuncionario, setEditFuncionario] = useState<Funcionario | undefined>();
 
@@ -66,11 +69,13 @@ export function HospedagemTab() {
       tipo,
       valor: parseFloat(valor),
       imagens: imagens.length > 0 ? imagens : undefined,
+      observacao: observacao.trim() || undefined,
     };
 
     setRecords([...records, newRecord]);
     setValor("");
     setImagens([]);
+    setObservacao("");
   };
 
   const handleDelete = (id: string) => {
@@ -98,6 +103,7 @@ export function HospedagemTab() {
     setEditTipo(record.tipo);
     setEditValor(record.valor.toString());
     setEditImagens(record.imagens || []);
+    setEditObservacao(record.observacao || "");
     setEditData(record.data ? parseLocalDate(record.data) : undefined);
     setEditFuncionario(record.funcionarioId ? { id: record.funcionarioId, nome: record.funcionarioNome, matricula: record.funcionarioMatricula, funcao: "" } : undefined);
   };
@@ -115,6 +121,7 @@ export function HospedagemTab() {
       tipo: editTipo,
       valor: parseFloat(editValor),
       imagens: editImagens.length > 0 ? editImagens : undefined,
+      observacao: editObservacao.trim() || undefined,
     } : r));
     cancelEdit();
   };
@@ -175,6 +182,7 @@ export function HospedagemTab() {
             </div>
           </div>
           <ImageAttachButton images={imagens} onImagesChange={setImagens} label="Comprovante" />
+          <ObservacaoField id="observacao-hospedagem" value={observacao} onChange={setObservacao} />
           <Button onClick={handleAdd} className="w-full">
             <Plus className="mr-2 h-4 w-4" />
             Adicionar Hospedagem
@@ -252,6 +260,7 @@ export function HospedagemTab() {
                           </div>
                         </div>
                         <ImageAttachButton images={editImagens} onImagesChange={setEditImagens} label="Comprovante" />
+                        <ObservacaoField value={editObservacao} onChange={setEditObservacao} className="h-8 text-xs" />
                         <div className="flex gap-2">
                           <Button size="sm" onClick={() => saveEdit(record.id)} className="flex-1"><Save className="h-3 w-3 mr-1" /> Salvar</Button>
                           <Button variant="outline" size="sm" onClick={cancelEdit}><X className="h-3 w-3" /></Button>
@@ -265,6 +274,9 @@ export function HospedagemTab() {
                           <div><span className="text-muted-foreground">Funcionário:</span><p className="font-medium truncate">{record.funcionarioNome || "-"}</p></div>
                           <div><span className="text-muted-foreground">Tipo:</span><p className="font-medium">{tipoHospedagemLabels[record.tipo] || record.tipo}</p></div>
                           <div><span className="text-muted-foreground">Valor:</span><p className="font-medium text-primary">{formatCurrencyDisplay(record.valor)}</p></div>
+                          {record.observacao && (
+                            <div className="col-span-2"><span className="text-muted-foreground">Observação:</span><p className="font-medium">{record.observacao}</p></div>
+                          )}
                           {record.imagens && record.imagens.length > 0 && (
                             <div className="col-span-2"><span className="text-xs text-muted-foreground">📷 {record.imagens.length}</span></div>
                           )}

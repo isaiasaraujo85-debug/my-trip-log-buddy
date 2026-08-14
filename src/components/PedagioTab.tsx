@@ -15,6 +15,7 @@ import { ReportExportButton } from "./reports/ReportExportButton";
 import { PedagioReportContent } from "./reports/PedagioReportContent";
 import { ImageAttachButton } from "./ImageAttachButton";
 import { CurrencyInput } from "./CurrencyInput";
+import { ObservacaoField } from "./ObservacaoField";
 import { parseLocalDate } from "@/utils/dateUtils";
 import { generatePedagioPdf } from "@/utils/pdfGenerator";
 
@@ -30,6 +31,7 @@ export function PedagioTab() {
   const [valor, setValor] = useState("");
   const [direcao, setDirecao] = useState<'ida' | 'volta'>('ida');
   const [imagensComprovante, setImagensComprovante] = useState<AttachedImage[]>([]);
+  const [observacao, setObservacao] = useState("");
   
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
   const [dataFim, setDataFim] = useState<Date | undefined>();
@@ -39,6 +41,7 @@ export function PedagioTab() {
   const [editValor, setEditValor] = useState("");
   const [editDirecao, setEditDirecao] = useState<'ida' | 'volta'>('ida');
   const [editImagens, setEditImagens] = useState<AttachedImage[]>([]);
+  const [editObservacao, setEditObservacao] = useState("");
   const [editData, setEditData] = useState<Date | undefined>();
   const [editFuncionario, setEditFuncionario] = useState<Funcionario | undefined>();
   const [editVeiculo, setEditVeiculo] = useState<Veiculo | undefined>();
@@ -70,11 +73,13 @@ export function PedagioTab() {
       valor: parseFloat(valor),
       direcao,
       imagensComprovante: imagensComprovante.length > 0 ? imagensComprovante : undefined,
+      observacao: observacao.trim() || undefined,
     };
 
     setRecords([...records, newRecord]);
     setValor("");
     setImagensComprovante([]);
+    setObservacao("");
   };
 
   const handleDelete = (id: string) => {
@@ -102,6 +107,7 @@ export function PedagioTab() {
     setEditValor(record.valor.toString());
     setEditDirecao(record.direcao || 'ida');
     setEditImagens(record.imagensComprovante || []);
+    setEditObservacao(record.observacao || "");
     setEditData(record.data ? parseLocalDate(record.data) : undefined);
     setEditFuncionario(record.funcionarioId ? { id: record.funcionarioId, nome: record.funcionarioNome, matricula: record.funcionarioMatricula, funcao: "" } : undefined);
     setEditVeiculo(record.veiculoId ? { id: record.veiculoId, modelo: record.veiculo, placa: record.placa } : undefined);
@@ -123,6 +129,7 @@ export function PedagioTab() {
       valor: parseFloat(editValor),
       direcao: editDirecao,
       imagensComprovante: editImagens.length > 0 ? editImagens : undefined,
+      observacao: editObservacao.trim() || undefined,
     } : r));
     cancelEdit();
   };
@@ -196,6 +203,7 @@ export function PedagioTab() {
             </div>
           </div>
           <ImageAttachButton images={imagensComprovante} onImagesChange={setImagensComprovante} label="Comprovante" />
+          <ObservacaoField id="observacao-pedagio" value={observacao} onChange={setObservacao} />
           <Button onClick={handleAdd} className="w-full">
             <Plus className="mr-2 h-4 w-4" />
             Adicionar Pedágio
@@ -268,6 +276,7 @@ export function PedagioTab() {
                           </div>
                         </div>
                         <ImageAttachButton images={editImagens} onImagesChange={setEditImagens} label="Comprovante" />
+                        <ObservacaoField value={editObservacao} onChange={setEditObservacao} className="h-8 text-xs" />
                         <div className="flex gap-2">
                           <Button size="sm" onClick={() => saveEdit(record.id)} className="flex-1"><Save className="h-3 w-3 mr-1" /> Salvar</Button>
                           <Button variant="outline" size="sm" onClick={cancelEdit}><X className="h-3 w-3" /></Button>
@@ -282,6 +291,9 @@ export function PedagioTab() {
                           <div><span className="text-muted-foreground">Placa:</span><p className="font-medium">{record.placa || "-"}</p></div>
                           <div><span className="text-muted-foreground">Valor:</span><p className="font-medium text-primary">{formatCurrencyDisplay(record.valor)}</p></div>
                           <div><span className="text-muted-foreground">Direção:</span><p className="font-medium">{record.direcao === 'ida' ? 'Ida' : 'Volta'}</p></div>
+                          {record.observacao && (
+                            <div className="col-span-2"><span className="text-muted-foreground">Observação:</span><p className="font-medium">{record.observacao}</p></div>
+                          )}
                           {record.imagensComprovante && record.imagensComprovante.length > 0 && (
                             <div><span className="text-xs text-muted-foreground">📷 {record.imagensComprovante.length}</span></div>
                           )}
