@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Car, Receipt, Utensils, UserPlus, Bus, BedDouble, ArrowLeft } from "lucide-react";
+import { Gauge, TicketCheck, UtensilsCrossed, IdCard, CarTaxiFront, Hotel, Wallet, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { KmTab } from "@/components/KmTab";
 import { PedagioTab } from "@/components/PedagioTab";
@@ -7,17 +7,19 @@ import { RefeicaoTab } from "@/components/RefeicaoTab";
 import { TransporteTab } from "@/components/TransporteTab";
 import { HospedagemTab } from "@/components/HospedagemTab";
 import { CadastroTab } from "@/components/CadastroTab";
+import { FinanceiroTab } from "@/components/FinanceiroTab";
 import { EmpresaHeader } from "@/components/EmpresaHeader";
 
-type MenuKey = "km" | "pedagio" | "hospedagem" | "refeicao" | "transporte" | "cadastro";
+type MenuKey = "km" | "pedagio" | "hospedagem" | "refeicao" | "transporte" | "cadastro" | "financeiro";
 
-const menus: { key: MenuKey; label: string; icon: typeof Car }[] = [
-  { key: "km", label: "KM", icon: Car },
-  { key: "pedagio", label: "Pedágio", icon: Receipt },
-  { key: "hospedagem", label: "Hospedagem", icon: BedDouble },
-  { key: "refeicao", label: "Refeição", icon: Utensils },
-  { key: "transporte", label: "Transporte", icon: Bus },
-  { key: "cadastro", label: "Cadastro", icon: UserPlus },
+const menus: { key: MenuKey; label: string; icon: typeof Gauge }[] = [
+  { key: "km", label: "KM", icon: Gauge },
+  { key: "pedagio", label: "Pedágio", icon: TicketCheck },
+  { key: "hospedagem", label: "Hospedagem", icon: Hotel },
+  { key: "refeicao", label: "Refeição", icon: UtensilsCrossed },
+  { key: "transporte", label: "Transporte", icon: CarTaxiFront },
+  { key: "cadastro", label: "Cadastro", icon: IdCard },
+  { key: "financeiro", label: "Financeiro", icon: Wallet },
 ];
 
 const views: Record<MenuKey, JSX.Element> = {
@@ -27,6 +29,7 @@ const views: Record<MenuKey, JSX.Element> = {
   refeicao: <RefeicaoTab />,
   transporte: <TransporteTab />,
   cadastro: <CadastroTab />,
+  financeiro: <FinanceiroTab />,
 };
 
 const Index = () => {
