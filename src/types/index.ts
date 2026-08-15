@@ -99,3 +99,19 @@ export interface HospedagemRecord {
   imagens?: AttachedImage[];
   observacao?: string;
 }
+
+export interface DepositoRecord {
+  id: string;
+  data: string;
+  valor: number;
+  observacao?: string;
+}
+
+export interface Movimento {
+  id: string;
+  data: string;
+  tipo: 'entrada' | 'saida';
+  categoria: string;
+  descricao: string;
+  valor: number;
+}
