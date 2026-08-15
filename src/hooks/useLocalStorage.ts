@@ -29,7 +29,8 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T 
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail as { key?: string } | undefined;
       if (detail?.key && detail.key !== key) return;
-      setStoredValue(read());
+      const next = read();
+      setStoredValue((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
     };
     window.addEventListener(EVENT_NAME, handler);
     window.addEventListener('storage', handler);
