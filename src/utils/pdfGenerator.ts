@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { KmRecord, PedagioRecord, RefeicaoRecord, TransporteRecord, HospedagemRecord, EmpresaConfig, TipoRefeicao, TipoHospedagem, AttachedImage } from "@/types";
+import { KmRecord, PedagioRecord, RefeicaoRecord, TransporteRecord, HospedagemRecord, EmpresaConfig, TipoRefeicao, TipoHospedagem, AttachedImage, Movimento } from "@/types";
 import { parseLocalDate } from "@/utils/dateUtils";
 import { downloadBase64 } from "@/utils/downloadHelper";
 import { tipoTransporteLabels } from "@/components/TransporteSelect";
@@ -491,4 +491,51 @@ export const generateHospedagemPdf = (
   addAttachmentPages(doc, images);
 
   savePdf(doc, `relatorio-hospedagem-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+};
+
+export const generateFinanceiroPdf = (
+  movimentos: Movimento[],
+  dataInicio?: Date,
+  dataFim?: Date,
+  totalEntradas?: number,
+  totalSaidas?: number,
+  saldo?: number,
+  empresaConfig?: EmpresaConfig
+) => {
+  const doc = new jsPDF("landscape");
+
+  addHeader(doc, "EXTRATO FINANCEIRO", empresaConfig, dataInicio, dataFim);
+
+  const tableData = movimentos.map(m => [
+    format(parseLocalDate(m.data), "dd/MM/yyyy"),
+    m.tipo === "entrada" ? "ENTRADA" : "SAÍDA",
+    m.categoria,
+    m.tipo === "entrada" ? formatCurrency(m.valor) : "-",
+    m.tipo === "saida" ? formatCurrency(m.valor) : "-",
+    m.descricao || "-"
+  ]);
+
+  autoTable(doc, {
+    startY: 85,
+    head: [["DATA", "TIPO", "CATEGORIA", "ENTRADA", "SAÍDA", "OBSERVAÇÃO"]],
+    body: tableData,
+    theme: "striped",
+    headStyles: { fillColor: [59, 130, 246] },
+    styles: { fontSize: 10 }
+  });
+
+  let finalY = (doc as any).lastAutoTable.finalY + 10;
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0, 0, 0);
+  doc.text(`TOTAL DE ENTRADAS: ${formatCurrency(totalEntradas || 0)}`, 20, finalY);
+  finalY += 6;
+  doc.text(`TOTAL DE SAÍDAS: ${formatCurrency(totalSaidas || 0)}`, 20, finalY);
+  finalY += 8;
+  doc.setFontSize(13);
+  if ((saldo || 0) < 0) doc.setTextColor(220, 38, 38);
+  else doc.setTextColor(37, 99, 235);
+  doc.text(`SALDO: ${formatCurrency(saldo || 0)}`, 20, finalY);
+
+  savePdf(doc, `relatorio-financeiro-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
