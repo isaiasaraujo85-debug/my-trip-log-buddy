@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -17,17 +17,23 @@ function formatCentsToDecimal(raw: string): string {
   return (cents / 100).toFixed(2).replace(".", ",");
 }
 
+function numericToDisplay(value: string): string {
+  if (!value) return "";
+  const num = parseFloat(value);
+  if (isNaN(num)) return "";
+  return num.toFixed(2).replace(".", ",");
+}
+
 function decimalToNumericString(formatted: string): string {
   return formatted.replace(",", ".");
 }
 
 export function CurrencyInput({ value, onChange, id, className, placeholder = "0,00" }: CurrencyInputProps) {
-  const [displayValue, setDisplayValue] = useState(() => {
-    if (!value) return "";
-    const num = parseFloat(value);
-    if (isNaN(num)) return "";
-    return num.toFixed(2).replace(".", ",");
-  });
+  const [displayValue, setDisplayValue] = useState(() => numericToDisplay(value));
+
+  useEffect(() => {
+    setDisplayValue(numericToDisplay(value));
+  }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -39,7 +45,6 @@ export function CurrencyInput({ value, onChange, id, className, placeholder = "0
       onChange("");
       return;
     }
-    // Remove everything except digits
     const formatted = formatCentsToDecimal(displayValue);
     setDisplayValue(formatted);
     onChange(decimalToNumericString(formatted));
