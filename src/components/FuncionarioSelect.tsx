@@ -22,10 +22,10 @@ export function FuncionarioSelect({ value, onSelect }: FuncionarioSelectProps) {
 
   return (
     <div className="space-y-2">
-      <Label>Selecione o Funcionário</Label>
+      <Label>Funcionário</Label>
       <Select value={value || "__blank__"} onValueChange={handleChange}>
         <SelectTrigger>
-          <SelectValue placeholder="Selecione o funcionário" />
+          <SelectValue placeholder="Funcionário" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="__blank__">— Nenhum —</SelectItem>

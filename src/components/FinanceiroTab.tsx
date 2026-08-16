@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useFinanceiro } from "@/hooks/useFinanceiro";
-import { DepositoRecord, EmpresaConfig } from "@/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DepositoRecord, EmpresaConfig, OrigemEntrada, TipoEntrada } from "@/types";
+import { origemLabels, origemOrdem, tipoEntradaLabels, tipoEntradaOrdem } from "@/utils/financeiroLabels";
 import { DatePickerField } from "./DatePickerField";
 import { CurrencyInput } from "./CurrencyInput";
 import { ObservacaoField } from "./ObservacaoField";
@@ -24,6 +26,8 @@ export function FinanceiroTab() {
 
   const [data, setData] = useState<Date | undefined>(new Date());
   const [valor, setValor] = useState("");
+  const [tipoEntrada, setTipoEntrada] = useState<TipoEntrada>("nenhum");
+  const [origem, setOrigem] = useState<OrigemEntrada>("nenhum");
   const [observacao, setObservacao] = useState("");
 
   const [dataInicio, setDataInicio] = useState<Date | undefined>();
@@ -36,10 +40,14 @@ export function FinanceiroTab() {
       id: crypto.randomUUID(),
       data: format(data, "yyyy-MM-dd"),
       valor: parseFloat(valor),
+      tipoEntrada,
+      origem,
       observacao: observacao.trim() || undefined,
     };
     setDepositos([...depositos, novo]);
     setValor("");
+    setTipoEntrada("nenhum");
+    setOrigem("nenhum");
     setObservacao("");
   };
 
@@ -73,8 +81,30 @@ export function FinanceiroTab() {
         <CardContent className="space-y-3">
           <DatePickerField label="Data" value={data} onChange={setData} />
           <div className="space-y-1">
-            <Label htmlFor="valor-financeiro" className="text-xs">Adicione o Valor (R$)</Label>
+            <Label htmlFor="valor-financeiro" className="text-xs">Valor (R$)</Label>
             <CurrencyInput id="valor-financeiro" value={valor} onChange={setValor} />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Tipo de Entrada</Label>
+            <Select value={tipoEntrada} onValueChange={(v) => setTipoEntrada(v as TipoEntrada)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {tipoEntradaOrdem.map((t) => (
+                  <SelectItem key={t} value={t}>{t === "nenhum" ? "Nenhum" : tipoEntradaLabels[t]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Origem</Label>
+            <Select value={origem} onValueChange={(v) => setOrigem(v as OrigemEntrada)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {origemOrdem.map((o) => (
+                  <SelectItem key={o} value={o}>{origemLabels[o]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <ObservacaoField id="observacao-financeiro" value={observacao} onChange={setObservacao} />
           <Button onClick={handleAdd} className="w-full">
@@ -96,11 +126,11 @@ export function FinanceiroTab() {
 
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="p-2 rounded-lg bg-muted">
-              <p className="text-[10px] uppercase text-muted-foreground">Entrou</p>
+              <p className="text-[10px] uppercase text-muted-foreground">Entrada</p>
               <p className="text-sm font-bold text-blue-600">{formatCurrencyDisplay(entradas)}</p>
             </div>
             <div className="p-2 rounded-lg bg-muted">
-              <p className="text-[10px] uppercase text-muted-foreground">Saiu</p>
+              <p className="text-[10px] uppercase text-muted-foreground">Saída</p>
               <p className="text-sm font-bold text-destructive">{formatCurrencyDisplay(saidas)}</p>
             </div>
             <div className="p-2 rounded-lg bg-muted">
@@ -145,7 +175,7 @@ export function FinanceiroTab() {
                       {format(parseLocalDate(m.data), "dd/MM/yyyy")} · {m.descricao || "-"}
                     </p>
                   </div>
-                  {m.categoria === "DEPÓSITO" && (
+                  {m.isDeposito && (
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDeleteDeposito(m.id)}>
                       <Trash2 className="h-3 w-3 text-destructive" />
                     </Button>

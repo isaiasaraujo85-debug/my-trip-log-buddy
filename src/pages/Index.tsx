@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Gauge, TicketCheck, UtensilsCrossed, IdCard, CarTaxiFront, Hotel, Wallet, ArrowLeft } from "lucide-react";
+import { Gauge, Utensils, IdCard, CarTaxiFront, Hotel, Wallet, ArrowLeft } from "lucide-react";
+import { PedagioIcon } from "@/components/icons/PedagioIcon";
 import { Button } from "@/components/ui/button";
 import { KmTab } from "@/components/KmTab";
 import { PedagioTab } from "@/components/PedagioTab";
@@ -12,14 +13,14 @@ import { EmpresaHeader } from "@/components/EmpresaHeader";
 
 type MenuKey = "km" | "pedagio" | "hospedagem" | "refeicao" | "transporte" | "cadastro" | "financeiro";
 
-const menus: { key: MenuKey; label: string; icon: typeof Gauge }[] = [
+const menus: { key: MenuKey; label: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }> }[] = [
   { key: "km", label: "KM", icon: Gauge },
-  { key: "pedagio", label: "Pedágio", icon: TicketCheck },
+  { key: "pedagio", label: "Pedágio", icon: PedagioIcon },
   { key: "hospedagem", label: "Hospedagem", icon: Hotel },
-  { key: "refeicao", label: "Refeição", icon: UtensilsCrossed },
+  { key: "refeicao", label: "Refeição", icon: Utensils },
   { key: "transporte", label: "Transporte", icon: CarTaxiFront },
-  { key: "cadastro", label: "Cadastro", icon: IdCard },
   { key: "financeiro", label: "Financeiro", icon: Wallet },
+  { key: "cadastro", label: "Cadastro", icon: IdCard },
 ];
 
 const views: Record<MenuKey, JSX.Element> = {
@@ -69,7 +70,7 @@ const Index = () => {
 
       <footer className="border-t py-3">
         <div className="container px-4 text-center text-xs text-muted-foreground">
-          Aplicativo desenvolvido por Isaias Araujo
+          Aplicativo desenvolvido por Isaias de Araujo 08/2026
         </div>
       </footer>
     </div>

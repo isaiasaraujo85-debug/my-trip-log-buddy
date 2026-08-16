@@ -164,9 +164,9 @@ export function HospedagemTab() {
           <DatePickerField label="Data" value={data} onChange={setData} />
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Tipo</Label>
+              <Label className="text-xs">Hospedagem</Label>
               <Select value={tipo} onValueChange={(v) => setTipo(v as TipoHospedagem)}>
-                <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Hospedagem" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="nenhum">Nenhum</SelectItem>
                   <SelectItem value="airbnb">Airbnb</SelectItem>
@@ -242,7 +242,7 @@ export function HospedagemTab() {
                         <DatePickerField label="Data" value={editData} onChange={setEditData} />
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <Label className="text-xs">Tipo</Label>
+                            <Label className="text-xs">Hospedagem</Label>
                             <Select value={editTipo} onValueChange={(v) => setEditTipo(v as TipoHospedagem)}>
                               <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
                               <SelectContent>
@@ -272,7 +272,7 @@ export function HospedagemTab() {
                         <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs flex-1 min-w-0">
                           <div><span className="text-muted-foreground">Data:</span><p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p></div>
                           <div><span className="text-muted-foreground">Funcionário:</span><p className="font-medium truncate">{record.funcionarioNome || "-"}</p></div>
-                          <div><span className="text-muted-foreground">Tipo:</span><p className="font-medium">{tipoHospedagemLabels[record.tipo] || record.tipo}</p></div>
+                          <div><span className="text-muted-foreground">Hospedagem:</span><p className="font-medium">{tipoHospedagemLabels[record.tipo] || record.tipo}</p></div>
                           <div><span className="text-muted-foreground">Valor:</span><p className="font-medium text-primary">{formatCurrencyDisplay(record.valor)}</p></div>
                           {record.observacao && (
                             <div className="col-span-2"><span className="text-muted-foreground">Observação:</span><p className="font-medium">{record.observacao}</p></div>
