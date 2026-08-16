@@ -73,8 +73,30 @@ export function FinanceiroTab() {
         <CardContent className="space-y-3">
           <DatePickerField label="Data" value={data} onChange={setData} />
           <div className="space-y-1">
-            <Label htmlFor="valor-financeiro" className="text-xs">Adicione o Valor (R$)</Label>
+            <Label htmlFor="valor-financeiro" className="text-xs">Valor (R$)</Label>
             <CurrencyInput id="valor-financeiro" value={valor} onChange={setValor} />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Tipo de Entrada</Label>
+            <Select value={tipoEntrada} onValueChange={(v) => setTipoEntrada(v as TipoEntrada)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {tipoEntradaOrdem.map((t) => (
+                  <SelectItem key={t} value={t}>{t === "nenhum" ? "Nenhum" : tipoEntradaLabels[t]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Origem</Label>
+            <Select value={origem} onValueChange={(v) => setOrigem(v as OrigemEntrada)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {origemOrdem.map((o) => (
+                  <SelectItem key={o} value={o}>{origemLabels[o]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <ObservacaoField id="observacao-financeiro" value={observacao} onChange={setObservacao} />
           <Button onClick={handleAdd} className="w-full">
