@@ -6,6 +6,7 @@ import { KmRecord, PedagioRecord, RefeicaoRecord, TransporteRecord, HospedagemRe
 import { parseLocalDate } from "@/utils/dateUtils";
 import { downloadBase64 } from "@/utils/downloadHelper";
 import { tipoTransporteLabels } from "@/components/TransporteSelect";
+import { logoPaulistaoBase64 } from "@/assets/logoPaulistaoBase64";
 
 function savePdf(doc: jsPDF, filename: string) {
   // Gera o PDF como data URL base64 e usa o helper compatível com WebView.
@@ -40,32 +41,21 @@ const tipoHospedagemLabels: Record<TipoHospedagem, string> = {
 const addHeader = (doc: jsPDF, title: string, empresaConfig?: EmpresaConfig, dataInicio?: Date, dataFim?: Date) => {
   let yPos = 15;
   
-  if (empresaConfig?.logoBase64) {
-    try {
-      doc.addImage(empresaConfig.logoBase64, 'PNG', 20, yPos, 30, 30);
-    } catch (e) {
-      doc.setFillColor(59, 130, 246);
-      doc.rect(20, yPos, 30, 30, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(18);
-      doc.text("KM", 26, yPos + 20);
-    }
-  } else {
+  try {
+    doc.addImage(empresaConfig?.logoBase64 || logoPaulistaoBase64, 'JPEG', 20, yPos, 60, 20);
+  } catch (e) {
     doc.setFillColor(59, 130, 246);
-    doc.rect(20, yPos, 30, 30, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.text("KM", 26, yPos + 20);
+    doc.rect(20, yPos, 60, 20, "F");
   }
-  
+
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
-  doc.text((empresaConfig?.nome || "SUA EMPRESA").toUpperCase(), 55, yPos + 12);
+  doc.text((empresaConfig?.nome || "PAULISTÃO ATACADISTA").toUpperCase(), 85, yPos + 12);
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(100, 100, 100);
-  doc.text("CONTROLE DE DESPESAS", 55, yPos + 22);
+  doc.text("CONTROLE DE DESPESAS", 85, yPos + 22);
   
   doc.setFontSize(16);
   doc.setTextColor(0, 0, 0);
@@ -83,6 +73,21 @@ const addHeader = (doc: jsPDF, title: string, empresaConfig?: EmpresaConfig, dat
   doc.setFontSize(10);
   doc.text(`GERADO EM: ${format(new Date(), "dd/MM/yyyy 'ÀS' HH:mm", { locale: ptBR })}`, 20, 70);
 };
+
+const CREDITO = "APLICATIVO DESENVOLVIDO POR ISAIAS DE ARAUJO 08/2026";
+
+function addFooterAllPages(doc: jsPDF) {
+  const total = doc.getNumberOfPages();
+  for (let i = 1; i <= total; i++) {
+    doc.setPage(i);
+    const pw = doc.internal.pageSize.getWidth();
+    const ph = doc.internal.pageSize.getHeight();
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 100, 100);
+    doc.text(CREDITO, pw / 2, ph - 6, { align: "center" });
+  }
+}
 
 interface ImageEntry {
   date: string;
@@ -176,13 +181,11 @@ export const generateKmPdf = (
     doc.setFont("helvetica", "normal");
     doc.text(`FUNCIONÁRIO: ${firstRecord.funcionarioNome}`, 20, 82);
     doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 88);
-    doc.text(`VEÍCULO: ${firstRecord.veiculo}`, 160, 82);
-    doc.text(`PLACA: ${firstRecord.placa}`, 160, 88);
   }
   
   const tableData = records.map(r => [
     format(parseLocalDate(r.data), "dd/MM/yyyy"),
-    r.funcionarioNome,
+    r.veiculo,
     r.placa,
     r.kmInicial?.toString() || "-",
     r.kmFinal?.toString() || "-",
@@ -193,7 +196,7 @@ export const generateKmPdf = (
   
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "FUNCIONÁRIO", "PLACA", "KM INICIAL", "KM FINAL", "PERCORRIDO", "VALOR", "OBSERVAÇÃO"]],
+    head: [["DATA", "VEÍCULO", "PLACA", "KM INICIAL", "KM FINAL", "PERCORRIDO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -226,6 +229,7 @@ export const generateKmPdf = (
   }
   addAttachmentPages(doc, images);
   
+  addFooterAllPages(doc);
   savePdf(doc, `relatorio-km-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
 
@@ -247,13 +251,11 @@ export const generatePedagioPdf = (
     doc.setFont("helvetica", "normal");
     doc.text(`FUNCIONÁRIO: ${firstRecord.funcionarioNome}`, 20, 82);
     doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 88);
-    doc.text(`VEÍCULO: ${firstRecord.veiculo}`, 160, 82);
-    doc.text(`PLACA: ${firstRecord.placa}`, 160, 88);
   }
   
   const tableData = records.map(r => [
     format(parseLocalDate(r.data), "dd/MM/yyyy"),
-    r.funcionarioNome,
+    r.veiculo,
     r.placa,
     r.direcao === 'ida' ? 'IDA' : 'VOLTA',
     formatCurrency(r.valor),
@@ -262,7 +264,7 @@ export const generatePedagioPdf = (
   
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "FUNCIONÁRIO", "PLACA", "DIREÇÃO", "VALOR", "OBSERVAÇÃO"]],
+    head: [["DATA", "VEÍCULO", "PLACA", "DIREÇÃO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -294,6 +296,7 @@ export const generatePedagioPdf = (
   }
   addAttachmentPages(doc, images);
   
+  addFooterAllPages(doc);
   savePdf(doc, `relatorio-pedagio-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
 
@@ -319,8 +322,6 @@ export const generateRefeicaoPdf = (
   
   const tableData = records.map(r => [
     format(parseLocalDate(r.data), "dd/MM/yyyy"),
-    r.funcionarioNome,
-    r.funcionarioMatricula,
     tipoRefeicaoLabels[r.tipo] || r.tipo,
     formatCurrency(r.valor),
     r.observacao || "-"
@@ -328,7 +329,7 @@ export const generateRefeicaoPdf = (
   
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "FUNCIONÁRIO", "CHAPA", "TIPO", "VALOR", "OBSERVAÇÃO"]],
+    head: [["DATA", "REFEIÇÃO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -360,6 +361,7 @@ export const generateRefeicaoPdf = (
   }
   addAttachmentPages(doc, images);
   
+  addFooterAllPages(doc);
   savePdf(doc, `relatorio-refeicao-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
 
@@ -385,7 +387,6 @@ export const generateTransportePdf = (
 
   const tableData = records.map(r => [
     format(parseLocalDate(r.data), "dd/MM/yyyy"),
-    r.funcionarioNome,
     (tipoTransporteLabels[r.transporte] || r.transporte).toUpperCase(),
     r.direcao === 'ida' ? 'IDA' : 'VOLTA',
     formatCurrency(r.valor),
@@ -394,7 +395,7 @@ export const generateTransportePdf = (
 
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "FUNCIONÁRIO", "TRANSPORTE", "DIREÇÃO", "VALOR", "OBSERVAÇÃO"]],
+    head: [["DATA", "TRANSPORTE", "DIREÇÃO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -425,6 +426,7 @@ export const generateTransportePdf = (
   }
   addAttachmentPages(doc, images);
 
+  addFooterAllPages(doc);
   savePdf(doc, `relatorio-transporte-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
 
@@ -450,8 +452,6 @@ export const generateHospedagemPdf = (
 
   const tableData = records.map(r => [
     format(parseLocalDate(r.data), "dd/MM/yyyy"),
-    r.funcionarioNome,
-    r.funcionarioMatricula,
     tipoHospedagemLabels[r.tipo] || r.tipo,
     formatCurrency(r.valor),
     r.observacao || "-"
@@ -459,7 +459,7 @@ export const generateHospedagemPdf = (
 
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "FUNCIONÁRIO", "CHAPA", "TIPO", "VALOR", "OBSERVAÇÃO"]],
+    head: [["DATA", "HOSPEDAGEM", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -490,6 +490,7 @@ export const generateHospedagemPdf = (
   }
   addAttachmentPages(doc, images);
 
+  addFooterAllPages(doc);
   savePdf(doc, `relatorio-hospedagem-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
 
@@ -517,7 +518,7 @@ export const generateFinanceiroPdf = (
 
   autoTable(doc, {
     startY: 85,
-    head: [["DATA", "TIPO", "CATEGORIA", "ENTRADA", "SAÍDA", "OBSERVAÇÃO"]],
+    head: [["DATA", "TIPO", "CATEGORIA", "ENTRADA", "SAÍDA", "DESCRIÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -537,5 +538,6 @@ export const generateFinanceiroPdf = (
   else doc.setTextColor(37, 99, 235);
   doc.text(`SALDO: ${formatCurrency(saldo || 0)}`, 20, finalY);
 
+  addFooterAllPages(doc);
   savePdf(doc, `relatorio-financeiro-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 };
