@@ -57,7 +57,7 @@ export interface PedagioRecord {
   observacao?: string;
 }
 
-export type TipoRefeicao = 'cafe' | 'almoco' | 'jantar' | 'outros';
+export type TipoRefeicao = 'nenhum' | 'cafe' | 'almoco' | 'jantar' | 'outros';
 
 export interface RefeicaoRecord {
   id: string;

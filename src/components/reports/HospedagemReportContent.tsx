@@ -89,7 +89,7 @@ export function HospedagemReportContent({ records, dataInicio, dataFim, total, e
           <thead>
             <tr className="bg-blue-500 text-white">
               <th className="p-2 text-left border border-blue-600">DATA</th>
-              <th className="p-2 text-left border border-blue-600">TIPO</th>
+              <th className="p-2 text-left border border-blue-600">HOSPEDAGEM</th>
               <th className="p-2 text-right border border-blue-600">VALOR</th>
               <th className="p-2 text-left border border-blue-600">OBSERVAÇÃO</th>
             </tr>

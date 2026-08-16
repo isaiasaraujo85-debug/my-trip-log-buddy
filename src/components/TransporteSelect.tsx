@@ -22,10 +22,10 @@ interface TransporteSelectProps {
 export function TransporteSelect({ value, onChange, className }: TransporteSelectProps) {
   return (
     <div className="space-y-2">
-      <Label>Selecione o Transporte</Label>
+      <Label>Transporte</Label>
       <Select value={value} onValueChange={(v) => onChange(v as TipoTransporte)}>
         <SelectTrigger className={className}>
-          <SelectValue placeholder="Selecione o transporte" />
+          <SelectValue placeholder="Transporte" />
         </SelectTrigger>
         <SelectContent>
           {tipoTransporteOrdem.map((t) => (

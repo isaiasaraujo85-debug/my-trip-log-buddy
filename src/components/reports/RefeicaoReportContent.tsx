@@ -16,6 +16,7 @@ interface RefeicaoReportContentProps {
 const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
 const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
+  nenhum: "NENHUM",
   cafe: "CAFÉ",
   almoco: "ALMOÇO",
   jantar: "JANTAR",
@@ -98,7 +99,7 @@ export function RefeicaoReportContent({ records, dataInicio, dataFim, total, emp
           <thead>
             <tr className="bg-blue-500 text-white">
               <th className="p-2 text-left border border-blue-600">DATA</th>
-              <th className="p-2 text-left border border-blue-600">TIPO</th>
+              <th className="p-2 text-left border border-blue-600">REFEIÇÃO</th>
               <th className="p-2 text-right border border-blue-600">VALOR</th>
               <th className="p-2 text-left border border-blue-600">OBSERVAÇÃO</th>
             </tr>

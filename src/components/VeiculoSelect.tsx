@@ -22,10 +22,10 @@ export function VeiculoSelect({ value, onSelect }: VeiculoSelectProps) {
 
   return (
     <div className="space-y-2">
-      <Label>Selecione o Veículo</Label>
+      <Label>Veículo</Label>
       <Select value={value || "__blank__"} onValueChange={handleChange}>
         <SelectTrigger>
-          <SelectValue placeholder="Selecione o veículo" />
+          <SelectValue placeholder="Veículo" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="__blank__">— Nenhum —</SelectItem>

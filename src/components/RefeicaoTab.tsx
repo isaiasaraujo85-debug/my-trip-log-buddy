@@ -19,6 +19,7 @@ import { parseLocalDate } from "@/utils/dateUtils";
 import { generateRefeicaoPdf } from "@/utils/pdfGenerator";
 
 const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
+  nenhum: "Nenhum",
   cafe: "Café",
   almoco: "Almoço",
   jantar: "Jantar",
@@ -32,7 +33,7 @@ export function RefeicaoTab() {
   const [funcionarioId, setFuncionarioId] = useState("");
   const [selectedFuncionario, setSelectedFuncionario] = useState<Funcionario | undefined>();
   const [data, setData] = useState<Date | undefined>(new Date());
-  const [tipo, setTipo] = useState<TipoRefeicao>("almoco");
+  const [tipo, setTipo] = useState<TipoRefeicao>("nenhum");
   const [valor, setValor] = useState("");
   const [imagens, setImagens] = useState<AttachedImage[]>([]);
   const [observacao, setObservacao] = useState("");
@@ -42,7 +43,7 @@ export function RefeicaoTab() {
   const [showReport, setShowReport] = useState(false);
 
   const [editId, setEditId] = useState<string | null>(null);
-  const [editTipo, setEditTipo] = useState<TipoRefeicao>("almoco");
+  const [editTipo, setEditTipo] = useState<TipoRefeicao>("nenhum");
   const [editValor, setEditValor] = useState("");
   const [editImagens, setEditImagens] = useState<AttachedImage[]>([]);
   const [editObservacao, setEditObservacao] = useState("");
@@ -107,7 +108,7 @@ export function RefeicaoTab() {
     setEditFuncionario(record.funcionarioId ? { id: record.funcionarioId, nome: record.funcionarioNome, matricula: record.funcionarioMatricula, funcao: "" } : undefined);
   };
 
-  const cancelEdit = () => { setEditId(null); setEditTipo("almoco"); setEditValor(""); setEditImagens([]); };
+  const cancelEdit = () => { setEditId(null); setEditTipo("nenhum"); setEditValor(""); setEditImagens([]); };
 
   const saveEdit = (id: string) => {
     if (!editValor || !editTipo) return;
@@ -163,9 +164,9 @@ export function RefeicaoTab() {
           <DatePickerField label="Data" value={data} onChange={setData} />
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Tipo</Label>
+              <Label className="text-xs">Refeição</Label>
               <Select value={tipo} onValueChange={(v) => setTipo(v as TipoRefeicao)}>
-                <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Refeição" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="cafe">Café</SelectItem>
                   <SelectItem value="almoco">Almoço</SelectItem>
@@ -240,7 +241,7 @@ export function RefeicaoTab() {
                         <DatePickerField label="Data" value={editData} onChange={setEditData} />
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <Label className="text-xs">Tipo</Label>
+                            <Label className="text-xs">Refeição</Label>
                             <Select value={editTipo} onValueChange={(v) => setEditTipo(v as TipoRefeicao)}>
                               <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
                               <SelectContent>
@@ -269,7 +270,7 @@ export function RefeicaoTab() {
                         <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs flex-1 min-w-0">
                           <div><span className="text-muted-foreground">Data:</span><p className="font-medium">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</p></div>
                           <div><span className="text-muted-foreground">Funcionário:</span><p className="font-medium truncate">{record.funcionarioNome || "-"}</p></div>
-                          <div><span className="text-muted-foreground">Tipo:</span><p className="font-medium">{tipoRefeicaoLabels[record.tipo] || record.tipo}</p></div>
+                          <div><span className="text-muted-foreground">Refeição:</span><p className="font-medium">{tipoRefeicaoLabels[record.tipo] || record.tipo}</p></div>
                           <div><span className="text-muted-foreground">Valor:</span><p className="font-medium text-primary">{formatCurrencyDisplay(record.valor)}</p></div>
                           {record.observacao && (
                             <div className="col-span-2"><span className="text-muted-foreground">Observação:</span><p className="font-medium">{record.observacao}</p></div>

@@ -24,6 +24,7 @@ const formatCurrency = (value: number) => {
 };
 
 const tipoRefeicaoLabels: Record<TipoRefeicao, string> = {
+  nenhum: "NENHUM",
   cafe: "CAFÉ",
   almoco: "ALMOÇO",
   jantar: "JANTAR",
