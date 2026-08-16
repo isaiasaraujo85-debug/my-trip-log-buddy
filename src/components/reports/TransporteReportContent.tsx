@@ -2,6 +2,8 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TransporteRecord, EmpresaConfig } from "@/types";
 import { parseLocalDate } from "@/utils/dateUtils";
+import logoPaulistao from "@/assets/logo-paulistao.jpeg.asset.json";
+import { ReportFooter } from "./ReportFooter";
 import { tipoTransporteLabels } from "@/components/TransporteSelect";
 
 interface TransporteReportContentProps {
@@ -66,15 +68,9 @@ export function TransporteReportContent({ records, dataInicio, dataFim, total, e
     <div>
       <div className="bg-white text-black" style={A4_LANDSCAPE}>
         <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-blue-500">
-          {empresaConfig.logoBase64 ? (
-            <img src={empresaConfig.logoBase64} alt="Logo" className="object-contain" style={{ width: '400px', height: '64px' }} />
-          ) : (
-            <div className="bg-blue-500 rounded flex items-center justify-center" style={{ width: '400px', height: '64px' }}>
-              <span className="text-white font-bold text-xl">KM</span>
-            </div>
-          )}
+          <img src={empresaConfig.logoBase64 || logoPaulistao.url} alt="Logo" className="object-fill" style={{ width: '400px', height: '64px' }} />
           <div>
-            <h1 className="text-xl font-bold">{(empresaConfig.nome || "SUA EMPRESA").toUpperCase()}</h1>
+            <h1 className="text-xl font-bold">{(empresaConfig.nome || "PAULISTÃO ATACADISTA").toUpperCase()}</h1>
             <p className="text-gray-600 font-semibold">CONTROLE DE DESPESAS</p>
           </div>
         </div>
@@ -124,6 +120,7 @@ export function TransporteReportContent({ records, dataInicio, dataFim, total, e
             <span className="text-xl font-bold text-blue-600">{formatCurrency(total)}</span>
           </div>
         </div>
+        <ReportFooter />
       </div>
 
       {imagePages.map((page, pageIndex) => (
@@ -139,6 +136,7 @@ export function TransporteReportContent({ records, dataInicio, dataFim, total, e
               </div>
             ))}
           </div>
+          <ReportFooter />
         </div>
       ))}
     </div>
