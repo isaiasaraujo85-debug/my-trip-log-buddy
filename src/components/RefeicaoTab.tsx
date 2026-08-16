@@ -58,7 +58,7 @@ export function RefeicaoTab() {
   };
 
   const handleAdd = () => {
-    if (!data || !valor || !tipo) return;
+    if (!data || !valor || !tipo || tipo === "nenhum") return;
 
     const newRecord: RefeicaoRecord = {
       id: crypto.randomUUID(),
@@ -111,7 +111,7 @@ export function RefeicaoTab() {
   const cancelEdit = () => { setEditId(null); setEditTipo("nenhum"); setEditValor(""); setEditImagens([]); };
 
   const saveEdit = (id: string) => {
-    if (!editValor || !editTipo) return;
+    if (!editValor || !editTipo || editTipo === "nenhum") return;
     setRecords(records.map(r => r.id === id ? {
       ...r,
       data: editData ? format(editData, "yyyy-MM-dd") : r.data,
@@ -168,6 +168,7 @@ export function RefeicaoTab() {
               <Select value={tipo} onValueChange={(v) => setTipo(v as TipoRefeicao)}>
                 <SelectTrigger><SelectValue placeholder="Refeição" /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="nenhum">Nenhum</SelectItem>
                   <SelectItem value="cafe">Café</SelectItem>
                   <SelectItem value="almoco">Almoço</SelectItem>
                   <SelectItem value="jantar">Jantar</SelectItem>
@@ -245,7 +246,8 @@ export function RefeicaoTab() {
                             <Select value={editTipo} onValueChange={(v) => setEditTipo(v as TipoRefeicao)}>
                               <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="cafe">Café</SelectItem>
+                                <SelectItem value="nenhum">Nenhum</SelectItem>
+                  <SelectItem value="cafe">Café</SelectItem>
                                 <SelectItem value="almoco">Almoço</SelectItem>
                                 <SelectItem value="jantar">Jantar</SelectItem>
                                 <SelectItem value="outros">Outros</SelectItem>
