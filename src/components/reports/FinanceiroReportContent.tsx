@@ -64,7 +64,7 @@ export function FinanceiroReportContent({
               <th className="p-2 text-left border border-blue-600">CATEGORIA</th>
               <th className="p-2 text-right border border-blue-600">ENTRADA</th>
               <th className="p-2 text-right border border-blue-600">SAÍDA</th>
-              <th className="p-2 text-left border border-blue-600">OBSERVAÇÃO</th>
+              <th className="p-2 text-left border border-blue-600">DESCRIÇÃO</th>
             </tr>
           </thead>
           <tbody>

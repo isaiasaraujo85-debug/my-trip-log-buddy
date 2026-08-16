@@ -100,8 +100,6 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
           <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-100 rounded text-sm">
             <div><span className="text-gray-600">FUNCIONÁRIO:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
             <div><span className="text-gray-600">MATRÍCULA:</span> <strong>{firstRecord.funcionarioMatricula}</strong></div>
-            <div><span className="text-gray-600">VEÍCULO:</span> <strong>{firstRecord.veiculo}</strong></div>
-            <div><span className="text-gray-600">PLACA:</span> <strong>{firstRecord.placa}</strong></div>
           </div>
         )}
 
@@ -109,7 +107,7 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
           <thead>
             <tr className="bg-blue-500 text-white">
               <th className="p-2 text-left border border-blue-600">DATA</th>
-              <th className="p-2 text-left border border-blue-600">FUNCIONÁRIO</th>
+              <th className="p-2 text-left border border-blue-600">VEÍCULO</th>
               <th className="p-2 text-left border border-blue-600">PLACA</th>
               <th className="p-2 text-right border border-blue-600">KM INICIAL</th>
               <th className="p-2 text-right border border-blue-600">KM FINAL</th>
@@ -122,7 +120,7 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
             {sortedRecords.map((record, index) => (
               <tr key={record.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
                 <td className="p-2 border border-gray-300">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</td>
-                <td className="p-2 border border-gray-300">{record.funcionarioNome}</td>
+                <td className="p-2 border border-gray-300">{record.veiculo}</td>
                 <td className="p-2 border border-gray-300">{record.placa}</td>
                 <td className="p-2 border border-gray-300 text-right">{record.kmInicial ?? "-"}</td>
                 <td className="p-2 border border-gray-300 text-right">{record.kmFinal ?? "-"}</td>

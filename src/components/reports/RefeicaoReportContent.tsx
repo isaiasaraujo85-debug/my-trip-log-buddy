@@ -98,8 +98,6 @@ export function RefeicaoReportContent({ records, dataInicio, dataFim, total, emp
           <thead>
             <tr className="bg-blue-500 text-white">
               <th className="p-2 text-left border border-blue-600">DATA</th>
-              <th className="p-2 text-left border border-blue-600">FUNCIONÁRIO</th>
-              <th className="p-2 text-left border border-blue-600">MATRÍCULA</th>
               <th className="p-2 text-left border border-blue-600">TIPO</th>
               <th className="p-2 text-right border border-blue-600">VALOR</th>
               <th className="p-2 text-left border border-blue-600">OBSERVAÇÃO</th>
@@ -109,8 +107,6 @@ export function RefeicaoReportContent({ records, dataInicio, dataFim, total, emp
             {sortedRecords.map((record, index) => (
               <tr key={record.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
                 <td className="p-2 border border-gray-300">{format(parseLocalDate(record.data), "dd/MM/yyyy")}</td>
-                <td className="p-2 border border-gray-300">{record.funcionarioNome}</td>
-                <td className="p-2 border border-gray-300">{record.funcionarioMatricula}</td>
                 <td className="p-2 border border-gray-300">{tipoRefeicaoLabels[record.tipo] || record.tipo}</td>
                 <td className="p-2 border border-gray-300 text-right">{formatCurrency(record.valor)}</td>
                 <td className="p-2 border border-gray-300">{record.observacao || "-"}</td>
