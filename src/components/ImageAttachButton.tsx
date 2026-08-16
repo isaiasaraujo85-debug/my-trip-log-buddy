@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Paperclip, X } from "lucide-react";
+import { Camera, Paperclip, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AttachedImage } from "@/types";
 
@@ -54,6 +54,7 @@ async function processImageFile(file: File, maxWidth = 800): Promise<string> {
 
 export function ImageAttachButton({ images, onImagesChange, label = "Imagem" }: ImageAttachButtonProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files) return;
@@ -90,6 +91,15 @@ export function ImageAttachButton({ images, onImagesChange, label = "Imagem" }: 
             </span>
           )}
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => cameraInputRef.current?.click()}
+        >
+          <Camera className="mr-2 h-4 w-4" />
+          Câmera
+        </Button>
       </div>
 
       <input
@@ -97,6 +107,18 @@ export function ImageAttachButton({ images, onImagesChange, label = "Imagem" }: 
         type="file"
         accept="image/*"
         multiple
+        className="hidden"
+        onChange={(e) => {
+          handleFiles(e.target.files);
+          e.target.value = "";
+        }}
+      />
+
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
         className="hidden"
         onChange={(e) => {
           handleFiles(e.target.files);
