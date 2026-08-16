@@ -1,4 +1,5 @@
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { tipoEntradaLabels, origemLabels } from "@/utils/financeiroLabels";
 import {
   DepositoRecord,
   HospedagemRecord,
@@ -22,9 +23,12 @@ export function useFinanceiro() {
       id: d.id,
       data: d.data,
       tipo: "entrada" as const,
-      categoria: "DEPÓSITO",
-      descricao: d.observacao || "ENTRADA DE VALOR",
+      categoria: tipoEntradaLabels[d.tipoEntrada || "nenhum"],
+      descricao: [d.observacao, d.origem && d.origem !== "nenhum" ? origemLabels[d.origem] : ""]
+        .filter(Boolean)
+        .join(" - ") || "ENTRADA DE VALOR",
       valor: d.valor,
+      isDeposito: true,
     })),
     ...kmRecords
       .filter((r) => (r.valorTotal || 0) > 0)

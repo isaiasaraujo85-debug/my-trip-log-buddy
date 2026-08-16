@@ -100,10 +100,15 @@ export interface HospedagemRecord {
   observacao?: string;
 }
 
+export type TipoEntrada = 'nenhum' | 'cartao' | 'dinheiro' | 'pix';
+export type OrigemEntrada = 'nenhum' | 'proprio' | 'paulistao' | 'outros';
+
 export interface DepositoRecord {
   id: string;
   data: string;
   valor: number;
+  tipoEntrada?: TipoEntrada;
+  origem?: OrigemEntrada;
   observacao?: string;
 }
 
@@ -114,4 +119,5 @@ export interface Movimento {
   categoria: string;
   descricao: string;
   valor: number;
+  isDeposito?: boolean;
 }
