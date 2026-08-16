@@ -1,6 +1,6 @@
 interface PedagioIconProps {
   className?: string;
-  strokeWidth?: number;
+  strokeWidth?: number | string;
 }
 
 export function PedagioIcon({ className, strokeWidth = 1.5 }: PedagioIconProps) {

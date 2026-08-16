@@ -13,7 +13,7 @@ import { EmpresaHeader } from "@/components/EmpresaHeader";
 
 type MenuKey = "km" | "pedagio" | "hospedagem" | "refeicao" | "transporte" | "cadastro" | "financeiro";
 
-const menus: { key: MenuKey; label: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number }> }[] = [
+const menus: { key: MenuKey; label: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }> }[] = [
   { key: "km", label: "KM", icon: Gauge },
   { key: "pedagio", label: "Pedágio", icon: PedagioIcon },
   { key: "hospedagem", label: "Hospedagem", icon: Hotel },
