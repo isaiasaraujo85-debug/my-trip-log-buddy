@@ -13,6 +13,7 @@ interface FinanceiroReportContentProps {
   totalSaidas: number;
   saldo: number;
   empresaConfig: EmpresaConfig;
+  funcionarioNome?: string;
 }
 
 const formatCurrency = (value: number) =>
@@ -35,6 +36,7 @@ export function FinanceiroReportContent({
   totalSaidas,
   saldo,
   empresaConfig,
+  funcionarioNome,
 }: FinanceiroReportContentProps) {
   return (
     <div>
