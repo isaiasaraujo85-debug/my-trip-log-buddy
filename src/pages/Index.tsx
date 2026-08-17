@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Gauge, Utensils, IdCard, CarTaxiFront, Hotel, Wallet, ArrowLeft } from "lucide-react";
+import { Gauge, IdCard, CarTaxiFront, Wallet, ArrowLeft } from "lucide-react";
 import { PedagioIcon } from "@/components/icons/PedagioIcon";
+import { RefeicaoIcon } from "@/components/icons/RefeicaoIcon";
+import { HospedagemIcon } from "@/components/icons/HospedagemIcon";
 import { Button } from "@/components/ui/button";
 import { KmTab } from "@/components/KmTab";
 import { PedagioTab } from "@/components/PedagioTab";
@@ -16,12 +18,13 @@ type MenuKey = "km" | "pedagio" | "hospedagem" | "refeicao" | "transporte" | "ca
 const menus: { key: MenuKey; label: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }> }[] = [
   { key: "km", label: "KM", icon: Gauge },
   { key: "pedagio", label: "Pedágio", icon: PedagioIcon },
-  { key: "hospedagem", label: "Hospedagem", icon: Hotel },
-  { key: "refeicao", label: "Refeição", icon: Utensils },
+  { key: "hospedagem", label: "Hospedagem", icon: HospedagemIcon },
+  { key: "refeicao", label: "Refeição", icon: RefeicaoIcon },
   { key: "transporte", label: "Transporte", icon: CarTaxiFront },
   { key: "financeiro", label: "Financeiro", icon: Wallet },
   { key: "cadastro", label: "Cadastro", icon: IdCard },
 ];
+
 
 const views: Record<MenuKey, JSX.Element> = {
   km: <KmTab />,

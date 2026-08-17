@@ -1,7 +1,14 @@
 import { useRef } from "react";
-import { Camera, Paperclip, X } from "lucide-react";
+import { Camera, Image as ImageIcon, Paperclip, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { AttachedImage } from "@/types";
+
 
 interface ImageAttachButtonProps {
   images: AttachedImage[];
@@ -76,31 +83,30 @@ export function ImageAttachButton({ images, onImagesChange, label = "Imagem" }: 
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Paperclip className="mr-2 h-4 w-4" />
-          {label}
-          {images.length > 0 && (
-            <span className="ml-1 bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-xs">
-              {images.length}
-            </span>
-          )}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => cameraInputRef.current?.click()}
-        >
-          <Camera className="mr-2 h-4 w-4" />
-          Câmera
-        </Button>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button type="button" variant="outline" size="sm">
+            <Paperclip className="mr-2 h-4 w-4" />
+            {label}
+            {images.length > 0 && (
+              <span className="ml-1 bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-xs">
+                {images.length}
+              </span>
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem onSelect={() => fileInputRef.current?.click()}>
+            <ImageIcon className="mr-2 h-4 w-4" />
+            Galeria
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => cameraInputRef.current?.click()}>
+            <Camera className="mr-2 h-4 w-4" />
+            Câmera
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
 
       <input
         ref={fileInputRef}
