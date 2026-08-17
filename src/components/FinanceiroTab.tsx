@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useFinanceiro } from "@/hooks/useFinanceiro";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DepositoRecord, EmpresaConfig, OrigemEntrada, TipoEntrada } from "@/types";
+import { DepositoRecord, EmpresaConfig, Funcionario, OrigemEntrada, TipoEntrada } from "@/types";
+import { FuncionarioSelect } from "./FuncionarioSelect";
 import { origemLabels, origemOrdem, tipoEntradaLabels, tipoEntradaOrdem } from "@/utils/financeiroLabels";
 import { DatePickerField } from "./DatePickerField";
 import { CurrencyInput } from "./CurrencyInput";
@@ -24,6 +25,7 @@ export function FinanceiroTab() {
   const [empresaConfig] = useLocalStorage<EmpresaConfig>("empresa-config", { nome: "" });
   const { depositos, setDepositos, movimentos } = useFinanceiro();
 
+  const [funcionario, setFuncionario] = useState<Funcionario | undefined>();
   const [data, setData] = useState<Date | undefined>(new Date());
   const [valor, setValor] = useState("");
   const [tipoEntrada, setTipoEntrada] = useState<TipoEntrada>("nenhum");
@@ -43,6 +45,9 @@ export function FinanceiroTab() {
       tipoEntrada,
       origem,
       observacao: observacao.trim() || undefined,
+      funcionarioId: funcionario?.id,
+      funcionarioNome: funcionario?.nome,
+      funcionarioMatricula: funcionario?.matricula,
     };
     setDepositos([...depositos, novo]);
     setValor("");
@@ -50,6 +55,7 @@ export function FinanceiroTab() {
     setOrigem("nenhum");
     setObservacao("");
   };
+
 
   const handleDeleteDeposito = (id: string) => {
     setDepositos(depositos.filter((d) => d.id !== id));
