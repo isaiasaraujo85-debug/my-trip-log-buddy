@@ -502,16 +502,26 @@ export const generateFinanceiroPdf = (
   totalEntradas?: number,
   totalSaidas?: number,
   saldo?: number,
-  empresaConfig?: EmpresaConfig
+  empresaConfig?: EmpresaConfig,
+  funcionarioNome?: string
 ) => {
   const doc = new jsPDF("landscape");
 
   addHeader(doc, "EXTRATO FINANCEIRO", empresaConfig, dataInicio, dataFim);
 
+  if (funcionarioNome) {
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text(`FUNCIONÁRIO: ${funcionarioNome.toUpperCase()}`, 20, 78);
+  }
+
   const tableData = movimentos.map(m => [
     format(parseLocalDate(m.data), "dd/MM/yyyy"),
     m.tipo === "entrada" ? "ENTRADA" : "SAÍDA",
     m.categoria,
+    m.tipo === "entrada" ? (m.formaEntrada || "-") : "-",
+    m.tipo === "entrada" ? (m.origem || "-") : "-",
     m.tipo === "entrada" ? formatCurrency(m.valor) : "-",
     m.tipo === "saida" ? formatCurrency(m.valor) : "-",
     m.descricao || "-"
@@ -519,12 +529,13 @@ export const generateFinanceiroPdf = (
 
   autoTable(doc, {
     startY: 85,
-    head: [["DATA", "TIPO", "CATEGORIA", "ENTRADA", "SAÍDA", "DESCRIÇÃO"]],
+    head: [["DATA", "TIPO", "CATEGORIA", "FORMA DE ENTRADA", "ORIGEM", "ENTRADA", "SAÍDA", "DESCRIÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
-    styles: { fontSize: 10 }
+    styles: { fontSize: 9 }
   });
+
 
   let finalY = (doc as any).lastAutoTable.finalY + 10;
   doc.setFontSize(11);
