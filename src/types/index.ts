@@ -100,7 +100,7 @@ export interface HospedagemRecord {
   observacao?: string;
 }
 
-export type TipoEntrada = 'nenhum' | 'cartao' | 'dinheiro' | 'pix';
+export type TipoEntrada = 'nenhum' | 'cartao' | 'dinheiro' | 'pix' | 'outros';
 export type OrigemEntrada = 'nenhum' | 'proprio' | 'paulistao' | 'outros';
 
 export interface DepositoRecord {
@@ -110,6 +110,9 @@ export interface DepositoRecord {
   tipoEntrada?: TipoEntrada;
   origem?: OrigemEntrada;
   observacao?: string;
+  funcionarioId?: string;
+  funcionarioNome?: string;
+  funcionarioMatricula?: string;
 }
 
 export interface Movimento {
@@ -120,4 +123,7 @@ export interface Movimento {
   descricao: string;
   valor: number;
   isDeposito?: boolean;
+  formaEntrada?: string;
+  origem?: string;
 }
+

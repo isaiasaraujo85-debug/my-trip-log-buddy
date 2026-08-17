@@ -13,6 +13,7 @@ interface FinanceiroReportContentProps {
   totalSaidas: number;
   saldo: number;
   empresaConfig: EmpresaConfig;
+  funcionarioNome?: string;
 }
 
 const formatCurrency = (value: number) =>
@@ -35,6 +36,7 @@ export function FinanceiroReportContent({
   totalSaidas,
   saldo,
   empresaConfig,
+  funcionarioNome,
 }: FinanceiroReportContentProps) {
   return (
     <div>
@@ -49,6 +51,9 @@ export function FinanceiroReportContent({
 
         <h2 className="text-lg font-bold mb-2">EXTRATO FINANCEIRO</h2>
 
+        {funcionarioNome && (
+          <p className="text-sm text-gray-600 mb-1">FUNCIONÁRIO: {funcionarioNome.toUpperCase()}</p>
+        )}
         {dataInicio && dataFim && (
           <p className="text-sm text-gray-600 mb-1">
             PERÍODO: {format(dataInicio, "dd/MM/yyyy", { locale: ptBR })} A {format(dataFim, "dd/MM/yyyy", { locale: ptBR })}
@@ -62,6 +67,8 @@ export function FinanceiroReportContent({
               <th className="p-2 text-left border border-blue-600">DATA</th>
               <th className="p-2 text-left border border-blue-600">TIPO</th>
               <th className="p-2 text-left border border-blue-600">CATEGORIA</th>
+              <th className="p-2 text-left border border-blue-600">FORMA DE ENTRADA</th>
+              <th className="p-2 text-left border border-blue-600">ORIGEM</th>
               <th className="p-2 text-right border border-blue-600">ENTRADA</th>
               <th className="p-2 text-right border border-blue-600">SAÍDA</th>
               <th className="p-2 text-left border border-blue-600">DESCRIÇÃO</th>
@@ -73,11 +80,14 @@ export function FinanceiroReportContent({
                 <td className="p-2 border border-gray-300">{format(parseLocalDate(m.data), "dd/MM/yyyy")}</td>
                 <td className="p-2 border border-gray-300">{m.tipo === "entrada" ? "ENTRADA" : "SAÍDA"}</td>
                 <td className="p-2 border border-gray-300">{m.categoria}</td>
+                <td className="p-2 border border-gray-300">{m.tipo === "entrada" ? (m.formaEntrada || "-") : "-"}</td>
+                <td className="p-2 border border-gray-300">{m.tipo === "entrada" ? (m.origem || "-") : "-"}</td>
                 <td className="p-2 border border-gray-300 text-right">{m.tipo === "entrada" ? formatCurrency(m.valor) : "-"}</td>
                 <td className="p-2 border border-gray-300 text-right">{m.tipo === "saida" ? formatCurrency(m.valor) : "-"}</td>
                 <td className="p-2 border border-gray-300">{m.descricao || "-"}</td>
               </tr>
             ))}
+
           </tbody>
         </table>
 

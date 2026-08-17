@@ -24,12 +24,13 @@ export function useFinanceiro() {
       data: d.data,
       tipo: "entrada" as const,
       categoria: tipoEntradaLabels[d.tipoEntrada || "nenhum"],
-      descricao: [d.observacao, d.origem && d.origem !== "nenhum" ? origemLabels[d.origem] : ""]
-        .filter(Boolean)
-        .join(" - ") || "ENTRADA DE VALOR",
+      descricao: (d.origem && d.origem !== "nenhum" ? origemLabels[d.origem] : d.observacao) || "ENTRADA DE VALOR",
       valor: d.valor,
       isDeposito: true,
+      formaEntrada: tipoEntradaLabels[d.tipoEntrada || "nenhum"],
+      origem: d.origem && d.origem !== "nenhum" ? origemLabels[d.origem] : "-",
     })),
+
     ...kmRecords
       .filter((r) => (r.valorTotal || 0) > 0)
       .map((r) => ({

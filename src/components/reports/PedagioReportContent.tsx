@@ -105,7 +105,7 @@ export function PedagioReportContent({ records, dataInicio, dataFim, total, empr
               <th className="p-2 text-left border border-blue-600">DATA</th>
               <th className="p-2 text-left border border-blue-600">VEÍCULO</th>
               <th className="p-2 text-left border border-blue-600">PLACA</th>
-              <th className="p-2 text-left border border-blue-600">DIREÇÃO</th>
+              <th className="p-2 text-left border border-blue-600">DESLOCAMENTO</th>
               <th className="p-2 text-right border border-blue-600">VALOR</th>
               <th className="p-2 text-left border border-blue-600">OBSERVAÇÃO</th>
             </tr>

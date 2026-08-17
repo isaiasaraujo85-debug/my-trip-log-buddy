@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useFinanceiro } from "@/hooks/useFinanceiro";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DepositoRecord, EmpresaConfig, OrigemEntrada, TipoEntrada } from "@/types";
+import { DepositoRecord, EmpresaConfig, Funcionario, OrigemEntrada, TipoEntrada } from "@/types";
+import { FuncionarioSelect } from "./FuncionarioSelect";
 import { origemLabels, origemOrdem, tipoEntradaLabels, tipoEntradaOrdem } from "@/utils/financeiroLabels";
 import { DatePickerField } from "./DatePickerField";
 import { CurrencyInput } from "./CurrencyInput";
@@ -24,6 +25,7 @@ export function FinanceiroTab() {
   const [empresaConfig] = useLocalStorage<EmpresaConfig>("empresa-config", { nome: "" });
   const { depositos, setDepositos, movimentos } = useFinanceiro();
 
+  const [funcionario, setFuncionario] = useState<Funcionario | undefined>();
   const [data, setData] = useState<Date | undefined>(new Date());
   const [valor, setValor] = useState("");
   const [tipoEntrada, setTipoEntrada] = useState<TipoEntrada>("nenhum");
@@ -43,6 +45,9 @@ export function FinanceiroTab() {
       tipoEntrada,
       origem,
       observacao: observacao.trim() || undefined,
+      funcionarioId: funcionario?.id,
+      funcionarioNome: funcionario?.nome,
+      funcionarioMatricula: funcionario?.matricula,
     };
     setDepositos([...depositos, novo]);
     setValor("");
@@ -50,6 +55,7 @@ export function FinanceiroTab() {
     setOrigem("nenhum");
     setObservacao("");
   };
+
 
   const handleDeleteDeposito = (id: string) => {
     setDepositos(depositos.filter((d) => d.id !== id));
@@ -66,7 +72,7 @@ export function FinanceiroTab() {
   const saldoFiltrado = entradas - saidas;
 
   const handleGeneratePdf = () => {
-    generateFinanceiroPdf(filteredMovimentos, dataInicio, dataFim, entradas, saidas, saldoFiltrado, empresaConfig);
+    generateFinanceiroPdf(filteredMovimentos, dataInicio, dataFim, entradas, saidas, saldoFiltrado, empresaConfig, funcionario?.nome);
   };
 
   return (
@@ -79,13 +85,15 @@ export function FinanceiroTab() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          <FuncionarioSelect value={funcionario?.id || ""} onSelect={setFuncionario} />
           <DatePickerField label="Data" value={data} onChange={setData} />
           <div className="space-y-1">
             <Label htmlFor="valor-financeiro" className="text-xs">Valor (R$)</Label>
             <CurrencyInput id="valor-financeiro" value={valor} onChange={setValor} />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Tipo de Entrada</Label>
+            <Label className="text-xs">Forma de Entrada</Label>
+
             <Select value={tipoEntrada} onValueChange={(v) => setTipoEntrada(v as TipoEntrada)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -150,6 +158,7 @@ export function FinanceiroTab() {
               totalSaidas={saidas}
               saldo={saldoFiltrado}
               empresaConfig={empresaConfig}
+              funcionarioNome={funcionario?.nome}
             />
           </ReportExportButton>
 
