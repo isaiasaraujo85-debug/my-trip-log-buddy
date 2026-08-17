@@ -265,7 +265,7 @@ export const generatePedagioPdf = (
   
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "VEÍCULO", "PLACA", "DIREÇÃO", "VALOR", "OBSERVAÇÃO"]],
+    head: [["DATA", "VEÍCULO", "PLACA", "DESLOCAMENTO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
