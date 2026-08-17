@@ -15,13 +15,13 @@ export function RefeicaoIcon({ className, strokeWidth = 1.5 }: IconProps) {
       className={className}
       aria-hidden="true"
     >
-      {/* Faca */}
-      <path d="M6.5 2c1.4 1.8 1.9 4 1.6 6.3l-.3 2.2H5.2l-.3-2.2C4.6 6 5.1 3.8 6.5 2Z" />
-      <path d="M6.5 10.5V22" />
-      {/* Garfo */}
-      <path d="M14 2v5M17 2v5M20 2v5" />
-      <path d="M14 7c0 1.9 1.3 3.2 3 3.4 1.7-.2 3-1.5 3-3.4" />
-      <path d="M17 10.4V22" />
+      {/* Faca: lâmina + cabo */}
+      <path d="M7 2c1.6 2.2 2.2 4.6 1.6 7.2l-.3 1.3H6.2l-.3-1.3C5.3 6.6 5.9 4.2 7 2Z" />
+      <path d="M7 10.5v9.8a1.7 1.7 0 0 0 3.4 0" />
+      {/* Garfo: 4 dentes + cabo */}
+      <path d="M14 2v5.2M16.2 2v5.2M18.4 2v5.2" />
+      <path d="M14 7.2c0 2 1.1 3.2 2.2 3.4 1.1-.2 2.2-1.4 2.2-3.4" />
+      <path d="M16.2 10.6V22" />
     </svg>
   );
 }
