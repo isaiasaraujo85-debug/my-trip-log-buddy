@@ -72,7 +72,7 @@ export function FinanceiroTab() {
   const saldoFiltrado = entradas - saidas;
 
   const handleGeneratePdf = () => {
-    generateFinanceiroPdf(filteredMovimentos, dataInicio, dataFim, entradas, saidas, saldoFiltrado, empresaConfig);
+    generateFinanceiroPdf(filteredMovimentos, dataInicio, dataFim, entradas, saidas, saldoFiltrado, empresaConfig, funcionario?.nome);
   };
 
   return (
@@ -85,13 +85,15 @@ export function FinanceiroTab() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          <FuncionarioSelect value={funcionario?.id || ""} onSelect={setFuncionario} />
           <DatePickerField label="Data" value={data} onChange={setData} />
           <div className="space-y-1">
             <Label htmlFor="valor-financeiro" className="text-xs">Valor (R$)</Label>
             <CurrencyInput id="valor-financeiro" value={valor} onChange={setValor} />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Tipo de Entrada</Label>
+            <Label className="text-xs">Forma de Entrada</Label>
+
             <Select value={tipoEntrada} onValueChange={(v) => setTipoEntrada(v as TipoEntrada)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -156,6 +158,7 @@ export function FinanceiroTab() {
               totalSaidas={saidas}
               saldo={saldoFiltrado}
               empresaConfig={empresaConfig}
+              funcionarioNome={funcionario?.nome}
             />
           </ReportExportButton>
 
