@@ -72,7 +72,7 @@ export function FinanceiroTab() {
   const saldoFiltrado = entradas - saidas;
 
   const handleGeneratePdf = () => {
-    generateFinanceiroPdf(filteredMovimentos, dataInicio, dataFim, entradas, saidas, saldoFiltrado, empresaConfig, funcionario?.nome);
+    generateFinanceiroPdf(filteredMovimentos, dataInicio, dataFim, entradas, saidas, saldoFiltrado, empresaConfig, funcionario?.nome, funcionario?.matricula);
   };
 
   return (
@@ -86,6 +86,15 @@ export function FinanceiroTab() {
         </CardHeader>
         <CardContent className="space-y-3">
           <FuncionarioSelect value={funcionario?.id || ""} onSelect={setFuncionario} />
+          {funcionario && (
+            <div className="p-2 bg-muted rounded-lg text-xs">
+              <div className="grid grid-cols-2 gap-1">
+                <div><span className="text-muted-foreground">Nome:</span><p className="font-medium truncate">{funcionario.nome}</p></div>
+                <div><span className="text-muted-foreground">Matrícula:</span><p className="font-medium">{funcionario.matricula}</p></div>
+                <div><span className="text-muted-foreground">Função:</span><p className="font-medium truncate">{funcionario.funcao}</p></div>
+              </div>
+            </div>
+          )}
           <DatePickerField label="Data" value={data} onChange={setData} />
           <div className="space-y-1">
             <Label htmlFor="valor-financeiro" className="text-xs">Valor (R$)</Label>
@@ -159,6 +168,7 @@ export function FinanceiroTab() {
               saldo={saldoFiltrado}
               empresaConfig={empresaConfig}
               funcionarioNome={funcionario?.nome}
+              funcionarioMatricula={funcionario?.matricula}
             />
           </ReportExportButton>
 

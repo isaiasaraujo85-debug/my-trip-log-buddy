@@ -94,7 +94,7 @@ export function TransporteReportContent({ records, dataInicio, dataFim, total, e
             <tr className="bg-blue-500 text-white">
               <th className="p-2 text-left border border-blue-600">DATA</th>
               <th className="p-2 text-left border border-blue-600">TRANSPORTE</th>
-              <th className="p-2 text-left border border-blue-600">DIREÇÃO</th>
+              <th className="p-2 text-left border border-blue-600">DESLOCAMENTO</th>
               <th className="p-2 text-right border border-blue-600">VALOR</th>
               <th className="p-2 text-left border border-blue-600">OBSERVAÇÃO</th>
             </tr>
