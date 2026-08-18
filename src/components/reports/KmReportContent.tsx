@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { KmRecord, EmpresaConfig } from "@/types";
 import { parseLocalDate } from "@/utils/dateUtils";
+import { getFuncionarioFuncao } from "@/utils/funcionarioUtils";
 import logoPaulistao from "@/assets/logo-paulistao.jpeg.asset.json";
 import { ReportFooter } from "./ReportFooter";
 
@@ -97,9 +98,10 @@ export function KmReportContent({ records, dataInicio, dataFim, totalKm, totalVa
         <p className="text-sm text-gray-600 mb-4">GERADO EM: {format(new Date(), "dd/MM/yyyy 'ÀS' HH:mm", { locale: ptBR })}</p>
 
         {firstRecord && (
-          <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-100 rounded text-sm">
-            <div><span className="text-gray-600">FUNCIONÁRIO:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
-            <div><span className="text-gray-600">MATRÍCULA:</span> <strong>{firstRecord.funcionarioMatricula}</strong></div>
+          <div className="grid grid-cols-3 gap-2 mb-4 p-3 bg-gray-100 rounded text-sm">
+            <div className="font-bold"><span>FUNCIONÁRIO:</span> <strong>{firstRecord.funcionarioNome}</strong></div>
+            <div className="font-bold"><span>FUNÇÃO:</span> <strong>{getFuncionarioFuncao(firstRecord.funcionarioId)}</strong></div>
+            <div className="font-bold"><span>MATRÍCULA:</span> <strong>{firstRecord.funcionarioMatricula}</strong></div>
           </div>
         )}
 
