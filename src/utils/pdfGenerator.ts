@@ -396,7 +396,7 @@ export const generateTransportePdf = (
 
   autoTable(doc, {
     startY: 95,
-    head: [["DATA", "TRANSPORTE", "DIREÇÃO", "VALOR", "OBSERVAÇÃO"]],
+    head: [["DATA", "TRANSPORTE", "DESLOCAMENTO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -503,7 +503,8 @@ export const generateFinanceiroPdf = (
   totalSaidas?: number,
   saldo?: number,
   empresaConfig?: EmpresaConfig,
-  funcionarioNome?: string
+  funcionarioNome?: string,
+  funcionarioMatricula?: string
 ) => {
   const doc = new jsPDF("landscape");
 
@@ -514,22 +515,24 @@ export const generateFinanceiroPdf = (
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
     doc.text(`FUNCIONÁRIO: ${funcionarioNome.toUpperCase()}`, 20, 78);
+    if (funcionarioMatricula) {
+      doc.text(`MATRÍCULA: ${funcionarioMatricula.toUpperCase()}`, 20, 83);
+    }
   }
 
   const tableData = movimentos.map(m => [
     format(parseLocalDate(m.data), "dd/MM/yyyy"),
     m.tipo === "entrada" ? "ENTRADA" : "SAÍDA",
     m.categoria,
-    m.tipo === "entrada" ? (m.formaEntrada || "-") : "-",
-    m.tipo === "entrada" ? (m.origem || "-") : "-",
     m.tipo === "entrada" ? formatCurrency(m.valor) : "-",
+    m.tipo === "entrada" ? (m.formaEntrada || "-") : "-",
     m.tipo === "saida" ? formatCurrency(m.valor) : "-",
     m.descricao || "-"
   ]);
 
   autoTable(doc, {
-    startY: 85,
-    head: [["DATA", "TIPO", "CATEGORIA", "FORMA DE ENTRADA", "ORIGEM", "ENTRADA", "SAÍDA", "DESCRIÇÃO"]],
+    startY: funcionarioMatricula ? 90 : 85,
+    head: [["DATA", "TIPO", "CATEGORIA", "ENTRADA", "FORMA DE ENTRADA", "SAÍDA", "DESCRIÇÃO"]],
     body: tableData,
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },

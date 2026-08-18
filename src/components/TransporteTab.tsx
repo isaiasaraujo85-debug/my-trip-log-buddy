@@ -168,7 +168,7 @@ export function TransporteTab() {
                 <CurrencyInput id="valor-transporte" value={valor} onChange={setValor} />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Direção</Label>
+                <Label className="text-xs">Deslocamento</Label>
                 <RadioGroup value={direcao} onValueChange={(v) => setDirecao(v as 'ida' | 'volta')} className="flex gap-4 h-10 items-center">
                   <div className="flex items-center space-x-1">
                     <RadioGroupItem value="ida" id="transporte-ida" />
@@ -248,7 +248,7 @@ export function TransporteTab() {
                             <CurrencyInput value={editValor} onChange={setEditValor} className="h-8 text-xs" />
                           </div>
                           <div>
-                            <Label className="text-xs">Direção</Label>
+                            <Label className="text-xs">Deslocamento</Label>
                             <RadioGroup value={editDirecao} onValueChange={(v) => setEditDirecao(v as 'ida' | 'volta')} className="flex gap-3 mt-1">
                               <div className="flex items-center space-x-1"><RadioGroupItem value="ida" id="edit-transporte-ida" /><Label htmlFor="edit-transporte-ida" className="text-xs cursor-pointer">Ida</Label></div>
                               <div className="flex items-center space-x-1"><RadioGroupItem value="volta" id="edit-transporte-volta" /><Label htmlFor="edit-transporte-volta" className="text-xs cursor-pointer">Volta</Label></div>
@@ -270,7 +270,7 @@ export function TransporteTab() {
                           <div><span className="text-muted-foreground">Funcionário:</span><p className="font-medium truncate">{record.funcionarioNome || "-"}</p></div>
                           <div><span className="text-muted-foreground">Transporte:</span><p className="font-medium truncate">{tipoTransporteLabels[record.transporte] || "-"}</p></div>
                           <div><span className="text-muted-foreground">Valor:</span><p className="font-medium text-primary">{formatCurrencyDisplay(record.valor)}</p></div>
-                          <div><span className="text-muted-foreground">Direção:</span><p className="font-medium">{record.direcao === 'ida' ? 'Ida' : 'Volta'}</p></div>
+                          <div><span className="text-muted-foreground">Deslocamento:</span><p className="font-medium">{record.direcao === 'ida' ? 'Ida' : 'Volta'}</p></div>
                           {record.observacao && (
                             <div className="col-span-2"><span className="text-muted-foreground">Observação:</span><p className="font-medium">{record.observacao}</p></div>
                           )}
