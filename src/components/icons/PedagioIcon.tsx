@@ -3,7 +3,7 @@ interface IconProps {
   strokeWidth?: number | string;
 }
 
-export function PedagioIcon({ className, strokeWidth = 1.6 }: IconProps) {
+export function PedagioIcon({ className, strokeWidth = 1.8 }: IconProps) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -16,23 +16,23 @@ export function PedagioIcon({ className, strokeWidth = 1.6 }: IconProps) {
       aria-hidden="true"
     >
       {/* Telhado da cabine */}
-      <rect x="1.8" y="2.2" width="9.4" height="2.6" rx="0.7" />
+      <rect x="1.6" y="2.6" width="9.6" height="2.4" rx="0.5" />
       {/* Corpo da cabine */}
-      <rect x="2.9" y="4.8" width="7.2" height="16.2" rx="0.6" />
-      {/* Janela grande com guichê */}
-      <path d="M4.4 6.6h4.2v5.4H4.4z" />
-      <path d="M5.8 12v-1.6a0.9 0.9 0 0 1 1.8 0V12" />
-      {/* Painel inferior com grade */}
-      <rect x="4.4" y="14.2" width="4.2" height="3.4" rx="0.5" />
-      <path d="M5.4 15.4h2.2M5.4 16.5h2.2" />
-      {/* Poste da cancela */}
-      <rect x="10.7" y="14.4" width="2.4" height="6.6" rx="0.6" />
-      <circle cx="11.9" cy="16" r="0.5" fill="currentColor" stroke="none" />
-      {/* Cancela inclinada listrada */}
-      <path d="M12.9 15.1 21.2 3.4a1.1 1.1 0 0 1 1.8 1.3L14.7 16.4z" />
-      <path d="M15.2 12.6 17 13.9M17.2 9.8 19 11.1M19.2 7 21 8.3" />
+      <rect x="2.8" y="5" width="7.2" height="16" rx="0.5" />
+      {/* Guichê */}
+      <path d="M4.3 6.9h4.2v4.9H4.3z" />
+      <path d="M5.7 11.8v-1.4a0.95 0.95 0 0 1 1.9 0v1.4" />
+      {/* Painel inferior */}
+      <rect x="4.3" y="13.9" width="4.2" height="3.4" rx="0.4" />
+      <path d="M5.3 15.1h2.2M5.3 16.2h2.2" />
+      {/* Base da cancela */}
+      <rect x="10.7" y="14.6" width="2.5" height="6.4" rx="0.5" />
+      <circle cx="11.95" cy="16.3" r="0.55" fill="currentColor" stroke="none" />
+      {/* Cancela listrada inclinada */}
+      <path d="M13.1 14.9 20.9 3.6a1.35 1.35 0 0 1 2.2 1.5L15.1 16.3z" />
+      <path d="M14.9 12.9 17.1 14.4M16.7 10.2 18.9 11.8M18.5 7.6 20.7 9.1" />
       {/* Chão */}
-      <path d="M1 21.6h22" />
+      <path d="M0.9 21.4h22.2" />
     </svg>
   );
 }
