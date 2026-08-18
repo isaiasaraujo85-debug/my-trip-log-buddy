@@ -72,7 +72,7 @@ export function FinanceiroTab() {
   const saldoFiltrado = entradas - saidas;
 
   const handleGeneratePdf = () => {
-    generateFinanceiroPdf(filteredMovimentos, dataInicio, dataFim, entradas, saidas, saldoFiltrado, empresaConfig, funcionario?.nome, funcionario?.matricula);
+    generateFinanceiroPdf(filteredMovimentos, dataInicio, dataFim, entradas, saidas, saldoFiltrado, empresaConfig, funcionario?.nome, funcionario?.matricula, funcionario?.funcao);
   };
 
   return (
@@ -169,6 +169,7 @@ export function FinanceiroTab() {
               empresaConfig={empresaConfig}
               funcionarioNome={funcionario?.nome}
               funcionarioMatricula={funcionario?.matricula}
+              funcionarioFuncao={funcionario?.funcao}
             />
           </ReportExportButton>
 

@@ -7,6 +7,7 @@ import { parseLocalDate } from "@/utils/dateUtils";
 import { downloadBase64 } from "@/utils/downloadHelper";
 import { tipoTransporteLabels } from "@/components/TransporteSelect";
 import { logoPaulistaoBase64 } from "@/assets/logoPaulistaoBase64";
+import { getFuncionarioFuncao } from "@/utils/funcionarioUtils";
 
 function savePdf(doc: jsPDF, filename: string) {
   // Gera o PDF como data URL base64 e usa o helper compatível com WebView.
@@ -180,8 +181,11 @@ export const generateKmPdf = (
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
+    doc.setFont("helvetica", "bold");
     doc.text(`FUNCIONÁRIO: ${firstRecord.funcionarioNome}`, 20, 82);
-    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 88);
+    const funcao = getFuncionarioFuncao(firstRecord.funcionarioId);
+    doc.text(`FUNÇÃO: ${funcao.toUpperCase()}`, 20, 88);
+    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 94);
   }
   
   const tableData = records.map(r => [
@@ -196,7 +200,7 @@ export const generateKmPdf = (
   ]);
   
   autoTable(doc, {
-    startY: 95,
+    startY: 101,
     head: [["DATA", "VEÍCULO", "PLACA", "KM INICIAL", "KM FINAL", "PERCORRIDO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
@@ -250,8 +254,11 @@ export const generatePedagioPdf = (
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
+    doc.setFont("helvetica", "bold");
     doc.text(`FUNCIONÁRIO: ${firstRecord.funcionarioNome}`, 20, 82);
-    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 88);
+    const funcao = getFuncionarioFuncao(firstRecord.funcionarioId);
+    doc.text(`FUNÇÃO: ${funcao.toUpperCase()}`, 20, 88);
+    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 94);
   }
   
   const tableData = records.map(r => [
@@ -264,7 +271,7 @@ export const generatePedagioPdf = (
   ]);
   
   autoTable(doc, {
-    startY: 95,
+    startY: 101,
     head: [["DATA", "VEÍCULO", "PLACA", "DESLOCAMENTO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
@@ -317,8 +324,11 @@ export const generateRefeicaoPdf = (
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
+    doc.setFont("helvetica", "bold");
     doc.text(`FUNCIONÁRIO: ${firstRecord.funcionarioNome}`, 20, 82);
-    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 88);
+    const funcao = getFuncionarioFuncao(firstRecord.funcionarioId);
+    doc.text(`FUNÇÃO: ${funcao.toUpperCase()}`, 20, 88);
+    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 94);
   }
   
   const tableData = records.map(r => [
@@ -329,7 +339,7 @@ export const generateRefeicaoPdf = (
   ]);
   
   autoTable(doc, {
-    startY: 95,
+    startY: 101,
     head: [["DATA", "REFEIÇÃO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
@@ -382,8 +392,11 @@ export const generateTransportePdf = (
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
+    doc.setFont("helvetica", "bold");
     doc.text(`FUNCIONÁRIO: ${firstRecord.funcionarioNome}`, 20, 82);
-    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 88);
+    const funcao = getFuncionarioFuncao(firstRecord.funcionarioId);
+    doc.text(`FUNÇÃO: ${funcao.toUpperCase()}`, 20, 88);
+    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 94);
   }
 
   const tableData = records.map(r => [
@@ -395,7 +408,7 @@ export const generateTransportePdf = (
   ]);
 
   autoTable(doc, {
-    startY: 95,
+    startY: 101,
     head: [["DATA", "TRANSPORTE", "DESLOCAMENTO", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
@@ -447,8 +460,11 @@ export const generateHospedagemPdf = (
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
+    doc.setFont("helvetica", "bold");
     doc.text(`FUNCIONÁRIO: ${firstRecord.funcionarioNome}`, 20, 82);
-    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 88);
+    const funcao = getFuncionarioFuncao(firstRecord.funcionarioId);
+    doc.text(`FUNÇÃO: ${funcao.toUpperCase()}`, 20, 88);
+    doc.text(`MATRÍCULA: ${firstRecord.funcionarioMatricula}`, 20, 94);
   }
 
   const tableData = records.map(r => [
@@ -459,7 +475,7 @@ export const generateHospedagemPdf = (
   ]);
 
   autoTable(doc, {
-    startY: 95,
+    startY: 101,
     head: [["DATA", "HOSPEDAGEM", "VALOR", "OBSERVAÇÃO"]],
     body: tableData,
     theme: "striped",
@@ -504,7 +520,8 @@ export const generateFinanceiroPdf = (
   saldo?: number,
   empresaConfig?: EmpresaConfig,
   funcionarioNome?: string,
-  funcionarioMatricula?: string
+  funcionarioMatricula?: string,
+  funcionarioFuncao?: string
 ) => {
   const doc = new jsPDF("landscape");
 
@@ -515,8 +532,11 @@ export const generateFinanceiroPdf = (
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
     doc.text(`FUNCIONÁRIO: ${funcionarioNome.toUpperCase()}`, 20, 78);
+    if (funcionarioFuncao) {
+      doc.text(`FUNÇÃO: ${funcionarioFuncao.toUpperCase()}`, 20, 83);
+    }
     if (funcionarioMatricula) {
-      doc.text(`MATRÍCULA: ${funcionarioMatricula.toUpperCase()}`, 20, 83);
+      doc.text(`MATRÍCULA: ${funcionarioMatricula.toUpperCase()}`, 20, 88);
     }
   }
 

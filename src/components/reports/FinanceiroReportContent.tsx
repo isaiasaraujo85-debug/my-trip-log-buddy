@@ -15,6 +15,7 @@ interface FinanceiroReportContentProps {
   empresaConfig: EmpresaConfig;
   funcionarioNome?: string;
   funcionarioMatricula?: string;
+  funcionarioFuncao?: string;
 }
 
 const formatCurrency = (value: number) =>
@@ -39,6 +40,7 @@ export function FinanceiroReportContent({
   empresaConfig,
   funcionarioNome,
   funcionarioMatricula,
+  funcionarioFuncao,
 }: FinanceiroReportContentProps) {
   return (
     <div>
@@ -55,9 +57,12 @@ export function FinanceiroReportContent({
 
         {funcionarioNome && (
           <>
-            <p className="text-sm text-gray-600 mb-1">FUNCIONÁRIO: {funcionarioNome.toUpperCase()}</p>
+            <p className="text-sm font-bold mb-1">FUNCIONÁRIO: {funcionarioNome.toUpperCase()}</p>
+            {funcionarioFuncao && (
+              <p className="text-sm font-bold mb-1">FUNÇÃO: {funcionarioFuncao.toUpperCase()}</p>
+            )}
             {funcionarioMatricula && (
-              <p className="text-sm text-gray-600 mb-1">MATRÍCULA: {funcionarioMatricula.toUpperCase()}</p>
+              <p className="text-sm font-bold mb-1">MATRÍCULA: {funcionarioMatricula.toUpperCase()}</p>
             )}
           </>
         )}
