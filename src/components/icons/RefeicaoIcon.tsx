@@ -11,15 +11,17 @@ export function RefeicaoIcon({ className }: IconProps) {
       className={className}
       aria-hidden="true"
     >
-      {/* Faca: lâmina + cabo com interrupção */}
-      <path d="M6.1 1.6c1.9 3 2.5 6 1.9 9.1H4.2C3.6 7.6 4.2 4.6 6.1 1.6Z" />
-      <path d="M4.4 12.2h3.4v2.1H4.4z" />
-      <path d="M4.4 15.8h3.4v5.1a1.7 1.7 0 0 1-3.4 0z" />
-      {/* Garfo: 4 dentes */}
-      <path d="M11.6 1.6h1.3v6.5h-1.3zM14 1.6h1.3v6.5H14zM16.4 1.6h1.3v6.5h-1.3zM18.8 1.6h1.3v6.5h-1.3z" />
-      {/* Corpo do garfo com interrupção no cabo */}
-      <path d="M11 8.6h9.7c0 2.7-1.5 4.4-3.2 4.8v1.2h-3.3v-1.2C12.5 13 11 11.3 11 8.6Z" />
-      <path d="M14.2 15.8h3.3v5.1a1.65 1.65 0 0 1-3.3 0z" />
+      {/* Faca cruzada (inclinada para a esquerda) */}
+      <g transform="rotate(-40 12 12)">
+        <path d="M11.1 1.9c1.7 2.6 2.3 5.3 1.8 8.1h-3.3c-.5-2.8.1-5.5 1.5-8.1Z" />
+        <path d="M9.9 11.2h2.8l-.4 9.4a1.05 1.05 0 0 1-2.1 0z" />
+      </g>
+      {/* Garfo cruzado (inclinado para a direita) */}
+      <g transform="rotate(40 12 12)">
+        <path d="M9.6 2h1.1v5.4H9.6zM11.5 2h1.1v5.4h-1.1zM13.4 2h1.1v5.4h-1.1z" />
+        <path d="M9.1 7.9h6v.4c0 1.8-1 3-2.2 3.4v1.2h-1.7v-1.2c-1.2-.4-2.1-1.6-2.1-3.4z" />
+        <path d="M11.2 13.6h1.8l-.3 7a.6.6 0 0 1-1.2 0z" />
+      </g>
     </svg>
   );
 }
