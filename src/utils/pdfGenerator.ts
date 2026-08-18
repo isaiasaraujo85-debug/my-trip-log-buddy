@@ -551,7 +551,7 @@ export const generateFinanceiroPdf = (
   ]);
 
   autoTable(doc, {
-    startY: funcionarioMatricula ? 90 : 85,
+    startY: funcionarioMatricula ? 95 : 85,
     head: [["DATA", "TIPO", "CATEGORIA", "ENTRADA", "FORMA DE ENTRADA", "SAÍDA", "DESCRIÇÃO"]],
     body: tableData,
     theme: "striped",

@@ -51,7 +51,7 @@ const Index = () => {
               <button
                 key={key}
                 onClick={() => setActive(key)}
-                className="flex flex-col items-center justify-center gap-2 aspect-square rounded-xl border bg-card hover:bg-accent hover:text-accent-foreground transition-colors shadow-sm p-4"
+                className="flex flex-col items-center justify-center gap-2 aspect-square rounded-xl border bg-card hover:bg-accent hover:text-accent-foreground active:bg-accent focus-visible:bg-accent transition-colors shadow-sm p-4"
               >
                 <Icon className="h-16 w-16 sm:h-20 sm:w-20 text-primary" strokeWidth={1.5} />
                 <span className="text-sm sm:text-base font-bold uppercase text-center">{label}</span>
