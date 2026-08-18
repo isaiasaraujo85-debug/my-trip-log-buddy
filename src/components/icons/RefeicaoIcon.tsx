@@ -11,15 +11,17 @@ export function RefeicaoIcon({ className }: IconProps) {
       className={className}
       aria-hidden="true"
     >
-      {/* Faca inclinada (da esquerda-baixo para direita-topo) */}
-      <path d="M19.9 2.6c.5.5.5 1.3 0 1.8l-6.6 6.6-2-1.8 6.8-6.7c.5-.5 1.3-.5 1.8.1Z" />
-      <path d="M11.6 10.4 3.6 18.4a1.5 1.5 0 0 0 2.1 2.1l7.9-8.1z" />
-      {/* Garfo inclinado (da direita-topo para esquerda-baixo) */}
-      <path d="M17.4 3.1a.7.7 0 0 1 1 1l-2.5 2.6-.9-.9zM19.6 5.3a.7.7 0 0 1 1 1L18.1 9l-.9-1zM18.6 4.1l1.1 1.1-2.6 2.6-1-1z" />
-      <path d="M15.6 7.5c-1 1-1.2 2.4-.6 3.5l-1 1 2.4 2.4 1-1c1.1.5 2.5.3 3.5-.7l-5.3-5.2Z" />
-      <path d="M13.9 12.4 5.9 20.4a1.5 1.5 0 0 1-2.1-2.1l8-8z" opacity="0" />
-      <path d="M14.7 12.7 6.6 20.9a1.5 1.5 0 0 0 2.2 2.1l-.1-.1 8-8.1z" opacity="0" />
-      <path d="M15.5 13.5 8.1 20.9a1.5 1.5 0 0 1-2.1-2.1l7.4-7.4z" />
+      {/* Faca cruzada (inclinada para a esquerda) */}
+      <g transform="rotate(-40 12 12)">
+        <path d="M11.1 1.9c1.7 2.6 2.3 5.3 1.8 8.1h-3.3c-.5-2.8.1-5.5 1.5-8.1Z" />
+        <path d="M9.9 11.2h2.8l-.4 9.4a1.05 1.05 0 0 1-2.1 0z" />
+      </g>
+      {/* Garfo cruzado (inclinado para a direita) */}
+      <g transform="rotate(40 12 12)">
+        <path d="M9.6 2h1.1v5.4H9.6zM11.5 2h1.1v5.4h-1.1zM13.4 2h1.1v5.4h-1.1z" />
+        <path d="M9.1 7.9h6v.4c0 1.8-1 3-2.2 3.4v1.2h-1.7v-1.2c-1.2-.4-2.1-1.6-2.1-3.4z" />
+        <path d="M11.2 13.6h1.8l-.3 7a.6.6 0 0 1-1.2 0z" />
+      </g>
     </svg>
   );
 }
